@@ -30,14 +30,21 @@ toSwift = evalState $ translate
   toS v = toSwift (TranslatorState v "")
   translate = do
     j ← get ≫= return ∘ json
-    case j of
+    return $ case j of
       JSObject jso → let os ∷ [Pair] = fromJSObject jso
                          po (k, v) = k ⧺ ": {" ⧺ toS v ⧺ "}, "
-                     in return $ concatMap po os
+                     in concatMap po os
 
-      JSArray a → let l = intercalate ", " (map toS a)
-                  in return ("[" ⧺ l ⧺ "]")
-      b → return (show b)
+      JSArray a    → let l = intercalate ", " (map toS a)
+                     in "[" ⧺ l ⧺ "]"
+      p            → pv p
+  pv ∷ JSValue -> String
+  pv (JSBool True)    = "true"
+  pv (JSBool False)   = "false"
+  pv (JSNull)         = "null"
+  pv (JSString s)     = fromJSString s
+  pv (JSRational f r) = show $ fromRational r
+  pv u                = show u
 
 main = interact $
           toSwift
