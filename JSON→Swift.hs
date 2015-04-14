@@ -14,21 +14,20 @@ import Control.Monad.Unicode
 import Control.Arrow.Unicode
 import Data.List (intercalate)
 
-jsonToSwiftURL = "https://gist.github.com/cfr/a7ce3793cdf8f17c6412#file-json-swift-hs"
+jsonToSwiftURL = "https://gist.github.com/cfr/a7ce3793cdf8f17c6412"
 
-data TranslatorState = TranslatorState
-    { json  ∷ JSValue
-    , swift ∷ String }
+data TState = TState { json  ∷ JSValue
+                     , swift ∷ String }
 
 type Pair = (String, JSValue)
 
-toSwift ∷ TranslatorState → String
+toSwift ∷ TState → String
 toSwift = evalState $ translate where
 
   toS ∷ JSValue → String
-  toS v = toSwift (TranslatorState v "")
+  toS v = toSwift (TState v "")
 
-  translate ∷ State TranslatorState String
+  translate ∷ State TState String
   translate = do
     j ← get ≫= return ∘ json
     return $ case j of
@@ -51,7 +50,7 @@ toSwift = evalState $ translate where
 
 main = interact $
           toSwift
-        ∘ flip TranslatorState ("// Generated with " ⧺ jsonToSwiftURL ⧺ "\n")
+        ∘ flip TState ("// Generated with " ⧺ jsonToSwiftURL ⧺ "\n")
         ∘ decode
 
 decode ∷ String → JSValue
