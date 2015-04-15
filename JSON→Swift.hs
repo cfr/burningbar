@@ -12,6 +12,7 @@ import Text.JSON hiding (decode)
 import Prelude.Unicode
 import Control.Monad.Unicode
 import Control.Arrow.Unicode
+import Control.Applicative.Unicode
 import Data.List (intercalate)
 
 jsonToSwiftURL = "https://gist.github.com/cfr/a7ce3793cdf8f17c6412"
@@ -21,21 +22,17 @@ data TState = TState { json  ∷ JSValue
 
 type Pair = (String, JSValue)
 
-toSwift ∷ TState → String
-toSwift = evalState $ translate where
-
-  toS ∷ JSValue → String
-  toS v = toSwift (TState v "")
-
+toSwift ∷ JSValue → String
+toSwift = evalState translate . flip TState [] where
   translate ∷ State TState String
   translate = do
     j ← get ≫= return ∘ json
     return $ case j of
       JSObject jso → let os ∷ [Pair] = fromJSObject jso
-                         po (k, v) = k ⧺ ": {" ⧺ toS v ⧺ "}, "
+                         po (k, v) = k ⧺ ": {" ⧺ toSwift v ⧺ "}, "
                      in concatMap po os
 
-      JSArray a    → let l = intercalate ", " (map toS a)
+      JSArray a    → let l = intercalate ", " (map toSwift a)
                      in "[" ⧺ l ⧺ "]"
       p            → pv p
 
@@ -48,10 +45,8 @@ toSwift = evalState $ translate where
   pv u                = show u
 
 
-main = interact $
-          toSwift
-        ∘ flip TState ("// Generated with " ⧺ jsonToSwiftURL ⧺ "\n")
-        ∘ decode
+main = putStrLn ("// Generated with " ⧺ jsonToSwiftURL) >>
+       interact (toSwift ∘ decode) >> putStrLn []
 
 decode ∷ String → JSValue
 decode = either error id ∘ resultToEither ∘ Text.JSON.decode
