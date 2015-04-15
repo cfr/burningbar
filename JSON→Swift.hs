@@ -7,23 +7,23 @@
 module Main where
 
 import Control.Monad.State
+import Data.List (intercalate)
 import qualified Text.JSON (decode)
 import Text.JSON hiding (decode)
 import Prelude.Unicode
 import Control.Monad.Unicode
 import Control.Arrow.Unicode
 import Control.Applicative.Unicode
-import Data.List (intercalate)
 
 jsonToSwiftURL = "https://gist.github.com/cfr/a7ce3793cdf8f17c6412"
 
-data TState = TState { json  ∷ JSValue
-                     , swift ∷ String }
+data TState = TState { swift ∷ String
+                     , json  ∷ JSValue}
 
 type Pair = (String, JSValue)
 
 toSwift ∷ JSValue → String
-toSwift = evalState translate . flip TState [] where
+toSwift = evalState translate ∘ TState [] where
   translate ∷ State TState String
   translate = do
     j ← get ≫= return ∘ json
@@ -46,7 +46,7 @@ toSwift = evalState translate . flip TState [] where
 
 
 main = putStrLn ("// Generated with " ⧺ jsonToSwiftURL) >>
-       interact (toSwift ∘ decode) >> putStrLn []
+       interact (toSwift ∘ decode) >> putStr "\n"
 
 decode ∷ String → JSValue
 decode = either error id ∘ resultToEither ∘ Text.JSON.decode
