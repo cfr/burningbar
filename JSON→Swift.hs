@@ -54,7 +54,7 @@ toSwift = evalState translate ∘ stateWithJSON where
 
 
 -- NOTE: it seems it is not possible to extend [String: Any] in Swift
-alias name = "typealias name = NSDictionary\n"
+alias name = "typealias " ⧺ name ⧺ " = NSDictionary\n"
 extension vars = "extension NSDictionary {\n  "
                ⧺ intercalate "\n  " vars ⧺ "\n}\n"
 
