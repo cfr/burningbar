@@ -8,6 +8,13 @@
 
 module Main where
 
+
+
+
+
+
+
+import Control.Monad.Reader
 import Control.Monad.State
 import Data.List (intercalate)
 import Data.Char (toUpper)
@@ -20,13 +27,41 @@ import Control.Applicative.Unicode
 
 jsonToSwiftURL = "http://j.mp/JSON-Swift_hs"
 
-data TranslatorState = TState { extensions ∷ String
-                              , keyname ∷ Maybe String
-                              , json ∷ JSValue }
-stateWithJSON = TState [] Nothing
+type Name = String
+type Typename = String
+data Type = Array Typename | Dictionary Typename Typename
+          | Optional Typename | Typename
+data Variable = Variable Name Type
+data Function = Function Name [Variable] Type
+data Record = Record Name [Variable]
 
-type Pair = (String, JSValue)
+type Def a = a → String
+data Language = Language
+    { var  ∷ Def Variable
+    , fun  ∷ Def Function
+    , typ  ∷ Def Type
+    , rec  ∷ Def Record
+    , etc  ∷ String -- FIXME: all this defs should work in Reader Lang?
+    }
 
+type Spec = ([Record], [Function])
+
+translator ∷ Language → Spec → String
+translator (Language var fun typ rec etc) spec = etc ⧺ tr spec where
+  tr (recs, funs) = concatMap rec recs ⧺ concatMap fun funs
+
+type Pair = (String, String) -- element of json record
+toSpec ∷ [[Pair]] → Spec
+toSpec = (map parseRec ⁂ map parseFun) . span isRec where
+  isRec ∷ [Pair] → Bool
+  isRec = undefined
+  parseRec ∷ [Pair] → Record
+  parseRec = undefined
+  parseFun = undefined
+
+toSwift = undefined
+
+{-
 toSwift ∷ JSValue → String
 toSwift = evalState translate ∘ stateWithJSON where
   translate ∷ State TranslatorState String
@@ -38,10 +73,6 @@ toSwift = evalState translate ∘ stateWithJSON where
                         in concatMap po os
       JSArray (o:os) → let l = intercalate ", " (map toSwift (o:os))
                        in "[" ⧺ l ⧺ "]"
---                      -- takes first object only
---                      let (sw, st) = runState translate $ stateWithJSON a
---                      in do modify (\s → s { extesions = st ⧺ extensions s})
---                            return 
       p              → pv p
 
   pv ∷ JSValue → String
@@ -51,11 +82,10 @@ toSwift = evalState translate ∘ stateWithJSON where
   pv (JSRational t _) = "Double"
   pv u                = "N"
 
-  capitalize (h:hs) = toUpper h : hs
-
-
+  capitalize (h:hs) = toUpper h : hs-}
+-- TODO: swiftTranslator = read "swift.jsto"
 -- NOTE: it seems it is not possible to extend [String: Any] in Swift
-alias name = "typealias " ⧺ name ⧺ " = NSDictionary\n"
+{-alias name = "typealias " ⧺ name ⧺ " = NSDictionary\n"
 extension vars = "extension NSDictionary {\n  "
                ⧺ intercalate "\n  " vars ⧺ "\n}\n"
 
@@ -65,6 +95,7 @@ var name typeName isSafe = "var " ⧺ name ⧺ typed ⧺ "{ get { "
                    where typed = ": " ⧺ typeName
                                ⧺ if isSafe then "? " else " "
                          as = "as" ⧺ if isSafe then "?" else "!"
+-}
 
 
 main = putStrLn ("// Generated with " ⧺ jsonToSwiftURL) ≫
