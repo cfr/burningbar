@@ -1,9 +1,10 @@
+#!/usr/bin/env runhaskell
 {-# LANGUAGE UnicodeSyntax, ScopedTypeVariables #-}
 -- $ brew install ghc cabal-install
 -- $ cabal install json base-unicode-symbols
 -- $ curl -O https://gist.github.com/cfr/a7ce3793cdf8f17c6412/raw/JSON→Swift.hs
--- $ ghc --make JSON→Swift.hs
--- $ ./JSON→Swift <file.json
+-- $ chmod +x JSON→Swift.hs
+-- $ ./JSON→Swift.hs <file.json
 
 module Main where
 
