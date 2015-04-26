@@ -38,7 +38,8 @@ parseType (stripPrefix "{" → Just type_) = parseDictType type_
 parseType u = Typename u
 parseDictType (stripSuffix "}" → Just type_) = Dictionary (keyType) (valType)
   where (keyType, valType) = join (⁂) parseType (splitAtColon type_)
-        splitAtColon = second (tail ∘ filter (not ∘ isSpace)) ∘ break (≡ ':')
+        splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
+        notSpace = not ∘ isSpace
 
 parseFun = const $ Function "tbd" "user.tbd" [] (Typename "Void")
 

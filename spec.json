@@ -4,8 +4,14 @@
   , "_inherits" : "Any"
   , "age" : "Int"
   , "photoURLs" : "[String]?"
+  , "creds" : "Credentials?"
   , "services" : "{String : [String]}"
   , "name" : "String?"
+  }
+,
+  { "_name" : "Credentials"
+  , "login" : "String"
+  , "pass" : "String"
   }
 ,
   { "-pretty" : "register"

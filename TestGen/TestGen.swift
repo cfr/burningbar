@@ -10,21 +10,32 @@ public class RPC {
 }
 
 public struct UserInfo {
-    public init(json: JSON) {
+    public init(_ json: JSON) {
         age = json["age"] as! Int
+        creds = json["creds"] == nil ? nil : Credentials(json["creds"] as! JSON)
         name = json["name"] as? String
         photoURLs = json["photoURLs"] as? [String]
-        services = json["services"] as! [String  : [String]]
+        services = json["services"] as! [String : [String]]
     }
     public let age: Int
+    public let creds: Credentials?
     public let name: String?
     public let photoURLs: [String]?
-    public let services: [String  : [String]]
+    public let services: [String : [String]]
+}
+
+public struct Credentials {
+    public init(_ json: JSON) {
+        login = json["login"] as! String
+        pass = json["pass"] as! String
+    }
+    public let login: String
+    public let pass: String
 }
 
 public extension RPC {
   public class func tbd() -> Void {
-    call([:], "user.tbd")
+      call([:], "user.tbd")
   }
 }
 
