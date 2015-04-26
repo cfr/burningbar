@@ -8,6 +8,7 @@ Install and run:
     $ cd HsRPCGen
     $ ./HsRPCGen.hs <spec.json
 
-See swift example in Xcode workspace: `open TestGen.xcworkspace`.
+See Swift example in Xcode workspace: `open TestGen.xcworkspace`.
+
 Build TestGen framework to run generator and compile module for the playground.
 

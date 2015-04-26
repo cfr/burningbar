@@ -4,4 +4,7 @@
    <FileRef
       location = "container:TestGen/TestGen.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:TestGen/TestGen.playground">
+   </FileRef>
 </Workspace>

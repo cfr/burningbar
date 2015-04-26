@@ -16,7 +16,6 @@
 		E63C00441AED576C00F21E64 /* TestGen.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TestGen.plist; sourceTree = "<group>"; };
 		E63C00451AED576C00F21E64 /* TestGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestGen.h; sourceTree = "<group>"; };
 		E63C005D1AED57C100F21E64 /* TestGen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestGen.swift; sourceTree = SOURCE_ROOT; };
-		E63C005F1AED58A600F21E64 /* TestGen.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = TestGen.playground; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,7 +32,6 @@
 		E63C00361AED576C00F21E64 = {
 			isa = PBXGroup;
 			children = (
-				E63C005F1AED58A600F21E64 /* TestGen.playground */,
 				E63C00421AED576C00F21E64 /* TestGen */,
 				E63C00411AED576C00F21E64 /* Products */,
 			);
