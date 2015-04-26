@@ -2,8 +2,8 @@
 {-# LANGUAGE ViewPatterns, UnicodeSyntax, ScopedTypeVariables #-}
 -- $ brew install ghc cabal-install
 -- $ cabal install json base-unicode-symbols
--- $ curl -O https://gist.github.com/cfr/a7ce3793cdf8f17c6412/raw/JSON→Swift.hs
--- $ chmod +x JSON→Swift.hs
+-- $ git clone https://gist.github.com/cfr/a7ce3793cdf8f17c6412
+-- $ cd a7ce3793cdf8f17c6412
 -- $ ./JSON→Swift.hs <spec.json
 
 module Main where
