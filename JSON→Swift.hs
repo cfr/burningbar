@@ -8,16 +8,10 @@
 
 module Main where
 
-
-
-
-
-
-
-import Control.Monad.Reader
-import Control.Monad.State
 import Data.List (intercalate)
 import Data.Char (toUpper)
+import Data.Map (Map)
+import qualified Data.Map as Map
 import qualified Text.JSON (decode)
 import Text.JSON hiding (decode)
 import Prelude.Unicode
@@ -41,7 +35,7 @@ data Language = Language
     , fun  ∷ Def Function
     , typ  ∷ Def Type
     , rec  ∷ Def Record
-    , etc  ∷ String -- FIXME: all this defs should work in Reader Lang?
+    , etc  ∷ String
     }
 
 type Spec = ([Record], [Function])
@@ -50,57 +44,28 @@ translator ∷ Language → Spec → String
 translator (Language var fun typ rec etc) spec = etc ⧺ tr spec where
   tr (recs, funs) = concatMap rec recs ⧺ concatMap fun funs
 
-type Pair = (String, String) -- element of json record
-toSpec ∷ [[Pair]] → Spec
-toSpec = (map parseRec ⁂ map parseFun) . span isRec where
-  isRec ∷ [Pair] → Bool
+type SpecItem = Map String String
+toSpec ∷ [SpecItem] → Spec
+toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where
+  isRec ∷ SpecItem → Bool
   isRec = undefined
-  parseRec ∷ [Pair] → Record
+  parseRec ∷ SpecItem → Record
   parseRec = undefined
   parseFun = undefined
 
-toSwift = undefined
 
-{-
-toSwift ∷ JSValue → String
-toSwift = evalState translate ∘ stateWithJSON where
-  translate ∷ State TranslatorState String
-  translate = do
-    j ← gets json
-    return $ case j of
-      JSObject jso   →  let os ∷ [Pair] = fromJSObject jso
-                            po (k, v) = k ⧺ ": {" ⧺ toSwift v ⧺ "}, "
-                        in concatMap po os
-      JSArray (o:os) → let l = intercalate ", " (map toSwift (o:os))
-                       in "[" ⧺ l ⧺ "]"
-      p              → pv p
+swift ∷ Language
+swift = undefined
 
-  pv ∷ JSValue → String
-  pv (JSBool _)       = "Bool"
-  pv (JSNull)         = "T?"
-  pv (JSString s)     = "String"
-  pv (JSRational t _) = "Double"
-  pv u                = "N"
-
-  capitalize (h:hs) = toUpper h : hs-}
--- TODO: swiftTranslator = read "swift.jsto"
--- NOTE: it seems it is not possible to extend [String: Any] in Swift
-{-alias name = "typealias " ⧺ name ⧺ " = NSDictionary\n"
-extension vars = "extension NSDictionary {\n  "
-               ⧺ intercalate "\n  " vars ⧺ "\n}\n"
-
-var name typeName isSafe = "var " ⧺ name ⧺ typed ⧺ "{ get { "
-                         ⧺ "return self[\"" ⧺ name ⧺"\"] "
-                         ⧺ as ⧺ " " ⧺ typeName ⧺ " } }"
-                   where typed = ": " ⧺ typeName
-                               ⧺ if isSafe then "? " else " "
-                         as = "as" ⧺ if isSafe then "?" else "!"
--}
-
+translate ∷ JSValue → String
+translate = translator swift ∘ toSpec ∘ processJSON
 
 main = putStrLn ("// Generated with " ⧺ jsonToSwiftURL) ≫
-       interact (toSwift ∘ decode) ≫ putStr "\n"
+       interact (translate ∘ decode) ≫ putStr "\n"
 
 decode ∷ String → JSValue
 decode = either error id ∘ resultToEither ∘ Text.JSON.decode
+
+processJSON ∷ JSValue → [SpecItem]
+processJSON = undefined
 
