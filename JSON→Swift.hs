@@ -43,9 +43,19 @@ data Language = Language
     }
 
 swift ∷ Language
-swift = Language tbd tbd toSwiftType tbd etcSwift where
+swift = Language tbd tbd fromType fromRecord etcSwift where
  tbd = const "TBD"
- toSwiftType = undefined
+ fromRecord (Record name vars) = "struct " ⧺ name ⧺ " {\n" ⧺ concat decls ⧺ "}\n"
+  where decls = initDecl:(map varDecl vars)
+        initDecl = "init(json: JSON) {\n" ⧺ concatMap initVar vars ⧺ "}\n"
+        initVar (Variable n (Optional t)) = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
+        initVar (Variable n t) = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
+        initWithElem n = n ⧺ " = json[" ⧺ n ⧺ "] as"
+        varDecl (Variable n t) = "let " ⧺ n ⧺ ": " ⧺ fromType t ⧺ "\n"
+ fromType (Array t) = "[" ⧺ fromType t ⧺ "]"
+ fromType (Optional t) = fromType t ⧺ "?"
+ fromType (Dictionary tk tv) = "{ " ⧺ fromType tk ⧺ " : " ⧺ fromType tv ⧺ " }"
+ fromType (Typename typename) = typename
  etcSwift = "typealias JSON = Dictionary<String, String>\n"
 
 type Spec = ([Record], [Function])
