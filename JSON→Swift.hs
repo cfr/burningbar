@@ -10,8 +10,9 @@ module Main where
 
 import Data.List (intercalate)
 import Data.Char (toUpper)
-import Data.Map (Map)
-import qualified Data.Map as Map
+import Data.Map (Map, mapKeys, member, fromList)
+import Control.Arrow (second)
+import qualified Data.Map.Strict as Map
 import qualified Text.JSON (decode)
 import Text.JSON hiding (decode)
 import Prelude.Unicode
@@ -41,15 +42,14 @@ data Language = Language
 type Spec = ([Record], [Function])
 
 translator ∷ Language → Spec → String
-translator (Language var fun typ rec etc) spec = etc ⧺ tr spec where
+translator (Language var fun typ rec etc) = (etc ⧺) ∘ tr where
   tr (recs, funs) = concatMap rec recs ⧺ concatMap fun funs
 
-type SpecItem = Map String String
-toSpec ∷ [SpecItem] → Spec
+
+toSpec ∷ [Map String String] → Spec
 toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where
-  isRec ∷ SpecItem → Bool
-  isRec = undefined
-  parseRec ∷ SpecItem → Record
+  isRec = member '_' . mapKeys head
+  parseRec ∷ Map String String → Record
   parseRec = undefined
   parseFun = undefined
 
@@ -66,6 +66,12 @@ main = putStrLn ("// Generated with " ⧺ jsonToSwiftURL) ≫
 decode ∷ String → JSValue
 decode = either error id ∘ resultToEither ∘ Text.JSON.decode
 
-processJSON ∷ JSValue → [SpecItem]
-processJSON = undefined
+processJSON ∷ JSValue → [Map String String]
+processJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
+  unpack (k, (JSString s)) = (k, fromJSString s)
+  unpack _ = errType
+  fromJSObj (JSObject obj) = fromJSObject obj
+  fromJSObj _ = errType
+  errType = error "Spec item should be map of type String: String"
+processJSON _ = error $ "Root object should be array, see " ⧺ jsonToSwiftURL
 
