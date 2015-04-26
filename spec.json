@@ -1,0 +1,17 @@
+[
+  { "_name" : "UserInfo"
+  , "_extends" : "Equatable, Hashable"
+  , "_inherits" : "Any"
+  , "age" : "Int"
+  , "photoURLs" : "[String]?"
+  , "services" : "{String : [String]}"
+  , "name" : "String?"
+  }
+,
+  { "-pretty" : "register"
+  , "-method" : "user.register"
+  , "username" : "String"
+  , "password" : "String"
+  , "-returns" : "UserInfo"
+  }
+]
