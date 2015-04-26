@@ -40,7 +40,7 @@ parseDictType (stripSuffix "}" → Just type_) = Dictionary (keyType) (valType)
   where (keyType, valType) = join (⁂) parseType (splitAtColon type_)
         splitAtColon = second (tail ∘ filter (not ∘ isSpace)) ∘ break (≡ ':')
 
-parseFun = const $ Function "TBD" [] (Typename "TBD")
+parseFun = const $ Function "tbd" "user.tbd" [] (Typename "Void")
 
 stripSuffix = (fmap unpack ∘) ∘ (∘ pack) ∘ Data.Text.stripSuffix ∘ pack
 
