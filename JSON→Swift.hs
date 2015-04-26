@@ -1,5 +1,5 @@
 #!/usr/bin/env runhaskell
-{-# LANGUAGE UnicodeSyntax, ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns, UnicodeSyntax, ScopedTypeVariables #-}
 -- $ brew install ghc cabal-install
 -- $ cabal install json base-unicode-symbols
 -- $ curl -O https://gist.github.com/cfr/a7ce3793cdf8f17c6412/raw/JSON→Swift.hs
@@ -8,11 +8,14 @@
 
 module Main where
 
-import Data.List (intercalate)
-import Data.Char (toUpper)
-import Data.Map (Map, mapKeys, member, fromList)
+import Data.List (intercalate, stripPrefix)
+import Data.Char (toUpper, isSpace)
+import Data.Map (Map, mapKeys, member, fromList, (!), toList)
+import Control.Monad (join)
 import Control.Arrow (second)
 import qualified Data.Map.Strict as Map
+import Data.Text (pack)
+import qualified Data.Text as T (stripSuffix, unpack)
 import qualified Text.JSON (decode)
 import Text.JSON hiding (decode)
 import Prelude.Unicode
@@ -24,11 +27,11 @@ jsonToSwiftURL = "http://j.mp/JSON-Swift_hs"
 
 type Name = String
 type Typename = String
-data Type = Array Typename | Dictionary Typename Typename
-          | Optional Typename | Typename
-data Variable = Variable Name Type
-data Function = Function Name [Variable] Type
-data Record = Record Name [Variable]
+data Type = Array Type | Dictionary Type Type
+          | Optional Type | Typename String deriving Show
+data Variable = Variable Name Type deriving Show
+data Function = Function Name [Variable] Type deriving Show
+data Record = Record Name [Variable] deriving Show
 
 type Def a = a → String
 data Language = Language
@@ -48,11 +51,24 @@ translator (Language var fun typ rec etc) = (etc ⧺) ∘ tr where
 
 toSpec ∷ [Map String String] → Spec
 toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where
-  isRec = member '_' . mapKeys head
-  parseRec ∷ Map String String → Record
-  parseRec = undefined
-  parseFun = undefined
+  isRec = member '_' ∘ mapKeys head
 
+parseRec ∷ Map String String → Record
+parseRec r = Record name (map parseVar $ toList vars) where
+  (underscored, vars) = Map.partitionWithKey (const ∘ (≡ '_') ∘ head) r
+  name = underscored ! "_name"
+
+parseVar = uncurry ((∘ parseType) ∘ Variable)
+
+parseType (stripSuffix "?" → Just type_) = Optional (parseType type_)
+parseType (stripPrefix "[" → Just type_) = Array ((parseType ∘ init) type_) -- TODO: check "]"
+parseType (stripPrefix "{" → Just type_) = parseDictType type_
+parseType u = Typename u
+parseDictType (stripSuffix "}" → Just type_) = Dictionary (keyType) (valType)
+  where (keyType, valType) = join (⁂) parseType (splitAtColon type_)
+        splitAtColon = second (tail ∘ filter (not ∘ isSpace)) ∘ break (≡ ':')
+
+parseFun = const $ Function "TBD" [] (Typename "TBD")
 
 swift ∷ Language
 swift = undefined
@@ -75,3 +91,4 @@ processJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
   errType = error "Spec item should be map of type String: String"
 processJSON _ = error $ "Root object should be array, see " ⧺ jsonToSwiftURL
 
+stripSuffix = (fmap T.unpack ∘) ∘ (∘ pack) ∘ T.stripSuffix ∘ pack
