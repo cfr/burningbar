@@ -11,8 +11,8 @@ module Main where
 import Data.Map (Map, fromList)
 
 import Language
-import Swift
 import Translate
+import Swift
 
 import qualified Text.JSON (decode)
 import Text.JSON hiding (decode)

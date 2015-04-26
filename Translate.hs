@@ -2,7 +2,7 @@
 module Translate (Spec(..), toSpec, translator) where
 
 import Data.List (stripPrefix)
-import Data.Map (Map, partitionWithKey, mapKeys, member, fromList, (!), toList)
+import Data.Map (Map, partitionWithKey, mapKeys, member, (!), toList)
 import Data.Char (isSpace)
 import Control.Monad (join)
 import Control.Arrow (second)
@@ -43,3 +43,4 @@ parseDictType (stripSuffix "}" → Just type_) = Dictionary (keyType) (valType)
 parseFun = const $ Function "TBD" [] (Typename "TBD")
 
 stripSuffix = (fmap unpack ∘) ∘ (∘ pack) ∘ Data.Text.stripSuffix ∘ pack
+
