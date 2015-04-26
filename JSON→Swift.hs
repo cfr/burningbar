@@ -42,6 +42,12 @@ data Language = Language
     , etc  ∷ String
     }
 
+swift ∷ Language
+swift = Language tbd tbd toSwiftType tbd etcSwift where
+ tbd = const "TBD"
+ toSwiftType = undefined
+ etcSwift = "typealias JSON = Dictionary<String, String>\n"
+
 type Spec = ([Record], [Function])
 
 translator ∷ Language → Spec → String
@@ -69,9 +75,6 @@ parseDictType (stripSuffix "}" → Just type_) = Dictionary (keyType) (valType)
         splitAtColon = second (tail ∘ filter (not ∘ isSpace)) ∘ break (≡ ':')
 
 parseFun = const $ Function "TBD" [] (Typename "TBD")
-
-swift ∷ Language
-swift = undefined
 
 translate ∷ JSValue → String
 translate = translator swift ∘ toSpec ∘ processJSON
