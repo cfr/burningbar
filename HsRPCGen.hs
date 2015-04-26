@@ -1,4 +1,4 @@
-#!/usr/bin/env runhaskell
+#!/usr/bin/env runhaskell -i..
 {-# LANGUAGE UnicodeSyntax #-}
 -- $ brew install ghc cabal-install
 -- $ cabal install json base-unicode-symbols
