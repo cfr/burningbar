@@ -2,9 +2,9 @@
 {-# LANGUAGE ViewPatterns, UnicodeSyntax, ScopedTypeVariables #-}
 -- $ brew install ghc cabal-install
 -- $ cabal install json base-unicode-symbols
--- $ git clone https://gist.github.com/cfr/a7ce3793cdf8f17c6412
--- $ cd a7ce3793cdf8f17c6412
--- $ ./JSON→Swift.hs <spec.json
+-- $ git clone https://github.com/cfr/HsRPCGen.git
+-- $ cd HsRPCGen
+-- $ ./HsRPCGen.hs <spec.json
 
 module Main where
 
@@ -23,7 +23,7 @@ import Control.Monad.Unicode
 import Control.Arrow.Unicode
 import Control.Applicative.Unicode
 
-jsonToSwiftURL = "http://j.mp/JSON-Swift_hs"
+hsRPCGenURL = "http://j.mp/HsRPCGen"
 
 type Name = String
 type Typename = String
@@ -95,7 +95,7 @@ parseFun = const $ Function "TBD" [] (Typename "TBD")
 translate ∷ JSValue → String
 translate = translator swift ∘ toSpec ∘ processJSON
 
-main = putStrLn ("// Generated with " ⧺ jsonToSwiftURL) ≫
+main = putStrLn ("// Generated with " ⧺ hsRPCGenURL) ≫
        interact (translate ∘ decode) ≫ putStr "\n"
 
 decode ∷ String → JSValue
@@ -108,6 +108,6 @@ processJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
   fromJSObj (JSObject obj) = fromJSObject obj
   fromJSObj _ = errType
   errType = error "Spec item should be map of type String: String"
-processJSON _ = error $ "Root object should be array, see " ⧺ jsonToSwiftURL
+processJSON _ = error $ "Root object should be array, see " ⧺ hsRPCGenURL
 
 stripSuffix = (fmap T.unpack ∘) ∘ (∘ pack) ∘ T.stripSuffix ∘ pack

@@ -1,4 +1,4 @@
-//// http://j.mp/JSON-Swift_hs
+//// http://j.mp/HsRPCGen
 
 import TestGen
 

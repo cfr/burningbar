@@ -1,4 +1,4 @@
-// Generated with http://j.mp/JSON-Swift_hs
+// Generated with http://j.mp/HsRPCGen
 public typealias JSON = Dictionary<String, Any>
 public struct UserInfo {
     public init(json: JSON) {
