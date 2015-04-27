@@ -4,7 +4,7 @@ PM = sudo apt
 endif
 
 test:
-	./rpcgen spec.json
+	./hsrpcgen spec.json
 
 run:
 	open ./TestGen.xcworkspace # TODO: xcbuild

@@ -2,7 +2,7 @@
 -- $ git clone https://github.com/cfr/HsRPCGen.git
 -- $ cd HsRPCGen
 -- $ make deps
--- $ ./rpcgen spec.json
+-- $ ./hsrpcgen spec.json
 
 module Main where
 
