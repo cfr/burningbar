@@ -8,7 +8,7 @@ import Control.Monad.Unicode
 import Data.Bool.Unicode
 
 swift ∷ Language
-swift = Language fromFunc fromRecord etcSwift
+swift = Language fromFunc fromRecord swiftHeader
 
 fromFunc (Function name rpc args t) = "public extension RPC {\n"
                                     ⧺ "  public class func " ⧺ name
@@ -56,14 +56,13 @@ fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk ⧺ " : " ⧺ fromType tv ⧺ "]"
 fromType (Typename typename) = typename
 
-etcSwift = "public typealias JSON = Dictionary<String, AnyObject>\n\n"
-         ⧺ "public class RPC {\n"
-         ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
-         ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
-         ⧺ s 8 ⧺ "return [:]\n"
-         ⧺ s 4 ⧺ "}\n"
-         ⧺ "}\n\n"
+swiftHeader = "public typealias JSON = Dictionary<String, AnyObject>\n\n"
+            ⧺ "public class RPC {\n"
+            ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
+            ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
+            ⧺ s 8 ⧺ "return [:]\n"
+            ⧺ s 4 ⧺ "}\n"
+            ⧺ "}\n\n"
 
-s = concat ∘ flip take spaces
-spaces = repeat " "
+s = concat ∘ flip take (repeat " ")
 

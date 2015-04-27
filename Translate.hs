@@ -21,7 +21,7 @@ import Language
 type Spec = ([Record], [Function])
 
 translator ∷ Language → Spec → String
-translator (Language function record etc) = (etc ⧺) ∘ tr where
+translator (Language function record header) = (header ⧺) ∘ tr where
   tr (recs, funs) = concatMap record recs ⧺ concatMap function funs
 
 toSpec ∷ [Map String String] → Spec

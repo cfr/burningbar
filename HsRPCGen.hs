@@ -23,7 +23,7 @@ import Control.Monad.Unicode
 hsRPCGenURL = "http://j.mp/HsRPCGen"
 
 main = putStrLn ("// Generated with " ⧺ hsRPCGenURL ⧺ "\n") ≫
-       interact (translate ∘ decode) ≫ putStr "\n"
+       interact (translate ∘ decode)
 
 translate ∷ JSValue → String
 translate = translator swift ∘ toSpec ∘ processJSON
