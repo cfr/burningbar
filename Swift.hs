@@ -1,8 +1,6 @@
 {-# LANGUAGE UnicodeSyntax #-}
 module Swift (swift, primitives) where
 
-import Data.List (intercalate)
-
 import Language
 
 import Prelude.Unicode
@@ -10,7 +8,7 @@ import Control.Monad.Unicode
 import Data.Bool.Unicode
 
 swift ∷ Language
-swift = Language varDecl fromFunc fromType fromRecord etcSwift
+swift = Language fromFunc fromRecord etcSwift
 
 fromFunc (Function name rpc args t) = "public extension RPC {\n"
                                     ⧺ "  public class func " ⧺ name
@@ -27,7 +25,7 @@ fromFunc (Function name rpc args t) = "public extension RPC {\n"
 
 fromRecord (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                               ⧺ concat decls ⧺ "}\n\n"
-  where decls = initDecl : (map varDecl vars)
+  where decls = initDecl : map varDecl vars
         initDecl = s 4 ⧺ "public init(_ json: JSON) {\n"
                  ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
                  -- TODO: public toJSON() -> JSON

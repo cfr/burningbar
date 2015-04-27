@@ -11,10 +11,8 @@ data Record = Record Name [Variable] deriving Show
 
 type Def a = a → String
 data Language = Language
-    { var  ∷ Def Variable
-    , fun  ∷ Def Function
-    , typ  ∷ Def Type
-    , rec  ∷ Def Record
+    { function  ∷ Def Function
+    , record  ∷ Def Record
     , etc  ∷ String
     }
 

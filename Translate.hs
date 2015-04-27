@@ -4,6 +4,7 @@ module Translate (Spec(..), toSpec, translator) where
 import Data.List (stripPrefix)
 import Data.Map (Map, partitionWithKey, mapKeys
                 , lookup, member, (!), toList)
+import Data.Maybe
 import Data.Char (isSpace)
 import Control.Monad (join)
 import Control.Arrow (second)
@@ -20,8 +21,8 @@ import Language
 type Spec = ([Record], [Function])
 
 translator ∷ Language → Spec → String
-translator (Language var fun typ rec etc) = (etc ⧺) ∘ tr where
-  tr (recs, funs) = concatMap rec recs ⧺ concatMap fun funs
+translator (Language function record etc) = (etc ⧺) ∘ tr where
+  tr (recs, funs) = concatMap record recs ⧺ concatMap function funs
 
 toSpec ∷ [Map String String] → Spec
 toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where
@@ -39,7 +40,7 @@ parseType (stripSuffix "?" → Just type_) = Optional (parseType type_)
 parseType (stripPrefix "[" → Just type_) = Array ((parseType ∘ init) type_) -- TODO: check "]"
 parseType (stripPrefix "{" → Just type_) = parseDictType type_
 parseType u = Typename u
-parseDictType (stripSuffix "}" → Just type_) = Dictionary (keyType) (valType)
+parseDictType (stripSuffix "}" → Just type_) = Dictionary keyType valType
   where (keyType, valType) = join (⁂) parseType (splitAtColon type_)
         splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
         notSpace = not ∘ isSpace
@@ -47,7 +48,7 @@ parseDictType (stripSuffix "}" → Just type_) = Dictionary (keyType) (valType)
 
 parseFun m = Function name rpc (parseVars args) t where
   (dashed, args) = partitionWithPrefix '-' m
-  name = maybe rpc id (lookup "-pretty" dashed)
+  name = fromMaybe rpc (lookup "-pretty" dashed)
   rpc = dashed ! "-method"
   t = parseType (dashed ! "-returns")
 

@@ -33,7 +33,7 @@ decode = either error id ∘ resultToEither ∘ Text.JSON.decode
 
 processJSON ∷ JSValue → [Map String String]
 processJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
-  unpack (k, (JSString s)) = (k, fromJSString s)
+  unpack (k, JSString s) = (k, fromJSString s)
   unpack _ = errType
   fromJSObj (JSObject obj) = fromJSObject obj
   fromJSObj _ = errType
