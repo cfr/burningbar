@@ -1,5 +1,5 @@
 UNS := $(shell uname -s)
-PM := brew
+PM := brew cask
 ifeq ($(UNS), "Linux")
 	PM := apt
 endif
@@ -14,7 +14,8 @@ lint:
 	hlint *hs
 
 deps:
-	$(PM) install ghc cabal-install
+	$(PM) install haskell-platform
+	# or install manually from https://www.haskell.org/platform/
 	cabal update
 	cabal install json base-unicode-symbols
 
