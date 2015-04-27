@@ -28,10 +28,9 @@ main = do
   let (actions, _, _) = getOpt RequireOrder options args --lb
   o ← foldl (≫=) (return defaults) actions
   let copy = (("// Generated with " ⧺ hsRPCGenURL ⧺ "\n\n") ⧺)
-  let writeRPC = rpcWriter o ∘ rpcWrap (genRPCStub o) (rpcTypename o)
-  let writeData = dataWriter o ∘ dataWrap
-  let proc = decode ⋙ translate ⋙ join (⁂) copy
-             ⋙  writeData ⁂ writeRPC ⋙ uncurry (≫)
+  let writeRPC = rpcWriter o ∘ copy ∘ rpcWrap (genRPCStub o) (rpcTypename o)
+  let writeData = dataWriter o ∘ copy ∘ dataWrap
+  let proc = decode ⋙ translate ⋙ writeData ⁂ writeRPC ⋙ uncurry (≫)
   spec o ≫= proc
 
 data Options = Options { genRPCStub :: Bool, rpcTypename :: Typename
