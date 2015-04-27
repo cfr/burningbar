@@ -1,5 +1,5 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Swift (swift, primitives) where
+module Swift (swift) where
 
 import Language
 
