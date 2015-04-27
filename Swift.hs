@@ -11,7 +11,7 @@ swift genRPCStub rpcName = Language (function rpcName) record $ if genRPCStub th
                                                             else header
 function rpcName (Function name rpc args t) = "public extension "⧺ rpcName ⧺ " {\n"
                                             ⧺ "  public func " ⧺ name
-                                            ⧺ "(" ⧺ argList ⧺ ", completion: ([String: AnyObject] -> Void))"
+                                            ⧺ "(" ⧺ argList ⧺ "completion: ([String: AnyObject] -> Void))"
                                             ⧺ " -> " ⧺ "Void"    -- TODO: parse reply
                                             ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n}\n\n"
   where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "], completion)"
@@ -19,9 +19,9 @@ function rpcName (Function name rpc args t) = "public extension "⧺ rpcName ⧺
                 | otherwise = list fromArg
         fromArg (Variable n t) = n ⧺ ": " ⧺ fromType t ⧺ ", "
         passedArgs | args ≡ [] = ":"
-                   | otherwise = list passArg
+                   | otherwise = (init ∘ init ∘ list) passArg
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
-        list = init ∘ init ∘ (args ≫=)
+        list = (args ≫=)
 
 record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                           ⧺ concat decls ⧺ "}\n\n"
