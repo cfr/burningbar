@@ -10,7 +10,6 @@ module Main where
 
 import Data.Map (Map, fromList)
 
-import Language
 import Translate
 import Swift
 

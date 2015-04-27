@@ -16,3 +16,5 @@ data Language = Language
     , header ∷ String
     }
 
+type Spec = ([Record], [Function])
+

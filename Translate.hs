@@ -1,10 +1,11 @@
 {-# LANGUAGE ViewPatterns, UnicodeSyntax #-}
-module Translate (Spec(..), toSpec, translator) where
+module Translate (Spec(..), toSpec, translator
+                 , Language(..), Record(..), Function(..)) where
 
 import Data.List (stripPrefix)
 import Data.Map (Map, partitionWithKey, mapKeys
                 , lookup, member, (!), toList)
-import Data.Maybe
+import Data.Maybe (fromMaybe)
 import Data.Char (isSpace)
 import Control.Monad (join)
 import Control.Arrow (second)
@@ -17,8 +18,6 @@ import Prelude hiding (lookup)
 import Control.Arrow.Unicode
 
 import Language
-
-type Spec = ([Record], [Function])
 
 translator ∷ Language → Spec → String
 translator (Language function record header) = (header ⧺) ∘ tr where
@@ -36,15 +35,15 @@ parseRec m = Record name (parseVars vars) where
 parseVar = uncurry ((∘ parseType) ∘ Variable)
 parseVars = map parseVar ∘ toList
 
-parseType (stripSuffix "?" → Just type_) = Optional (parseType type_)
-parseType (stripPrefix "[" → Just type_) = Array ((parseType ∘ init) type_) -- TODO: check "]"
-parseType (stripPrefix "{" → Just type_) = parseDictType type_
+-- FIXME: strip spaces
+parseType (stripSuffix "?" → Just t) = Optional (parseType t)
+parseType (stripPrefix "[" → Just t) = Array ((parseType ∘ init) t) -- TODO: check "]"
+parseType (stripPrefix "{" → Just t) = parseDictType t
 parseType u = Typename u
-parseDictType (stripSuffix "}" → Just type_) = Dictionary keyType valType
-  where (keyType, valType) = join (⁂) parseType (splitAtColon type_)
+parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
+  where (keyType, valType) = join (⁂) parseType (splitAtColon t)
         splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
         notSpace = not ∘ isSpace
-
 
 parseFun m = Function name rpc (parseVars args) t where
   (dashed, args) = partitionWithPrefix '-' m

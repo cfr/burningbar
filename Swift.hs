@@ -1,30 +1,30 @@
 {-# LANGUAGE UnicodeSyntax #-}
 module Swift (swift) where
 
-import Language
+import Language hiding (function, record, header)
 
 import Prelude.Unicode
 import Control.Monad.Unicode
 import Data.Bool.Unicode
 
-swift ∷ Language
-swift = Language fromFunc fromRecord swiftHeader
+swift = Language function record header
 
-fromFunc (Function name rpc args t) = "public extension RPC {\n"
+function (Function name rpc args t) = "public extension RPC {\n"
                                     ⧺ "  public class func " ⧺ name
                                     ⧺ "(" ⧺ argList ⧺ ")"
                                     ⧺ " -> " ⧺ "Void" -- FIXME: fromType t
                                     ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n}\n\n"
   where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "])"
         argList | args ≡ [] = "" -- FIXME: keep arg list order
-                | otherwise = init ∘ init $ concatMap fromArg args
+                | otherwise = list fromArg
         fromArg (Variable n t) = n ⧺ ": " ⧺ fromType t ⧺ ", "
         passedArgs | args ≡ [] = ":"
-                   | otherwise = init ∘ init $ concatMap passArg args
+                   | otherwise = list passArg
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
+        list = init ∘ init ∘ (args ≫=)
 
-fromRecord (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
-                              ⧺ concat decls ⧺ "}\n\n"
+record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
+                          ⧺ concat decls ⧺ "}\n\n"
   where decls = initDecl : map varDecl vars
         initDecl = s 4 ⧺ "public init(_ json: JSON) {\n"
                  ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
@@ -33,17 +33,19 @@ fromRecord (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
 varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n
                        ⧺ ": " ⧺ fromType t ⧺ "\n"
 
-
 initVar (Variable n (Optional t)) | t ∈ primitives = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
-                                  | otherwise = s 8 ⧺ "if let j = " ⧺ accJSON n ⧺ " as? JSON"
+                                  -- n = json["n"] as? T
+                                  | otherwise = s 8 ⧺ "if let j = " ⧺ sub n ⧺ " as? JSON"
                                               ⧺ " { " ⧺ n ⧺ " = " ⧺ fromType t ⧺ "(j) }"
                                               ⧺ " else { " ⧺ n ⧺ " = nil }\n"
                                   -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
 initVar (Variable n t)            | t ∈ primitives = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
+                                  -- n = json["n"] as! T
                                   | otherwise = s 8 ⧺ n ⧺ " = " ⧺ fromType t
-                                              ⧺ "(" ⧺ accJSON n ⧺ " as! JSON)\n"
-initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ accJSON n ⧺ " as"
-accJSON k = "json[\"" ⧺ k ⧺ "\"]"
+                                              ⧺ "(" ⧺ sub n ⧺ " as! JSON)\n"
+                                  -- n = T(json)
+initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ sub n ⧺ " as"
+sub k = "json[\"" ⧺ k ⧺ "\"]"
 
 primitives = atoms ≫= opt ≫= ap Array ≫= opt ≫= dict ≫= opt -- FIXME: more?
   where atoms = map Typename ["String", "Bool", "Int", "Float"]
@@ -56,13 +58,13 @@ fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk ⧺ " : " ⧺ fromType tv ⧺ "]"
 fromType (Typename typename) = typename
 
-swiftHeader = "public typealias JSON = Dictionary<String, AnyObject>\n\n"
-            ⧺ "public class RPC {\n"
-            ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
-            ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
-            ⧺ s 8 ⧺ "return [:]\n"
-            ⧺ s 4 ⧺ "}\n"
-            ⧺ "}\n\n"
+header = "public typealias JSON = Dictionary<String, AnyObject>\n\n"
+       ⧺ "public class RPC {\n"
+       ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
+       ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
+       ⧺ s 8 ⧺ "return [:]\n"
+       ⧺ s 4 ⧺ "}\n"
+       ⧺ "}\n\n"
 
 s = concat ∘ flip take (repeat " ")
 
