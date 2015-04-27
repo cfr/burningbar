@@ -22,7 +22,7 @@ import Control.Monad.Unicode
 import Language
 
 translator ∷ Language → Spec → (String, String)
-translator (Language f r h) = (r =≪) ⁂ ((h ⧺) ∘ (f =≪))
+translator (Language f r) = (r =≪) ⁂ (f =≪)
 
 toSpec ∷ [Map String String] → Spec
 toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where

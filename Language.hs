@@ -12,9 +12,7 @@ data Record = Record Name [Variable] deriving Show
 type Define a = a → String
 data Language = Language
     { function  ∷ Define Function
-    , record  ∷ Define Record
-    , header ∷ String
-    }
+    , record  ∷ Define Record }
 
 type Spec = ([Record], [Function])
 

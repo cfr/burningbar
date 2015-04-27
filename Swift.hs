@@ -1,18 +1,21 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Swift (swift) where
+module Swift (swift, dataWrap, rpcWrap) where
 
-import Language hiding (function, record, header)
+import Language hiding (function, record)
 
 import Prelude.Unicode
 import Control.Monad.Unicode
 
-swift genRPCStub rpcName = Language (function rpcName) record (header genRPCStub)
+swift = Language function record
 
-function rpcName (Function name rpc args t) = "public extension "⧺ rpcName ⧺ " {\n"
-                                            ⧺ "  public func " ⧺ name
-                                            ⧺ "(" ⧺ argList ⧺ "completion: ([String: AnyObject] -> Void))"
-                                            ⧺ " -> " ⧺ "Void"    -- TODO: parse reply
-                                            ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n}\n\n"
+rpcWrap genRPCStub rpcName rpc = header genRPCStub ⧺ "public extension "
+                               ⧺ rpcName ⧺ " {\n" ⧺ rpc ⧺ "}\n"
+dataWrap d = d
+
+function (Function name rpc args t) = "  public func " ⧺ name
+                                    ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ json ⧺ " -> Void))"
+                                    ⧺ " -> " ⧺ "Void"    -- TODO: parse reply
+                                    ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n"
   where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "], completion)"
         argList | args ≡ [] = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
@@ -25,7 +28,7 @@ function rpcName (Function name rpc args t) = "public extension "⧺ rpcName ⧺
 record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                           ⧺ concat decls ⧺ "}\n\n"
   where decls = initDecl : map varDecl vars
-        initDecl = s 4 ⧺ "public init(_ json: [String: AnyObject]) {\n"
+        initDecl = s 4 ⧺ "public init(_ json: " ⧺ json ⧺ ") {\n"
                  ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
                  -- TODO: public toJSON() -> JSON
 
@@ -34,16 +37,17 @@ varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n
 
 initVar (Variable n (Optional t)) | t ∈ primitives = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
                                   -- n = json["n"] as? T
-                                  | otherwise = s 8 ⧺ "if let j = " ⧺ sub n ⧺ " as? [String: AnyObject]"
+                                  | otherwise = s 8 ⧺ "if let j = " ⧺ sub n ⧺ " as? " ⧺ json ⧺ ""
                                               ⧺ " { " ⧺ n ⧺ " = " ⧺ fromType t ⧺ "(j) }"
                                               ⧺ " else { " ⧺ n ⧺ " = nil }\n"
                                   -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
 initVar (Variable n t)            | t ∈ primitives = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
                                   -- n = json["n"] as! T
                                   | otherwise = s 8 ⧺ n ⧺ " = " ⧺ fromType t
-                                              ⧺ "(" ⧺ sub n ⧺ " as! [String: AnyObject])\n"
+                                              ⧺ "(" ⧺ sub n ⧺ " as! " ⧺ json ⧺ ")\n"
                                   -- n = T(json as! JSON)
 initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ sub n ⧺ " as"
+json = "[String : AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
 primitives = atoms ≫= opt ≫= ap Array ≫= opt ≫= dict ≫= opt -- FIXME: more?
@@ -59,7 +63,7 @@ fromType (Typename typename) = typename
 
 header False = ""
 header True  = "public class RPC {\n"
-             ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
+             ⧺ s 4 ⧺ "public class func call(method: String, _ args: " ⧺ json ⧺ ") -> " ⧺ json ⧺ " {\n"
              ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
              ⧺ s 8 ⧺ "return [:]\n"
              ⧺ s 4 ⧺ "}\n"

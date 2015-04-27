@@ -27,9 +27,11 @@ main = do
   args ← getArgs
   let (actions, _, _) = getOpt RequireOrder options args --lb
   o ← foldl (≫=) (return defaults) actions
-  let copy = (⧺ "// Generated with " ⧺ hsRPCGenURL ⧺ "\n")
-  let proc = decode ⋙ translate o ⋙ join (⁂) copy
-             ⋙ rpcWriter o ⁂ dataWriter o ⋙ const exit
+  let copy = (("// Generated with " ⧺ hsRPCGenURL ⧺ "\n\n") ⧺)
+  let writeRPC = rpcWriter o ∘ rpcWrap (genRPCStub o) (rpcTypename o)
+  let writeData = dataWriter o ∘ dataWrap
+  let proc = decode ⋙ translate ⋙ join (⁂) copy
+             ⋙  writeData ⁂ writeRPC ⋙ uncurry (≫)
   spec o ≫= proc
 
 data Options = Options { genRPCStub :: Bool, rpcTypename :: Typename
@@ -57,9 +59,8 @@ rpcW arg o = return o { rpcWriter = writeFile arg }
 dataW arg o = return o { dataWriter = writeFile arg }
 specR arg o = return o { spec = readFile arg }
 
-translate ∷ Options → JSValue → (String, String)
-translate (Options genRPCStub rpcName _ _ _)
-    = translator (swift genRPCStub rpcName) ∘ toSpec ∘ processJSON
+translate ∷ JSValue → (String, String)
+translate = translator swift ∘ toSpec ∘ processJSON
 
 decode ∷ String → JSValue
 decode = either error id ∘ resultToEither ∘ Text.JSON.decode
