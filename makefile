@@ -3,8 +3,8 @@ ifeq ($(shell uname -s), Linux)
 PM = sudo apt
 endif
 
-test:
-	./hsrpcgen spec.json
+test: deps
+	./hsrpcgen <spec.json
 
 run:
 	open ./TestGen.xcworkspace # TODO: xcbuild

@@ -1,12 +1,10 @@
 {-# LANGUAGE UnicodeSyntax #-}
--- $ git clone https://github.com/cfr/HsRPCGen.git
--- $ cd HsRPCGen
--- $ make deps
--- $ ./hsrpcgen spec.json
 
 module Main where
 
 import Data.Map (Map, fromList)
+import System.Environment (getArgs)
+import System.Exit (exitWith, ExitCode(..))
 
 import Translate
 import Swift
@@ -19,11 +17,12 @@ import Control.Monad.Unicode
 
 hsRPCGenURL = "http://j.mp/HsRPCGen"
 
-main = putStrLn ("// Generated with " ⧺ hsRPCGenURL ⧺ "\n") ≫
-       interact (translate ∘ decode)
+main = do genRPCStub ← getArgs ≫= parse
+          putStrLn ("// Generated with " ⧺ hsRPCGenURL ⧺ "\n") ≫
+            interact (translate genRPCStub ∘ decode)
 
-translate ∷ JSValue → String
-translate = translator swift ∘ toSpec ∘ processJSON
+translate ∷ Bool → JSValue → String
+translate genRPCStub = translator (swift genRPCStub) ∘ toSpec ∘ processJSON
 
 decode ∷ String → JSValue
 decode = either error id ∘ resultToEither ∘ Text.JSON.decode
@@ -36,4 +35,15 @@ processJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
   fromJSObj _ = errType
   errType = error "Spec item should be map of type String: String"
 processJSON _ = error $ "Root object should be array, see " ⧺ hsRPCGenURL
+
+parse ["-h"] = usage
+parse ["-v"] = version
+parse ["--no-rpc"] = return False
+parse ["-n"] = return False
+parse _ = return True
+
+usage   = putStrLn "Usage: hsrpcgen [-vhn] spec.json" ≫ exit
+version = putStrLn "http://j.mp/HsRPCGen v0.1" ≫ exit
+exit    = exitWith ExitSuccess
+die     = exitWith (ExitFailure 1)
 

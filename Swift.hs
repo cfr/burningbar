@@ -7,7 +7,8 @@ import Prelude.Unicode
 import Control.Monad.Unicode
 import Data.Bool.Unicode
 
-swift = Language function record header
+swift genRPCStub = Language function record $ if genRPCStub then header ⧺ rpcStub
+                                                            else header
 
 function (Function name rpc args t) = "public extension RPC {\n"
                                     ⧺ "  public class func " ⧺ name
@@ -59,12 +60,12 @@ fromType (Dictionary tk tv) = "[" ⧺ fromType tk ⧺ " : " ⧺ fromType tv ⧺ 
 fromType (Typename typename) = typename
 
 header = "public typealias JSON = Dictionary<String, AnyObject>\n\n"
-       ⧺ "public class RPC {\n"
-       ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
-       ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
-       ⧺ s 8 ⧺ "return [:]\n"
-       ⧺ s 4 ⧺ "}\n"
-       ⧺ "}\n\n"
+rpcStub = "public class RPC {\n"
+          ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
+          ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
+          ⧺ s 8 ⧺ "return [:]\n"
+          ⧺ s 4 ⧺ "}\n"
+          ⧺ "}\n\n"
 
 s = concat ∘ flip take (repeat " ")
 

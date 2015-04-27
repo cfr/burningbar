@@ -4,8 +4,7 @@ Install and run:
 
     $ git clone https://github.com/cfr/HsRPCGen.git
     $ cd HsRPCGen
-    $ make deps
-    $ ./rpcgen spec.json
+    $ make test
 
 See Swift example in Xcode workspace: `$ open TestGen.xcworkspace`.
 
