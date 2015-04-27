@@ -2,10 +2,9 @@
 
 Install and run:
 
-    $ brew install ghc cabal-install
-    $ cabal install json base-unicode-symbols
     $ git clone https://github.com/cfr/HsRPCGen.git
     $ cd HsRPCGen
+    $ make deps
     $ ./HsRPCGen.hs <spec.json
 
 See Swift example in Xcode workspace: `$ open TestGen.xcworkspace`.

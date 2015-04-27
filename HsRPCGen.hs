@@ -1,9 +1,8 @@
 #!/usr/bin/env runhaskell -i..
 {-# LANGUAGE UnicodeSyntax #-}
--- $ brew install ghc cabal-install
--- $ cabal install json base-unicode-symbols
 -- $ git clone https://github.com/cfr/HsRPCGen.git
 -- $ cd HsRPCGen
+-- $ make deps
 -- $ ./HsRPCGen.hs <spec.json
 
 module Main where
