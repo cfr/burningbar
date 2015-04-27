@@ -43,7 +43,7 @@ initVar (Variable n t)            | t ∈ primitives = initWithElem n ⧺ "! " �
                                   -- n = json["n"] as! T
                                   | otherwise = s 8 ⧺ n ⧺ " = " ⧺ fromType t
                                               ⧺ "(" ⧺ sub n ⧺ " as! JSON)\n"
-                                  -- n = T(json)
+                                  -- n = T(json as! JSON)
 initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ sub n ⧺ " as"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
