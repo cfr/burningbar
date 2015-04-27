@@ -17,6 +17,9 @@ import Control.Monad.Unicode
 
 hsRPCGenURL = "http://j.mp/HsRPCGen"
 
+-- TODO: option to put in different files
+-- TODO: accept multiple specs
+
 main = do genRPCStub ← getArgs ≫= parse
           putStrLn ("// Generated with " ⧺ hsRPCGenURL ⧺ "\n") ≫
             interact (translate genRPCStub ∘ decode)

@@ -21,7 +21,7 @@ import Language
 
 translator ∷ Language → Spec → String
 translator (Language function record header) = (header ⧺) ∘ tr where
-  tr (recs, funs) = concatMap record recs ⧺ concatMap function funs
+  tr (recs, funs) =  concatMap function funs ⧺ concatMap record recs
 
 toSpec ∷ [Map String String] → Spec
 toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where
