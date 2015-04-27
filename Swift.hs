@@ -45,7 +45,7 @@ initVar (Variable n t)            | t ∈ primitives = initWithElem n ⧺ "! " �
 initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ accJSON n ⧺ " as"
 accJSON k = "json[\"" ⧺ k ⧺ "\"]"
 
-primitives = atoms ≫= opt ≫= ap Array ≫= opt ≫= dict ≫= opt
+primitives = atoms ≫= opt ≫= ap Array ≫= opt ≫= dict ≫= opt -- FIXME: more?
   where atoms = map Typename ["String", "Bool", "Int", "Float"]
         ap = (take 2 ∘) ∘ iterate
         opt = ap Optional
