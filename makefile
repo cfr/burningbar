@@ -4,18 +4,19 @@ PM = sudo apt
 endif
 
 test:
-	./HsRPCGen.hs <spec.json
+	./rpcgen spec.json
 
 run:
 	open ./TestGen.xcworkspace # TODO: xcbuild
 
 lint:
 	cabal install hlint
-	hlint *hs
+	~/.cabal/bin/hlint *hs
 
 deps:
 	$(PM) install haskell-platform
 	# or install manually from https://www.haskell.org/platform/
 	cabal update
+	cabal install cabal-install
 	cabal install json base-unicode-symbols
 

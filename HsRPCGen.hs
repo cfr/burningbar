@@ -1,9 +1,8 @@
-#!/usr/bin/runhaskell -i..
 {-# LANGUAGE UnicodeSyntax #-}
 -- $ git clone https://github.com/cfr/HsRPCGen.git
 -- $ cd HsRPCGen
 -- $ make deps
--- $ ./HsRPCGen.hs <spec.json
+-- $ ./rpcgen spec.json
 
 module Main where
 
