@@ -37,7 +37,8 @@ data Options = Options { genRPCStub :: Bool, rpcTypename :: Typename
                        , spec :: IO String }
 
 defaults :: Options
-defaults = Options True "RPC" (writeFile "RPCGen") (writeFile "DataGen") (readFile "spec.json")
+defaults = Options True "RPC" (writeFile "RPCGen.swift")
+                   (writeFile "DataGen.swift") (readFile "spec.json")
 
 options :: [OptDescr (Options -> IO Options)]
 options =
