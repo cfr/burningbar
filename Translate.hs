@@ -1,6 +1,7 @@
 {-# LANGUAGE ViewPatterns, UnicodeSyntax #-}
 module Translate (Spec(..), toSpec, translator
-                 , Language(..), Record(..), Function(..)) where
+                 , Language(..), Record(..)
+                 , Function(..), Typename) where
 
 import Data.List (stripPrefix)
 import Data.Map (Map, partitionWithKey, mapKeys
@@ -16,12 +17,12 @@ import qualified Data.Text (stripSuffix)
 import Prelude.Unicode
 import Prelude hiding (lookup)
 import Control.Arrow.Unicode
+import Control.Monad.Unicode
 
 import Language
 
-translator ∷ Language → Spec → String
-translator (Language function record header) = (header ⧺) ∘ tr where
-  tr (recs, funs) =  concatMap function funs ⧺ concatMap record recs
+translator ∷ Language → Spec → (String, String)
+translator (Language f r h) = (r =≪) ⁂ ((h ⧺) ∘ (f =≪))
 
 toSpec ∷ [Map String String] → Spec
 toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where

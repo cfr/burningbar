@@ -3,8 +3,11 @@ ifeq ($(shell uname -s), Linux)
 PM = sudo apt
 endif
 
-test: deps
-	./hsrpcgen <spec.json
+all: deps
+	ghc --make HsRPCGen.hs -o HsRPCGen
+
+test:
+	./hsrpcgen.sh <spec.json
 
 run:
 	open ./TestGen.xcworkspace # TODO: xcbuild
@@ -17,6 +20,8 @@ deps:
 	$(PM) install haskell-platform
 	# or install manually from https://www.haskell.org/platform/
 	cabal update
-	cabal install cabal-install
 	cabal install json base-unicode-symbols
 
+clean:
+	rm -f *\.hi
+	rm -f *\.o
