@@ -12,10 +12,10 @@ swift genRPCStub = Language function record $ if genRPCStub then header ⧺ rpcS
 
 function (Function name rpc args t) = "public extension RPC {\n"
                                     ⧺ "  public class func " ⧺ name
-                                    ⧺ "(" ⧺ argList ⧺ ")"
-                                    ⧺ " -> " ⧺ "Void" -- FIXME: fromType t
+                                    ⧺ "(" ⧺ argList ⧺ ", completion: (JSON -> Void))"
+                                    ⧺ " -> " ⧺ "Void"    -- TODO: parse reply
                                     ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n}\n\n"
-  where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "])"
+  where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "], completion)"
         argList | args ≡ [] = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
         fromArg (Variable n t) = n ⧺ ": " ⧺ fromType t ⧺ ", "
