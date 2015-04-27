@@ -1,4 +1,4 @@
-#!/usr/bin/env runhaskell -i..
+#!/usr/bin/runhaskell -i..
 {-# LANGUAGE UnicodeSyntax #-}
 -- $ git clone https://github.com/cfr/HsRPCGen.git
 -- $ cd HsRPCGen

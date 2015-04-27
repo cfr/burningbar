@@ -1,7 +1,6 @@
-UNS := $(shell uname -s)
 PM := brew cask
-ifeq ($(UNS), "Linux")
-	PM := apt
+ifeq ($(shell uname -s), Linux)
+PM = sudo apt
 endif
 
 test:
@@ -11,6 +10,7 @@ run:
 	open ./TestGen.xcworkspace # TODO: xcbuild
 
 lint:
+	cabal install hlint
 	hlint *hs
 
 deps:
