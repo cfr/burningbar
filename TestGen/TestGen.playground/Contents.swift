@@ -2,12 +2,12 @@
 
 import TestGen
 
-let u = UserInfo(["age": 15, "name": "T",
-                  "creds": ["login":"a", "pass":""],
-                  "services":["":[""]]])
+let json = ["age": 15, "name": "T",
+            "creds": ["login":"user1", "pass":"123"],
+            "services":["":[""]]] as JSON
+
+let u = UserInfo(json)
+
 println(u.creds?.login)
 
-let c = Credentials(["login":"a", "pass":""])
-c.login
-
-RPC.tbd()
+RPC.register("qwe123", username: "user1")

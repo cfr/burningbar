@@ -1,23 +1,29 @@
 {-# LANGUAGE UnicodeSyntax #-}
 module Swift (swift, primitives) where
 
+import Data.List (intercalate)
+
+import Language
+
 import Prelude.Unicode
 import Control.Monad.Unicode
 import Data.Bool.Unicode
-
-import Language
 
 swift ∷ Language
 swift = Language varDecl fromFunc fromType fromRecord etcSwift
 
 fromFunc (Function name rpc args t) = "public extension RPC {\n"
                                     ⧺ "  public class func " ⧺ name
-                                    ⧺ "(" ⧺ concatMap fromArg args ⧺ ")"
-                                    ⧺ " -> " ⧺ fromType t ⧺ " {\n"
-                                    ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n}\n\n"
-  where fromArg = const ""
-        body = s 6 ⧺ "call([:], \"" ⧺ rpc ⧺ "\")"
-
+                                    ⧺ "(" ⧺ argList ⧺ ")"
+                                    ⧺ " -> " ⧺ "Void" -- FIXME: fromType t
+                                    ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n}\n\n"
+  where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "])"
+        argList | args ≡ [] = "" -- FIXME: keep arg list order
+                | otherwise = init ∘ init $ concatMap fromArg args
+        fromArg (Variable n t) = n ⧺ ": " ⧺ fromType t ⧺ ", "
+        passedArgs | args ≡ [] = ":"
+                   | otherwise = init ∘ init $ concatMap passArg args
+        passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
 
 fromRecord (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                               ⧺ concat decls ⧺ "}\n\n"
@@ -26,13 +32,15 @@ fromRecord (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                  ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
                  -- TODO: public toJSON() -> JSON
 
-
 varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n
                        ⧺ ": " ⧺ fromType t ⧺ "\n"
 
+
 initVar (Variable n (Optional t)) | t ∈ primitives = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
-                                  | otherwise = s 8 ⧺ n ⧺ " = " ⧺ accJSON n ⧺ " == nil ? nil : "
-                                              ⧺ fromType t ⧺ "(" ⧺ accJSON n ⧺ " as! JSON)\n"
+                                  | otherwise = s 8 ⧺ "if let j = " ⧺ accJSON n ⧺ " as? JSON"
+                                              ⧺ " { " ⧺ n ⧺ " = " ⧺ fromType t ⧺ "(j) }"
+                                              ⧺ " else { " ⧺ n ⧺ " = nil }\n"
+                                  -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
 initVar (Variable n t)            | t ∈ primitives = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
                                   | otherwise = s 8 ⧺ n ⧺ " = " ⧺ fromType t
                                               ⧺ "(" ⧺ accJSON n ⧺ " as! JSON)\n"
@@ -50,9 +58,9 @@ fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk ⧺ " : " ⧺ fromType tv ⧺ "]"
 fromType (Typename typename) = typename
 
-etcSwift = "public typealias JSON = Dictionary<String, Any>\n\n"
+etcSwift = "public typealias JSON = Dictionary<String, AnyObject>\n\n"
          ⧺ "public class RPC {\n"
-         ⧺ s 4 ⧺ "public class func call(args: JSON, _ method: String) -> JSON {\n"
+         ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
          ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
          ⧺ s 8 ⧺ "return [:]\n"
          ⧺ s 4 ⧺ "}\n"

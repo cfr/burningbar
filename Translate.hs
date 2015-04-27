@@ -2,7 +2,8 @@
 module Translate (Spec(..), toSpec, translator) where
 
 import Data.List (stripPrefix)
-import Data.Map (Map, partitionWithKey, mapKeys, member, (!), toList)
+import Data.Map (Map, partitionWithKey, mapKeys
+                , lookup, member, (!), toList)
 import Data.Char (isSpace)
 import Control.Monad (join)
 import Control.Arrow (second)
@@ -11,6 +12,7 @@ import Data.Text (pack, unpack)
 import qualified Data.Text (stripSuffix)
 
 import Prelude.Unicode
+import Prelude hiding (lookup)
 import Control.Arrow.Unicode
 
 import Language
@@ -26,11 +28,12 @@ toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where
   isRec = member '_' ∘ mapKeys head
 
 parseRec ∷ Map String String → Record
-parseRec r = Record name (map parseVar $ toList vars) where
-  (underscored, vars) = partitionWithKey (const ∘ (≡ '_') ∘ head) r
+parseRec m = Record name (parseVars vars) where
+  (underscored, vars) = partitionWithPrefix '_' m
   name = underscored ! "_name"
 
 parseVar = uncurry ((∘ parseType) ∘ Variable)
+parseVars = map parseVar ∘ toList
 
 parseType (stripSuffix "?" → Just type_) = Optional (parseType type_)
 parseType (stripPrefix "[" → Just type_) = Array ((parseType ∘ init) type_) -- TODO: check "]"
@@ -41,7 +44,14 @@ parseDictType (stripSuffix "}" → Just type_) = Dictionary (keyType) (valType)
         splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
         notSpace = not ∘ isSpace
 
-parseFun = const $ Function "tbd" "user.tbd" [] (Typename "Void")
+
+parseFun m = Function name rpc (parseVars args) t where
+  (dashed, args) = partitionWithPrefix '-' m
+  name = maybe rpc id (lookup "-pretty" dashed)
+  rpc = dashed ! "-method"
+  t = parseType (dashed ! "-returns")
+
+partitionWithPrefix prefix = partitionWithKey (const ∘ (≡ prefix) ∘ head)
 
 stripSuffix = (fmap unpack ∘) ∘ (∘ pack) ∘ Data.Text.stripSuffix ∘ pack
 

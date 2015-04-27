@@ -1,9 +1,9 @@
 // Generated with http://j.mp/HsRPCGen
 
-public typealias JSON = Dictionary<String, Any>
+public typealias JSON = Dictionary<String, AnyObject>
 
 public class RPC {
-    public class func call(args: JSON, _ method: String) -> JSON {
+    public class func call(method: String, _ args: JSON) -> JSON {
         print("calling \(method) with \(args.description)")
         return [:]
     }
@@ -12,7 +12,7 @@ public class RPC {
 public struct UserInfo {
     public init(_ json: JSON) {
         age = json["age"] as! Int
-        creds = json["creds"] == nil ? nil : Credentials(json["creds"] as! JSON)
+        if let j = json["creds"] as? JSON { creds = Credentials(j) } else { creds = nil }
         name = json["name"] as? String
         photoURLs = json["photoURLs"] as? [String]
         services = json["services"] as! [String : [String]]
@@ -34,8 +34,8 @@ public struct Credentials {
 }
 
 public extension RPC {
-  public class func tbd() -> Void {
-      call([:], "user.tbd")
+  public class func register(password: String, username: String) -> Void {
+      call("user.register", ["password": password ,"username": username])
   }
 }
 
