@@ -7,14 +7,13 @@ import Prelude.Unicode
 import Control.Monad.Unicode
 import Data.Bool.Unicode
 
-swift genRPCStub = Language function record $ if genRPCStub then header ⧺ rpcStub
+swift genRPCStub rpcName = Language (function rpcName) record $ if genRPCStub then header ⧺ rpcStub
                                                             else header
-
-function (Function name rpc args t) = "public extension RPC {\n"
-                                    ⧺ "  public class func " ⧺ name
-                                    ⧺ "(" ⧺ argList ⧺ ", completion: (JSON -> Void))"
-                                    ⧺ " -> " ⧺ "Void"    -- TODO: parse reply
-                                    ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n}\n\n"
+function rpcName (Function name rpc args t) = "public extension "⧺ rpcName ⧺ " {\n"
+                                            ⧺ "  public func " ⧺ name
+                                            ⧺ "(" ⧺ argList ⧺ ", completion: ([String: AnyObject] -> Void))"
+                                            ⧺ " -> " ⧺ "Void"    -- TODO: parse reply
+                                            ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n}\n\n"
   where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "], completion)"
         argList | args ≡ [] = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
@@ -27,7 +26,7 @@ function (Function name rpc args t) = "public extension RPC {\n"
 record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                           ⧺ concat decls ⧺ "}\n\n"
   where decls = initDecl : map varDecl vars
-        initDecl = s 4 ⧺ "public init(_ json: JSON) {\n"
+        initDecl = s 4 ⧺ "public init(_ json: [String: AnyObject]) {\n"
                  ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
                  -- TODO: public toJSON() -> JSON
 
@@ -36,14 +35,14 @@ varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n
 
 initVar (Variable n (Optional t)) | t ∈ primitives = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
                                   -- n = json["n"] as? T
-                                  | otherwise = s 8 ⧺ "if let j = " ⧺ sub n ⧺ " as? JSON"
+                                  | otherwise = s 8 ⧺ "if let j = " ⧺ sub n ⧺ " as? [String: AnyObject]"
                                               ⧺ " { " ⧺ n ⧺ " = " ⧺ fromType t ⧺ "(j) }"
                                               ⧺ " else { " ⧺ n ⧺ " = nil }\n"
                                   -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
 initVar (Variable n t)            | t ∈ primitives = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
                                   -- n = json["n"] as! T
                                   | otherwise = s 8 ⧺ n ⧺ " = " ⧺ fromType t
-                                              ⧺ "(" ⧺ sub n ⧺ " as! JSON)\n"
+                                              ⧺ "(" ⧺ sub n ⧺ " as! [String: AnyObject])\n"
                                   -- n = T(json as! JSON)
 initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ sub n ⧺ " as"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
@@ -59,7 +58,7 @@ fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk ⧺ " : " ⧺ fromType tv ⧺ "]"
 fromType (Typename typename) = typename
 
-header = "public typealias JSON = Dictionary<String, AnyObject>\n\n"
+header = "" --"public typealias JSON = Dictionary<String, AnyObject>\n\n"
 rpcStub = "public class RPC {\n"
           ⧺ s 4 ⧺ "public class func call(method: String, _ args: JSON) -> JSON {\n"
           ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"

@@ -21,8 +21,11 @@ main = do genRPCStub ← getArgs ≫= parse
           putStrLn ("// Generated with " ⧺ hsRPCGenURL ⧺ "\n") ≫
             interact (translate genRPCStub ∘ decode)
 
+rpcName = "Singularity" -- FIXME: pass via arg
+-- TODO: pass "call" function via argument for RPC
+
 translate ∷ Bool → JSValue → String
-translate genRPCStub = translator (swift genRPCStub) ∘ toSpec ∘ processJSON
+translate genRPCStub = translator (swift genRPCStub rpcName) ∘ toSpec ∘ processJSON
 
 decode ∷ String → JSValue
 decode = either error id ∘ resultToEither ∘ Text.JSON.decode
