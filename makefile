@@ -4,7 +4,8 @@ PM = sudo apt
 endif
 
 all: deps
-	ghc --make HsRPCGen.hs -o HsRPCGen
+	mkdir -p out
+	ghc --make HsRPCGen.hs -outputdir out -o HsRPCGen
 
 test:
 	./hsrpcgen.sh
@@ -24,5 +25,4 @@ deps:
 	cabal install json base-unicode-symbols
 
 clean:
-	rm -f *\.hi
-	rm -f *\.o
+	rm -rf out
