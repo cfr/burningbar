@@ -7,14 +7,15 @@ all: deps
 	ghc --make HsRPCGen.hs -o HsRPCGen
 
 test:
-	./hsrpcgen.sh <spec.json
+	./hsrpcgen.sh
+	@echo using spec.json, written DataGen.swift \& RPCGen.swift
 
 run:
 	open ./TestGen.xcworkspace # TODO: xcbuild
 
 lint:
-	cabal install hlint
-	~/.cabal/bin/hlint *hs
+	#cabal install hlint
+	hlint *hs
 
 deps:
 	$(PM) install haskell-platform
