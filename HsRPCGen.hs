@@ -2,9 +2,9 @@
 
 module Main where
 
+import Control.Monad (join)
 import Data.Map (Map, fromList)
 import System.Environment (getArgs)
-import System.Exit (exitWith, ExitCode(..))
 import System.Console.GetOpt (OptDescr(..), getOpt, ArgOrder(..), ArgDescr(..))
 
 import Translate
@@ -16,47 +16,43 @@ import Text.JSON hiding (decode)
 import Prelude.Unicode
 import Control.Monad.Unicode
 import Control.Arrow.Unicode
-import Control.Monad (join)
+import Control.Applicative.Unicode
 
 hsRPCGenURL = "http://j.mp/HsRPCGen"
-
--- TODO: accept multiple specs
--- TODO: put compiled version or install deps automatically
 
 main = do
   args ← getArgs
   let (actions, _, _) = getOpt RequireOrder options args --lb
-  o ← foldl (≫=) (return defaults) actions
+  let o = foldr ($) (defaults) actions
   let copy = (("// Generated with " ⧺ hsRPCGenURL ⧺ "\n\n") ⧺)
   let writeRPC = rpcWriter o ∘ copy ∘ rpcWrap (genRPCStub o) (rpcTypename o)
   let writeData = dataWriter o ∘ copy ∘ dataWrap
   let proc = decode ⋙ translate ⋙ writeData ⁂ writeRPC ⋙ uncurry (≫)
   spec o ≫= proc
 
-data Options = Options { genRPCStub :: Bool, rpcTypename :: Typename
-                       , rpcWriter :: String → IO (), dataWriter :: String → IO ()
-                       , spec :: IO String }
+data Options = Options { genRPCStub :: Bool, rpcTypename :: Typename, spec :: IO String
+                       , rpcWriter :: String → IO (), dataWriter :: String → IO () }
 
-defaults :: Options
-defaults = Options True "RPC" (writeFile "RPCGen.swift")
-                   (writeFile "DataGen.swift") (readFile "spec.json")
+defaults ∷ Options
+defaults = Options True "RPC" (readFile "spec.json")
+            (writeFile "RPCGen.swift") (writeFile "DataGen.swift")
 
-options :: [OptDescr (Options -> IO Options)]
+options ∷ [OptDescr (Options->Options)]
 options =
   [ Option ['v'] ["version"] (NoArg version) "show version number"
-  , Option ['h'] ["help"]    (NoArg usage)  "show help"
-  , Option ['g'] ["gen-rpc-stub"]  (NoArg genRPC) "output file to write"
-  , Option ['t'] ["rpc-typename"]  (ReqArg rpcT "RPCType")   "input file to read"
-  , Option ['r'] ["rpc-filename"]  (ReqArg rpcW "FILE")   "input file to read"
+  , Option ['h'] ["help"] (NoArg usage)  "show help"
+  , Option ['g'] ["gen-rpc-stub"] (NoArg genRPC) "output file to write"
+  , Option ['t'] ["rpc-typename"] (ReqArg rpcT "RPCType") "input file to read"
+  , Option ['r'] ["rpc-filename"] (ReqArg rpcW "FILE") "input file to read"
   , Option ['d'] ["data-filename"] (ReqArg dataW "FILE") "output file to write"
   , Option ['s'] ["spec-filename"] (ReqArg specR "FILE") "output file to write"
   ]
 
-genRPC o = return o { genRPCStub = True } --lb
-rpcT arg o = return o { rpcTypename = arg }
-rpcW arg o = return o { rpcWriter = writeFile arg }
-dataW arg o = return o { dataWriter = writeFile arg }
-specR arg o = return o { spec = readFile arg }
+genRPC o = o { genRPCStub = True }
+rpcT arg o = o { rpcTypename = arg }
+rpcW arg o = o { rpcWriter = writeFile arg }
+dataW arg o = o { dataWriter = writeFile arg }
+specR arg o = o { spec = readFile arg }
 
 translate ∷ JSValue → (String, String)
 translate = translator swift ∘ toSpec ∘ processJSON
@@ -73,7 +69,6 @@ processJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
   errType = error "Spec item should be map of type String: String"
 processJSON _ = error $ "Root object should be array, see " ⧺ hsRPCGenURL
 
-usage _ = putStrLn "Usage: hsrpcgen [-vhn] spec.json" ≫ exit
-version _ = putStrLn "http://j.mp/HsRPCGen v0.1" ≫ exit
-exit = exitWith ExitSuccess
+usage _ = error "Usage: hsrpcgen [-vhn] spec.json"
+version _ = error "http://j.mp/HsRPCGen v0.1"
 
