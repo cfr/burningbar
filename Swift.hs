@@ -20,7 +20,7 @@ function (Function name rpc args t) = "  public func " ⧺ name
   where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "]) {" ⧺ parseReply
         argList | args ≡ [] = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
-        fromArg (Variable n t) = n ⧺ ": " ⧺ fromType t ⧺ ", "
+        fromArg (Variable n t) = n +:+ t ⧺ ", "
         passedArgs | args ≡ [] = ":"
                    | otherwise = (init ∘ init ∘ list) passArg
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
@@ -32,34 +32,46 @@ function (Function name rpc args t) = "  public func " ⧺ name
 record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                           ⧺ concat decls ⧺ "}\n\n"
   where decls = initDecl : map varDecl vars
-        initDecl = s 4 ⧺ "public init(_ json: " ⧺ json ⧺ ") {\n"
+        initDecl = s 4 ⧺ "public init(_ json: " ⧺ jsonT ⧺ ") {\n"
                  ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
                  -- TODO: public toJSON() -> JSON
 
-varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n
-                       ⧺ ": " ⧺ fromType t ⧺ "\n"
+varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n +:+ t ⧺ "\n"
 
 initVar (Variable n (Optional t)) | t ∈ primitives = initPrimitive (Optional t) n
                                   -- n = json["n"] as? T
                                   | otherwise = withOptionalJSON n (initNewtype t)
                                   -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
+initVar (Variable n d@(Dictionary k t)) | t ∈ primitives = initPrimitive (Dictionary k t) n
+                                        -- 
+                                        | otherwise = s 8 ⧺ "var d" +=+ fromType d ⧺ "()\n"
+                                                    ⧺ s 8 ⧺ mapJSON n d
+                                                    ⧺ s 8 ⧺ n +=+ "d\n"
+                                        -- 
 initVar (Variable n (Array t))    | t ∈ primitives = initPrimitive (Array t) n
-                                  | otherwise = s 8 ⧺ n +=+ "map(" ⧺ sub n ⧺ " as! [" ⧺ json ⧺ "]) {"
-                                              ⧺ initNewtype t "$0" ⧺ "}\n"
-                                  -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
+                                  -- 
+                                  | otherwise = s 8 ⧺ n +=+ mapJSON n (Array t)
+                                  -- 
 initVar (Variable n t)            | t ∈ primitives = initPrimitive t n
                                   -- n = json["n"] as! T
-                                  | otherwise = s 8 ⧺ n +=+ initNewtype t (sub n ⧺ "as! " ⧺ json) ⧺ "\n"
+                                  | otherwise = s 8 ⧺ n +=+ initNewtype t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
                                   -- n = T(json as! JSON)
 initWithElem n = s 8 ⧺ n +=+ sub n ⧺ " as"
 initNewtype t from = fromType t ⧺ "(" ⧺ from ⧺ ")"
 initPrimitive (Optional t) n = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
 initPrimitive t n = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
-withOptionalJSON n init = s 8 ⧺ "if let j" +=+ sub n ⧺ " as? " ⧺ json ⧺ ""
+withOptionalJSON n init = s 8 ⧺ "if let j" +=+ sub n ⧺ " as? " ⧺ jsonT ⧺ ""
                           ⧺ " { " ⧺ n +=+ init "j" ⧺ "} else { " ⧺ n +=+ "nil }\n"
+mapJSON n t = "map(" ⧺ castArr ⧺ ") {" ⧺ closure ⧺ "}\n"
+  where castArr | Array _ ← t = sub n ⧺ " as! [" ⧺ jsonT ⧺ "]"
+                | otherwise = "json.keys"
+        closure | Array t' ← t = initNewtype t' "$0"
+                | Dictionary k v ← t = "(k" +:+ k ⧺ ") in d[k]"
+                                     +=+ initNewtype v ("json[k] as! " ⧺ jsonT)
 
 n +=+ v = n ⧺ " = " ⧺ v
-json = "[String: AnyObject]"
+n +:+ t = n ⧺ ": " ⧺ fromType t
+jsonT = "[String: AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
 primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt] -- FIXME: more?
@@ -70,12 +82,12 @@ primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt] -- FIXME: more?
 
 fromType (Array t) = "[" ⧺ fromType t ⧺ "]"
 fromType (Optional t) = fromType t ⧺ "?"
-fromType (Dictionary tk tv) = "[" ⧺ fromType tk ⧺ " : " ⧺ fromType tv ⧺ "]"
+fromType (Dictionary tk tv) = "[" ⧺ fromType tk +:+ tv ⧺ "]"
 fromType (Typename typename) = typename
 
 header False = ""
 header True  = "public class RPC {\n"
-             ⧺ s 4 ⧺ "public class func call(method: String, _ args: " ⧺ json ⧺ ") -> " ⧺ json ⧺ " {\n"
+             ⧺ s 4 ⧺ "public class func call(method: String, _ args: " ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ " {\n"
              ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
              ⧺ s 8 ⧺ "return [:]\n"
              ⧺ s 4 ⧺ "}\n"
