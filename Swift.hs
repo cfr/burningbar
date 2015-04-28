@@ -14,16 +14,19 @@ rpcWrap genRPCStub rpcName rpc = header genRPCStub ⧺ "public extension "
 dataWrap d = d
 
 function (Function name rpc args t) = "  public func " ⧺ name
-                                    ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ json ⧺ " -> Void))"
-                                    ⧺ " -> " ⧺ "Void"    -- TODO: parse reply
+                                    ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ fromType t ⧺ " -> Void))"
+                                    ⧺ " -> " ⧺ "Void"
                                     ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n"
-  where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "], completion)"
+  where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "]) {" ⧺ parseReply
         argList | args ≡ [] = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
         fromArg (Variable n t) = n ⧺ ": " ⧺ fromType t ⧺ ", "
         passedArgs | args ≡ [] = ":"
                    | otherwise = (init ∘ init ∘ list) passArg
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
+        parseReply | t ≡ (Typename "Void") = " _ in }"
+                   | otherwise = "\n" ⧺ s 8 ⧺ "let v = " ⧺ initNewtype t "$0" ⧺ "\n"
+                               ⧺ s 8 ⧺ "completion(v)\n" ⧺ s 6 ⧺ "}"
         list = (args ≫=)
 
 record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
@@ -46,7 +49,7 @@ initVar (Variable n (Array t))    | t ∈ primitives = initPrimitive (Array t) n
                                   -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
 initVar (Variable n t)            | t ∈ primitives = initPrimitive t n
                                   -- n = json["n"] as! T
-                                  | otherwise = s 8 ⧺ n +=+ initNewtype t (sub n) ⧺ "! " ⧺ json ⧺ ")\n"
+                                  | otherwise = s 8 ⧺ n +=+ initNewtype t (sub n ⧺ "as! " ⧺ json) ⧺ "\n"
                                   -- n = T(json as! JSON)
 initWithElem n = s 8 ⧺ n +=+ sub n ⧺ " as"
 initNewtype t from = fromType t ⧺ "(" ⧺ from ⧺ ")"
