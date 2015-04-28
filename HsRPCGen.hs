@@ -27,59 +27,52 @@ main = do
   args ← getArgs
   let (actions, _, _) = getOpt RequireOrder options args
   let o = foldr ($) defaults actions
-
   let copy = (("// Generated with " ⧺ hsRPCGenURL ⧺ "\n\n") ⧺)
-  let rpcPath = rootPath o </> rpcFn o
-  let entPath = rootPath o </> entFn o
-  let writeRPC = writeFile rpcPath ∘ copy ∘ rpcWrap (genRPCStub o) (rpcTypename o)
-  let writeData = writeFile entPath ∘ copy ∘ dataWrap
+  let intPath = root o </> intFn o
+  let entPath = root o </> entFn o
+  let writeInt = writeFile intPath ∘ copy ∘ interfaceWrap (intStub o) (intType o)
+  let writeEnt = writeFile entPath ∘ copy ∘ entitiesWrap
+  json ← spec o
+  createDir (root o)
+  let proc = decode ⋙ translate ⋙ writeEnt ⁂ writeInt ⋙ uncurry (≫)
+  proc json `catch` (handleEx "Syntax error ¬ ¬")
 
-  let proc = decode ⋙ translate ⋙ writeData ⁂ writeRPC ⋙ uncurry (≫)
-  createDir (rootPath o) ≫ spec o ≫= proc
+translate ∷ [Map String String] → (String, String)
+translate = translator swift ∘ toSpec
 
-translate ∷ JSValue → (String, String)
-translate = translator swift ∘ toSpec ∘ processJSON
-
-data Options = Options { genRPCStub ∷ Bool, rpcTypename ∷ Typename, spec ∷ IO String
-                       , rootPath ∷ FilePath, rpcFn ∷ FilePath, entFn ∷ FilePath}
+data Options = Options { intStub ∷ Bool, intType ∷ Typename, spec ∷ IO String
+                       , root ∷ FilePath, intFn ∷ FilePath, entFn ∷ FilePath }
 defaults ∷ Options
-defaults = Options False "RPC" (readFile "spec.json") "./" interfaceFn entitiesFn
-  where interfaceFn = "Interface" <.> ext
-        entitiesFn = "Entities" <.> ext
-        ext = "swift"
+defaults = Options False "Interface" (readFile "spec.json") "./" intFn entFn
+  where { intFn = "Interface" <.> ext; entFn = "Entities" <.> ext; ext = "swift" }
 
 options ∷ [OptDescr (Options → Options)]
 options =
-  [ Option "v" ["version"] (NoArg version) "show version number"
-  , Option "h" ["help"] (NoArg usage)  "show help"
-  , Option "g" ["gen-rpc-stub"] (NoArg genRPC) "output file to write"
-  , Option "t" ["rpc-typename"] (ReqArg rpcT "RPCType") "input file to read"
-  , Option "r" ["rpc-filename"] (ReqArg rpcF "FILE") "input file to read"
-  , Option "d" ["data-filename"] (ReqArg entF "FILE") "output file to write"
-  , Option "s" ["spec-filename"] (ReqArg spcF "FILE") "output file to write"
-  , Option "p" ["gen-path"] (ReqArg path "DIR") "path to put generated files" ]
+  [ Option "v" ["version"]        (NoArg  version) "show version number"
+  , Option "h" ["help"]           (NoArg  usage)  "show help"
+  , Option "g" ["int-stub"]       (NoArg  (\o → o {intStub = True})) "generate interface class stub"
+  , Option "t" ["interface-type"] (ReqArg (\a o → o {intType = a}) "T") "interface class name"
+  , Option "r" ["interface-file"] (ReqArg (\a o → o {intFn = a}) "f") "interface output file"
+  , Option "d" ["entities-file"]  (ReqArg (\a o → o {entFn = a}) "f") "entities outout file"
+  , Option "s" ["spec-file"]      (ReqArg (\a o → o {spec = readFile a}) "f") "input spec file"
+  , Option "p" ["root-path"]      (ReqArg (\a o → o {root = a}) "p") "path to put generated files" ]
 
-genRPC o = o { genRPCStub = True }
-rpcT arg o = o { rpcTypename = arg }
-rpcF arg o = o { rpcFn = arg }
-entF arg o = o { entFn = arg }
-spcF arg o = o { spec = readFile arg }
-path arg o = o { rootPath = arg }
+decode ∷ String → [Map String String]
+decode = unpackJSON ∘ either error id ∘ resultToEither ∘ Text.JSON.decode
 
-decode ∷ String → JSValue
-decode = either error id ∘ resultToEither ∘ Text.JSON.decode
-
-processJSON ∷ JSValue → [Map String String]
-processJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
+unpackJSON ∷ JSValue → [Map String String]
+unpackJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
   unpack (k, JSString s) = (k, fromJSString s)
   unpack _ = errType
   fromJSObj (JSObject obj) = fromJSObject obj
   fromJSObj _ = errType
   errType = error "Spec item should be map of type String: String"
-processJSON _ = error $ "Root object should be array, see " ⧺ hsRPCGenURL
+unpackJSON _ = error $ "Root object should be array, see " ⧺ hsRPCGenURL
 
-usage _ = error "Usage: hsrpcgen [-vhgtrds]"
+usage _ = error $ "Usage: hsrpcgen [-vhgtrds]\n" ⧺ hsRPCGenURL
 version _ = error $ hsRPCGenURL ⧺ "v0.1"
 
-createDir name = createDirectoryIfMissing True name `catch` handleEx
-  where handleEx (e ∷ SomeException) = error "Can't create dir."
+createDir name = createDirectoryIfMissing True name `catch` (handleEx "Can't create dir.")
+handleEx err (e ∷ SomeException) = print e ≫  error err
+-- TODO: catch specific exs and provide info, i.e. Map.! — no item with prefix
+

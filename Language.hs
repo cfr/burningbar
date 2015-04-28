@@ -9,10 +9,9 @@ data Variable = Variable Name Type deriving (Show, Eq)
 data Function = Function Name Name [Variable] Type deriving Show
 data Record = Record Name [Variable] deriving Show
 
-type Define a = a → String
 data Language = Language
-    { function  ∷ Define Function
-    , record  ∷ Define Record }
+    { function ∷ Function → String
+    , record ∷ Record → String }
 
 type Spec = ([Record], [Function])
 

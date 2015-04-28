@@ -1,6 +1,5 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Swift (swift, dataWrap, rpcWrap) where
-                     -- TODO: put wrappers in Lang
+module Swift (swift, entitiesWrap, interfaceWrap) where
 
 import Language hiding (function, record)
 
@@ -8,10 +7,6 @@ import Prelude.Unicode
 import Control.Monad.Unicode
 
 swift = Language function record
-
-rpcWrap genRPCStub rpcName rpc = header genRPCStub ⧺ "public extension "
-                               ⧺ rpcName ⧺ " {\n" ⧺ rpc ⧺ "}\n"
-dataWrap d = d
 
 function (Function name rpc args t) = "  public func " ⧺ name
                                     ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ fromType t ⧺ " -> Void))"
@@ -85,13 +80,16 @@ fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk +:+ tv ⧺ "]"
 fromType (Typename typename) = typename
 
-header False = ""
-header True  = "public class RPC {\n"
-             ⧺ s 4 ⧺ "public class func call(method: String, _ args: " ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ " {\n"
-             ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
-             ⧺ s 8 ⧺ "return [:]\n"
-             ⧺ s 4 ⧺ "}\n"
-             ⧺ "}\n\n"
+interfaceWrap ∷ Bool → Typename → String → String
+interfaceWrap intStub intName rpc = header ⧺ "public extension " ⧺ intName ⧺ " {\n" ⧺ rpc ⧺ "}\n"
+  where header | intStub = "public class " ⧺ intName ⧺ " {\n"
+                         ⧺ s 4 ⧺ "public class func call(method: String, _ args: "
+                               ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ " {\n"
+                         ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
+                         ⧺ s 8 ⧺ "return [:]\n"  ⧺  s 4 ⧺ "}\n"  ⧺  "}\n\n"
+               | otherwise = ""
 
+entitiesWrap ∷ String → String
+entitiesWrap = id
 s = concat ∘ flip take (repeat " ")
 

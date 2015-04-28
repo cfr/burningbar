@@ -55,3 +55,4 @@ partitionWithPrefix prefix = partitionWithKey (const ∘ (≡ prefix) ∘ head)
 
 stripSuffix = (fmap unpack ∘) ∘ (∘ pack) ∘ Data.Text.stripSuffix ∘ pack
 strip = unpack ∘ Data.Text.strip ∘ pack
+
