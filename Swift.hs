@@ -38,17 +38,12 @@ initVar (Variable n (Optional t)) | t ∈ primitives = initPrimitive (Optional t
                                   | otherwise = withOptionalJSON n (initNewtype t)
                                   -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
 initVar (Variable n d@(Dictionary k t)) | t ∈ primitives = initPrimitive (Dictionary k t) n
-                                        -- 
                                         | otherwise = s 8 ⧺ "var d" +=+ fromType d ⧺ "()\n"
                                                     ⧺ s 8 ⧺ mapJSON n d
                                                     ⧺ s 8 ⧺ n +=+ "d\n"
-                                        -- 
 initVar (Variable n (Array t))    | t ∈ primitives = initPrimitive (Array t) n
-                                  -- 
                                   | otherwise = s 8 ⧺ n +=+ mapJSON n (Array t)
-                                  -- 
-initVar (Variable n t)            | t ∈ primitives = initPrimitive t n
-                                  -- n = json["n"] as! T
+initVar (Variable n t)            | t ∈ primitives = initPrimitive t n -- n = json["n"] as! T
                                   | otherwise = s 8 ⧺ n +=+ initNewtype t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
                                   -- n = T(json as! JSON)
 initWithElem n = s 8 ⧺ n +=+ sub n ⧺ " as"

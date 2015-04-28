@@ -1,6 +1,9 @@
 {-# LANGUAGE UnicodeSyntax #-}
 module Language where
 
+import Control.Monad.Unicode
+import Control.Arrow.Unicode
+
 type Name = String
 type Typename = String
 data Type = Array Type | Dictionary Type Type
@@ -14,4 +17,7 @@ data Language = Language
     , record ∷ Record → String }
 
 type Spec = ([Record], [Function])
+
+translator ∷ Language → Spec → (String, String)
+translator (Language f r) = (r =≪) ⁂ (f =≪)
 

@@ -70,7 +70,7 @@ unpackJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
 unpackJSON _ = error $ "Root object should be array, see " ⧺ hsRPCGenURL
 
 usage _ = error $ "Usage: hsrpcgen [-vhgtrds]\n" ⧺ hsRPCGenURL
-version _ = error $ hsRPCGenURL ⧺ "v0.1"
+version _ = error $ hsRPCGenURL ⧺ "v0.2"
 
 createDir name = createDirectoryIfMissing True name `catch` (handleEx "Can't create dir.")
 handleEx err (e ∷ SomeException) = print e ≫  error err

@@ -17,12 +17,8 @@ import qualified Data.Text (stripSuffix, strip)
 
 import Prelude.Unicode
 import Control.Arrow.Unicode
-import Control.Monad.Unicode
 
 import Language
-
-translator ∷ Language → Spec → (String, String)
-translator (Language f r) = (r =≪) ⁂ (f =≪)
 
 toSpec ∷ [Map String String] → Spec
 toSpec = (map parseRec ⁂ map parseFun) ∘ span isRec where
