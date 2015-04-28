@@ -3,6 +3,7 @@ module Translate (Spec(..), toSpec, translator
                  , Language(..), Record(..)
                  , Function(..), Typename) where
 
+import Prelude hiding (lookup)
 import Data.List (stripPrefix)
 import Data.Map (Map, partitionWithKey, mapKeys
                 , lookup, member, (!), toList)
@@ -15,7 +16,6 @@ import Data.Text (pack, unpack)
 import qualified Data.Text (stripSuffix)
 
 import Prelude.Unicode
-import Prelude hiding (lookup)
 import Control.Arrow.Unicode
 import Control.Monad.Unicode
 

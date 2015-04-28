@@ -50,7 +50,7 @@ initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ sub n ⧺ " as"
 json = "[String : AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
-primitives = atoms ≫= opt ≫= ap Array ≫= opt ≫= dict ≫= opt -- FIXME: more?
+primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt] -- FIXME: more?
   where atoms = map Typename ["String", "Bool", "Int", "Float"]
         ap = (take 2 ∘) ∘ iterate
         opt = ap Optional
