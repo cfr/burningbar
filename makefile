@@ -9,7 +9,7 @@ all: deps
 
 test:
 	./hsrpcgen.sh
-	@echo using spec.json, written DataGen.swift \& RPCGen.swift
+	@echo using spec.json, written Entities.swift \& Interface.swift
 
 run:
 	open ./TestGen.xcworkspace # TODO: xcbuild
@@ -26,3 +26,6 @@ deps:
 
 clean:
 	rm -rf out
+	rm -rf *\.hi
+	rm -rf *\.o
+	rm -f Entities.swift Interface.swift
