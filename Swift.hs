@@ -1,5 +1,6 @@
 {-# LANGUAGE UnicodeSyntax #-}
 module Swift (swift, dataWrap, rpcWrap) where
+                     -- TODO: put wrappers in Lang
 
 import Language hiding (function, record)
 
@@ -35,21 +36,27 @@ record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
 varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n
                        ⧺ ": " ⧺ fromType t ⧺ "\n"
 
-initVar (Variable n (Optional t)) | t ∈ primitives = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
+initVar (Variable n (Optional t)) | t ∈ primitives = initPrimitive (Optional t) n
                                   -- n = json["n"] as? T
                                   | otherwise = withOptionalJSON n (initNewtype t)
                                   -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
-initVar (Variable n t)            | t ∈ primitives = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
+initVar (Variable n (Array t))    | t ∈ primitives = initPrimitive (Array t) n
+                                  | otherwise = s 8 ⧺ n +=+ "map(" ⧺ sub n ⧺ " as! [" ⧺ json ⧺ "]) {"
+                                              ⧺ initNewtype t "$0" ⧺ "}\n"
+                                  -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
+initVar (Variable n t)            | t ∈ primitives = initPrimitive t n
                                   -- n = json["n"] as! T
-                                  | otherwise = s 8 ⧺ initNewtype t n (sub n) ⧺ "! " ⧺ json ⧺ ")\n"
+                                  | otherwise = s 8 ⧺ n +=+ initNewtype t (sub n) ⧺ "! " ⧺ json ⧺ ")\n"
                                   -- n = T(json as! JSON)
-initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ sub n ⧺ " as"
-initNewtype t n from = n ⧺ " = " ⧺ fromType t ⧺ "(" ⧺ from ⧺ ")"
-withOptionalJSON n init = s 8 ⧺ "if let j = " ⧺ sub n ⧺ " as? " ⧺ json ⧺ ""
-                          ⧺ " { " ⧺ init n "j" ⧺ "} else { " ⧺ n ⧺ " = nil }\n"
+initWithElem n = s 8 ⧺ n +=+ sub n ⧺ " as"
+initNewtype t from = fromType t ⧺ "(" ⧺ from ⧺ ")"
+initPrimitive (Optional t) n = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
+initPrimitive t n = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
+withOptionalJSON n init = s 8 ⧺ "if let j" +=+ sub n ⧺ " as? " ⧺ json ⧺ ""
+                          ⧺ " { " ⧺ n +=+ init "j" ⧺ "} else { " ⧺ n +=+ "nil }\n"
 
-
-json = "[String : AnyObject]"
+n +=+ v = n ⧺ " = " ⧺ v
+json = "[String: AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
 primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt] -- FIXME: more?
