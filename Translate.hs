@@ -13,7 +13,7 @@ import Control.Monad (join)
 import Control.Arrow (second)
 
 import Data.Text (pack, unpack)
-import qualified Data.Text (stripSuffix)
+import qualified Data.Text (stripSuffix, strip)
 
 import Prelude.Unicode
 import Control.Arrow.Unicode
@@ -33,14 +33,13 @@ parseRec m = Record name (parseVars vars) where
   (underscored, vars) = partitionWithPrefix '_' m
   name = underscored ! "_name"
 
-parseVar = uncurry ((∘ parseType) ∘ Variable)
+parseVar = uncurry ((∘ parseType ∘ strip) ∘ Variable)
 parseVars = map parseVar ∘ toList
 
--- FIXME: strip spaces
 parseType (stripSuffix "?" → Just t) = Optional (parseType t)
-parseType (stripPrefix "[" → Just t) = Array ((parseType ∘ init) t) -- TODO: check "]"
+parseType (stripPrefix "[" → Just t) = (Array ∘ parseType ∘ init) t -- TODO: check "]"
 parseType (stripPrefix "{" → Just t) = parseDictType t
-parseType u = Typename u
+parseType u = Typename (strip u)
 parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
   where (keyType, valType) = join (⁂) parseType (splitAtColon t)
         splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
@@ -55,4 +54,4 @@ parseFun m = Function name rpc (parseVars args) t where
 partitionWithPrefix prefix = partitionWithKey (const ∘ (≡ prefix) ∘ head)
 
 stripSuffix = (fmap unpack ∘) ∘ (∘ pack) ∘ Data.Text.stripSuffix ∘ pack
-
+strip = unpack ∘ Data.Text.strip ∘ pack
