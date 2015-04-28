@@ -57,8 +57,7 @@ options =
   , Option "r" ["rpc-filename"] (ReqArg rpcF "FILE") "input file to read"
   , Option "d" ["data-filename"] (ReqArg entF "FILE") "output file to write"
   , Option "s" ["spec-filename"] (ReqArg spcF "FILE") "output file to write"
-  , Option "p" ["gen-path"] (ReqArg path "DIR") "path to put generated files"
-  ]
+  , Option "p" ["gen-path"] (ReqArg path "DIR") "path to put generated files" ]
 
 genRPC o = o { genRPCStub = True }
 rpcT arg o = o { rpcTypename = arg }
@@ -82,5 +81,5 @@ processJSON _ = error $ "Root object should be array, see " ⧺ hsRPCGenURL
 usage _ = error "Usage: hsrpcgen [-vhgtrds]"
 version _ = error $ hsRPCGenURL ⧺ "v0.1"
 
-createDir name = (createDirectoryIfMissing True name) `catch` handleEx
-  where handleEx (e∷SomeException) = error "Can't create dir."
+createDir name = createDirectoryIfMissing True name `catch` handleEx
+  where handleEx (e ∷ SomeException) = error "Can't create dir."
