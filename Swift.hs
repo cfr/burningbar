@@ -37,16 +37,18 @@ varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n
 
 initVar (Variable n (Optional t)) | t ∈ primitives = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
                                   -- n = json["n"] as? T
-                                  | otherwise = s 8 ⧺ "if let j = " ⧺ sub n ⧺ " as? " ⧺ json ⧺ ""
-                                              ⧺ " { " ⧺ n ⧺ " = " ⧺ fromType t ⧺ "(j) }"
-                                              ⧺ " else { " ⧺ n ⧺ " = nil }\n"
+                                  | otherwise = withOptionalJSON n (initNewtype t)
                                   -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
 initVar (Variable n t)            | t ∈ primitives = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
                                   -- n = json["n"] as! T
-                                  | otherwise = s 8 ⧺ n ⧺ " = " ⧺ fromType t
-                                              ⧺ "(" ⧺ sub n ⧺ " as! " ⧺ json ⧺ ")\n"
+                                  | otherwise = s 8 ⧺ initNewtype t n (sub n) ⧺ "! " ⧺ json ⧺ ")\n"
                                   -- n = T(json as! JSON)
 initWithElem n = s 8 ⧺ n ⧺ " = " ⧺ sub n ⧺ " as"
+initNewtype t n from = n ⧺ " = " ⧺ fromType t ⧺ "(" ⧺ from ⧺ ")"
+withOptionalJSON n init = s 8 ⧺ "if let j = " ⧺ sub n ⧺ " as? " ⧺ json ⧺ ""
+                          ⧺ " { " ⧺ init n "j" ⧺ "} else { " ⧺ n ⧺ " = nil }\n"
+
+
 json = "[String : AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
