@@ -65,7 +65,7 @@ jsonT = "[String: AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
 primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt] -- FIXME: more?
-  where atoms = map Typename ["String", "Bool", "Int", "Float"]
+  where atoms = map Typename ["String", "Bool", "Int", "Float", "NSNumber"]
         ap = (take 2 ∘) ∘ iterate
         opt = ap Optional
         dict a = a : [Dictionary x a | x ← atoms]
@@ -76,15 +76,16 @@ fromType (Dictionary tk tv) = "[" ⧺ fromType tk +:+ tv ⧺ "]"
 fromType (Typename typename) = typename
 
 interfaceWrap ∷ Bool → Typename → String → String
-interfaceWrap intStub intName rpc = header ⧺ "public extension " ⧺ intName ⧺ " {\n" ⧺ rpc ⧺ "}\n"
+interfaceWrap intStub intName rpc = foundation header ⧺ "public extension " ⧺ intName ⧺ " {\n" ⧺ rpc ⧺ "}\n"
   where header | intStub = "public class " ⧺ intName ⧺ " {\n"
                          ⧺ s 4 ⧺ "public class func call(method: String, _ args: "
                                ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ " {\n"
                          ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
                          ⧺ s 8 ⧺ "return [:]\n"  ⧺  s 4 ⧺ "}\n"  ⧺  "}\n\n"
                | otherwise = ""
-
 entitiesWrap ∷ String → String
-entitiesWrap = id
+entitiesWrap = foundation
+foundation = ("import Foundation\n\n" ⧺)
+
 s = concat ∘ flip take (repeat " ")
 
