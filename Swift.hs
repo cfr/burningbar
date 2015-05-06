@@ -83,9 +83,11 @@ interfaceWrap intStub intName rpc = foundation header ⧺ "public extension " �
                          ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
                          ⧺ s 8 ⧺ "return [:]\n"  ⧺  s 4 ⧺ "}\n"  ⧺  "}\n\n"
                | otherwise = ""
+
 entitiesWrap ∷ String → String
 entitiesWrap = foundation
 foundation = ("import Foundation\n\n" ⧺)
 
+s ∷ Int → String -- n spaces
 s = concat ∘ flip take (repeat " ")
 
