@@ -21,13 +21,13 @@ import Prelude.Unicode
 import Control.Monad.Unicode
 import Control.Arrow.Unicode
 
-hsRPCGenURL = "http://j.mp/HsRPCGen"
+bbURL = "http://j.mp/burningbar"
 
 main = do
   args ← getArgs
   let (actions, _, _) = getOpt RequireOrder options args
   let o = foldr ($) defaults actions
-  let copy = (("// Generated with " ⧺ hsRPCGenURL ⧺ "\n\n") ⧺)
+  let copy = (("// Generated with " ⧺ bbURL ⧺ "\n\n") ⧺)
   let intPath = root o </> intFn o
   let entPath = root o </> entFn o
   let writeInt = writeFile intPath ∘ copy ∘ interfaceWrap (intStub o) (intType o)
@@ -67,10 +67,10 @@ unpackJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
   fromJSObj (JSObject obj) = fromJSObject obj
   fromJSObj _ = errType
   errType = error "Spec item should be map of type String: String"
-unpackJSON _ = error $ "Root object should be array, see " ⧺ hsRPCGenURL
+unpackJSON _ = error $ "Root object should be array, see " ⧺ bbURL
 
-usage _ = error $ "Usage: hsrpcgen [-vhgtrds]\n" ⧺ hsRPCGenURL
-version _ = error $ hsRPCGenURL ⧺ "v0.2"
+usage _ = error $ "Usage: hsrpcgen [-vhgtrds]\n" ⧺ bbURL
+version _ = error $ bbURL ⧺ "v0.2"
 
 createDir name = createDirectoryIfMissing True name `catch` (handleEx "Can't create dir.")
 handleEx err (e ∷ SomeException) = print e ≫  error err

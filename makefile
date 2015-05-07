@@ -5,10 +5,10 @@ endif
 
 all: deps
 	mkdir -p out
-	ghc --make HsRPCGen.hs -outputdir out -o HsRPCGen
+	ghc --make burningbar.hs -outputdir out -o burningbar
 
 test:
-	./hsrpcgen.sh
+	./burningbar.sh
 	@echo using spec.json, written Entities.swift \& Interface.swift
 
 run:
