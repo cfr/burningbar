@@ -20,7 +20,7 @@ function (Function name rpc args t) = "  public func " ⧺ name
                    | otherwise = (init ∘ init ∘ list) passArg
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
         parseReply | t ≡ Typename "Void" = " _ in }"
-                   | otherwise = "\n" ⧺ s 8 ⧺ "let v = " ⧺ initNewtype t "$0" ⧺ "\n"
+                   | otherwise = "\n" ⧺ s 8 ⧺ "let v = " ⧺ fromType t ⧺ "($0)" ⧺ "\n" -- FIXME: ""/name
                                ⧺ s 8 ⧺ "completion(v)\n" ⧺ s 6 ⧺ "}"
         list = (args ≫=)
 
@@ -28,36 +28,39 @@ record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                           ⧺ concat decls ⧺ "}\n\n"
   where decls = initDecl : map varDecl vars
         initDecl = s 4 ⧺ "public init(_ json: " ⧺ jsonT ⧺ ") {\n"
-                 ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
+                   ⧺ concatMap initDict vars
+                   ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
                  -- TODO: public toJSON() -> JSON
+        initDict (Variable n d@(Dictionary k t)) | t ∉ primitives = s 8 ⧺ n +=+ fromType d ⧺ "()\n"
+        initDict _ = ""
 
-varDecl (Variable n t) = s 4 ⧺ "public let " ⧺ n +:+ t ⧺ "\n"
+varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n +:+ t ⧺ "\n"
 
-initVar (Variable n (Optional t)) | t ∈ primitives = initPrimitive (Optional t) n
-                                  -- n = json["n"] as? T
-                                  | otherwise = withOptionalJSON n (initNewtype t)
-                                  -- if let j = json["n"] as? JSON { n = T(j) } else { n = nil }
+initVar v@(Variable n (Optional t)) | t ∈ primitives = initPrimitive (Optional t) n
+                                    -- n = json["n"] as? T
+                                    | otherwise = withOptionalJSON n (initNewtype n t)
+                                    -- if let j = json["n"] as? JSON { n = N(j) } else { n = nil }
 initVar (Variable n d@(Dictionary k t)) | t ∈ primitives = initPrimitive (Dictionary k t) n
-                                        | otherwise = s 8 ⧺ "var d" +=+ fromType d ⧺ "()\n"
-                                                    ⧺ s 8 ⧺ mapJSON n d
-                                                    ⧺ s 8 ⧺ n +=+ "d\n"
+                                        | otherwise = s 8 ⧺ mapJSON n d ⧺ "\n"
 initVar (Variable n (Array t))    | t ∈ primitives = initPrimitive (Array t) n
-                                  | otherwise = s 8 ⧺ n +=+ mapJSON n (Array t)
+                                  | otherwise = s 8 ⧺ n +=+ mapJSON n (Array t) ⧺ "\n"
 initVar (Variable n t)            | t ∈ primitives = initPrimitive t n -- n = json["n"] as! T
-                                  | otherwise = s 8 ⧺ n +=+ initNewtype t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
+                                  | otherwise = s 8 ⧺ n +=+ initNewtype n t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
                                   -- n = T(json as! JSON)
 initWithElem n = s 8 ⧺ n +=+ sub n ⧺ " as"
-initNewtype t from = fromType t ⧺ "(" ⧺ from ⧺ ")"
+initNewtype n d@(Dictionary _ _) _ = mapJSON (n ⧺ "!") d -- FIXME: expl pass optional
+--initNewtype n d@(Array _ ) _ = mapJSON (n ⧺ "!") d
+initNewtype n t from = n +=+ fromType t ⧺ "(" ⧺ from ⧺ ")"
 initPrimitive (Optional t) n = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
 initPrimitive t n = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
-withOptionalJSON n init = s 8 ⧺ "if let j" +=+ sub n ⧺ " as? " ⧺ jsonT ⧺ ""
-                          ⧺ " { " ⧺ n +=+ init "j" ⧺ "} else { " ⧺ n +=+ "nil }\n"
-mapJSON n t = "map(" ⧺ castArr ⧺ ") {" ⧺ closure ⧺ "}\n"
+withOptionalJSON n init = s 8 ⧺ "if let json" +=+ sub n ⧺ " as? " ⧺ jsonT ⧺ ""
+                          ⧺ " {\n" ⧺ s 8 ⧺ init "json" ⧺ "\n" ⧺ s 8 ⧺ "} else { " ⧺ n +=+ "nil }\n"
+mapJSON n t = "map(" ⧺ castArr ⧺ ") {" ⧺ closure ⧺ "}"
   where castArr | Array _ ← t = sub n ⧺ " as! [" ⧺ jsonT ⧺ "]"
-                | otherwise = "json.keys"
-        closure | Array t' ← t = initNewtype t' "$0"
-                | Dictionary k v ← t = "(k" +:+ k ⧺ ") in d[k]"
-                                     +=+ initNewtype v ("json[k] as! " ⧺ jsonT)
+                | Dictionary _ _ ← t = "json.keys"
+        closure | Array t' ← t = fromType t' ⧺ "($0)"
+                | Dictionary k v ← t = "(k" +:+ k ⧺ ") in self." ⧺ n ⧺ "[k]"
+                                       +=+ fromType v ⧺ "(" ⧺ ("json[k] as! " ⧺ jsonT) ⧺ ")"
 
 n +=+ v = n ⧺ " = " ⧺ v
 n +:+ t = n ⧺ ": " ⧺ fromType t
@@ -80,9 +83,9 @@ interfaceWrap intStub intName rpc = foundation header ⧺ "public extension " �
   where header | intStub = "public class " ⧺ intName ⧺ " {\n"
                          ⧺ s 4 ⧺ "public init() { }\n"
                          ⧺ s 4 ⧺ "public func call(method: String, _ args: "
-                               ⧺ jsonT ⧺ ", completion: " ⧺ jsonT  ⧺ " -> Void) -> " ⧺ jsonT ⧺ " {\n"
+                               ⧺ jsonT ⧺ ", completion: " ⧺ jsonT ⧺ " -> Void) -> " ⧺ jsonT ⧺ " {\n"
                          ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
-                         ⧺ s 8 ⧺ "return [:]\n"  ⧺  s 4 ⧺ "}\n"  ⧺  "}\n\n"
+                         ⧺ s 8 ⧺ "return [:]\n" ⧺ s 4 ⧺ "}\n" ⧺ "}\n\n"
                | otherwise = ""
 
 entitiesWrap ∷ String → String
