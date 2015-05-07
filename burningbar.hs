@@ -35,7 +35,7 @@ main = do
   json ← spec o
   createDir (root o)
   let proc = decode ⋙ translate ⋙ writeEnt ⁂ writeInt ⋙ uncurry (≫)
-  proc json `catch` (handleEx "Syntax error ¬ ¬")
+  proc json `catch` handleEx "Syntax error ¬ ¬"
 
 translate ∷ [Map String String] → (String, String)
 translate = translator swift ∘ toSpec
@@ -72,7 +72,7 @@ unpackJSON _ = error $ "Root object should be array, see " ⧺ bbURL
 usage _ = error $ "Usage: hsrpcgen [-vhgtrdsp]\n" ⧺ bbURL
 version _ = error $ bbURL ⧺ "v0.2"
 
-createDir name = createDirectoryIfMissing True name `catch` (handleEx "Can't create dir.")
+createDir name = createDirectoryIfMissing True name `catch` handleEx "Can't create dir."
 handleEx err (e ∷ SomeException) = print e ≫  error err
 -- TODO: catch specific exs and provide info, i.e. Map.! — no item with prefix
 

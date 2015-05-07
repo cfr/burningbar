@@ -19,7 +19,7 @@ function (Function name rpc args t) = "  public func " ⧺ name
         passedArgs | args ≡ [] = ":"
                    | otherwise = (init ∘ init ∘ list) passArg
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
-        parseReply | t ≡ (Typename "Void") = " _ in }"
+        parseReply | t ≡ Typename "Void" = " _ in }"
                    | otherwise = "\n" ⧺ s 8 ⧺ "let v = " ⧺ initNewtype t "$0" ⧺ "\n"
                                ⧺ s 8 ⧺ "completion(v)\n" ⧺ s 6 ⧺ "}"
         list = (args ≫=)
