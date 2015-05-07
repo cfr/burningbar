@@ -1,9 +1,9 @@
-# HsRPCGen
+# burningbar
 
 Install and run:
 
-    $ git clone https://github.com/cfr/HsRPCGen.git
-    $ cd HsRPCGen
+    $ git clone https://github.com/cfr/burningbar.git
+    $ cd burningbar
     $ make test
 
 See Swift example in Xcode workspace: `$ open TestGen.xcworkspace`.
