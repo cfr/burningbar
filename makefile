@@ -5,7 +5,7 @@ endif
 
 all: deps
 	mkdir -p out
-	ghc --make burningbar.hs -outputdir out -o burningbar
+	ghc -O2 --make burningbar.hs -outputdir out -o burningbar
 
 test:
 	./burningbar.sh
