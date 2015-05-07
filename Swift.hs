@@ -78,8 +78,9 @@ fromType (Typename typename) = typename
 interfaceWrap ∷ Bool → Typename → String → String
 interfaceWrap intStub intName rpc = foundation header ⧺ "public extension " ⧺ intName ⧺ " {\n" ⧺ rpc ⧺ "}\n"
   where header | intStub = "public class " ⧺ intName ⧺ " {\n"
-                         ⧺ s 4 ⧺ "public class func call(method: String, _ args: "
-                               ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ " {\n"
+                         ⧺ s 4 ⧺ "public init() { }\n"
+                         ⧺ s 4 ⧺ "public func call(method: String, _ args: "
+                               ⧺ jsonT ⧺ ", completion: " ⧺ jsonT  ⧺ " -> Void) -> " ⧺ jsonT ⧺ " {\n"
                          ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
                          ⧺ s 8 ⧺ "return [:]\n"  ⧺  s 4 ⧺ "}\n"  ⧺  "}\n\n"
                | otherwise = ""

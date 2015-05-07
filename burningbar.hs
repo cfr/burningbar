@@ -69,7 +69,7 @@ unpackJSON (JSArray a) = map (fromList ∘ map unpack ∘ fromJSObj) a where
   errType = error "Spec item should be map of type String: String"
 unpackJSON _ = error $ "Root object should be array, see " ⧺ bbURL
 
-usage _ = error $ "Usage: hsrpcgen [-vhgtrds]\n" ⧺ bbURL
+usage _ = error $ "Usage: hsrpcgen [-vhgtrdsp]\n" ⧺ bbURL
 version _ = error $ bbURL ⧺ "v0.2"
 
 createDir name = createDirectoryIfMissing True name `catch` (handleEx "Can't create dir.")
