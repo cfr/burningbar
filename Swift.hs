@@ -10,9 +10,9 @@ swift = Language function record
 
 function (Function name rpc args t) = "  public func " ⧺ name
                                     ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ fromType t ⧺ " -> Void))"
-                                    ⧺ " -> " ⧺ "Void"
+                                    ⧺ " -> " ⧺ "S.CancellationToken" -- FIXME: pass typename
                                     ⧺ " {\n" ⧺ body ⧺ "" ⧺ "\n" ⧺ "  }\n"
-  where body = s 6 ⧺ "call(\"" ⧺ rpc ⧺ "\", [" ⧺ passedArgs ⧺ "]) {" ⧺ parseReply
+  where body = s 6 ⧺ "return s.call(\"" ⧺ rpc ⧺ "\", arguments: [" ⧺ passedArgs ⧺ "]) {" ⧺ parseReply -- FIXME: no s w/o class decl
         argList | args ≡ [] = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
         fromArg (Variable n t) = n +:+ t ⧺ ", "
@@ -32,6 +32,7 @@ record (Record name vars) = "public struct " ⧺ name ⧺ " {\n"
                    ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
                  -- TODO: public toJSON() -> JSON
         initDict (Variable n d@(Dictionary k t)) | t ∉ primitives = s 8 ⧺ n +=+ fromType d ⧺ "()\n"
+        initDict (Variable n (Optional d@(Dictionary k t))) | t ∉ primitives = s 8 ⧺ n +=+ fromType d ⧺ "()\n"
         initDict _ = ""
 
 varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n +:+ t ⧺ "\n"
@@ -80,12 +81,14 @@ fromType (Typename typename) = typename
 
 interfaceWrap ∷ Bool → Typename → String → String
 interfaceWrap intStub intName rpc = foundation header ⧺ "public extension " ⧺ intName ⧺ " {\n" ⧺ rpc ⧺ "}\n"
-  where header | intStub = "public class " ⧺ intName ⧺ " {\n"
-                         ⧺ s 4 ⧺ "public init() { }\n"
-                         ⧺ s 4 ⧺ "public func call(method: String, _ args: "
-                               ⧺ jsonT ⧺ ", completion: " ⧺ jsonT ⧺ " -> Void) -> " ⧺ jsonT ⧺ " {\n"
-                         ⧺ s 8 ⧺ "print(\"calling \\(method) with \\(args.description)\")\n"
-                         ⧺ s 8 ⧺ "return [:]\n" ⧺ s 4 ⧺ "}\n" ⧺ "}\n\n"
+  where header | intStub = "public class " ⧺ intName ⧺ " <S: Singularity> {\n"
+                         ⧺ s 4 ⧺ "public init(singularity: S) { s = singularity }\n"
+                         ⧺ s 4 ⧺ "private let s: S\n" -- TODO: pass protocol name
+--                         ⧺ s 4 ⧺ "public func call(method: String, _ args: "
+--                               ⧺ jsonT ⧺ ", completion: " ⧺ jsonT ⧺ " -> Void) -> " ⧺ jsonT ⧺ " {\n"
+--                         ⧺ s 8 ⧺ "s.call(method, args, completion)\n" -- TODO: print(\"calling \\(method) with \\(args.description)\")\n"
+--                         ⧺ s 8 ⧺ "return [:]\n" ⧺ s 4 ⧺ "}\n"
+                         ⧺ "}\n\n"
                | otherwise = ""
 
 entitiesWrap ∷ String → String
