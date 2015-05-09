@@ -5,17 +5,12 @@ import Prelude hiding (lookup)
 import Data.List (stripPrefix)
 import Data.Map (Map, partitionWithKey, mapKeys
                 , lookup, member, (!), toList)
-import Data.Maybe (fromMaybe, maybe, catMaybes)
+import Data.Maybe (maybe, catMaybes)
 import Data.Char (isSpace)
 import Control.Monad (join)
 import Control.Arrow (second)
 
-import Data.Text (pack, unpack)
-import qualified Data.Text (stripSuffix, strip)
-
-import Control.Applicative
-import Prelude.Unicode
-import Control.Arrow.Unicode
+import Unicode
 
 import Language
 
@@ -47,14 +42,14 @@ parseRecord = parseDeclarationAs (flip Record) name
   where name ["rec", nm] = Just nm
         name _ = Nothing
 
-parseDeclarationAs ∷ ([Variable] → a → Declaration) → (Words → Maybe a) → Lines → Maybe Declaration
-parseDeclarationAs con parseHeader (head:vars) = con' ⊚ header
+parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe α) → Lines → Maybe Declaration
+parseDeclarationAs construct parseHeader (head:vars) = construct' ⊚ header
   where header = parseHeader (words head)
-        con' = con (map parseVar vars)
+        construct' = construct (map parseVar vars)
 parseDeclarationAs con parseHeader [] = Nothing
 
 parseVar ∷ String → Variable
-parseVar (words → (n:rt)) = parseVar' (n, join rt)
+parseVar (words → (n:rt)) {-| not null rt-} = parseVar' (n, join rt)
 parseVar s = error $ s ⧺ "expecting variable declaration."
 
 parseVar' ∷ (Name, RawType) → Variable
@@ -64,7 +59,7 @@ parseType ∷ RawType → Type
 parseType (stripSuffix "?" → Just t) = Optional (parseType t)
 parseType (stripPrefix "[" → Just t) = (Array ∘ parseType ∘ init) t -- TODO: check "]"
 parseType (stripPrefix "{" → Just t) = parseDictType t
-parseType u = Typename (strip u)
+parseType u = Typename (trim u)
 parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
   where (keyType, valType) = join (⁂) parseType (splitAtColon t)
         splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
@@ -72,20 +67,17 @@ parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
 
 paragraphs ∷ Lines → [String]
 paragraphs [] = []
-paragraphs ls = let (p, rest) = (break null ∘ dropWhile null ∘ map strip) ls
+paragraphs ls = let (p, rest) = (break null ∘ dropWhile null ∘ map trim) ls
                 in unlines p : paragraphs rest
 
 parse ∷ String → Spec
 parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComments ∘ lines
   where stripComments = takeWhile (≠ '-')
 
-stripSuffix ∷ String → String → Maybe String
-stripSuffix = (fmap unpack ∘) ∘ (∘ pack) ∘ Data.Text.stripSuffix ∘ pack
+stripSuffix ∷ Eq α ⇒ [α] → [α] → Maybe [α]
+stripSuffix xs ys = reverse ⊚ stripPrefix (reverse xs) (reverse ys)
 
-strip ∷ String → String
-strip = unpack ∘ Data.Text.strip ∘ pack
-
-(⊚) = (<$>)
-(⦶) = (<|>)
--- (⩕) = (&&&)
+trim ∷ String → String
+trim = f ∘ f
+   where f = reverse ∘ dropWhile isSpace
 

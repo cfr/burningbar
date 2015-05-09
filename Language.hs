@@ -1,10 +1,10 @@
 {-# LANGUAGE UnicodeSyntax, RecordWildCards #-}
 module Language where
 
-import Control.Monad.Unicode
-import Control.Arrow.Unicode
 import Control.Monad (join)
 import Data.List (partition)
+
+import Unicode
 
 type Name = String
 type RemoteName = Name
@@ -26,6 +26,6 @@ type Spec = [Declaration]
 translator ∷ Language → Spec → (String, String)
 translator (Language {..}) = partition isRec ⋙ gen' ⋙ wrapEntities ⁂ wrapInterface
   where gen' = join (⁂) (generate =≪)
-        isRec (Record {..}) = True
+        isRec (Record _ _) = True
         isRec _ = False
 

@@ -4,8 +4,7 @@ module Swift (swift) where
 import Language hiding (wrapInterface, wrapEntities, generate)
 
 import Data.Char (toLower)
-import Prelude.Unicode
-import Control.Monad.Unicode
+import Unicode
 
 swift ∷ Typename → Typename → Typename → Language
 swift cancelType transportType interfaceType = Language generate' wrapEntities wrapInterface'
@@ -24,7 +23,7 @@ function name rpc args t ct = "" ⇝ "public func " ⧺ name
         argList | null args = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
         fromArg (Variable n t) = n +:+ t ⧺ ", "
-        passedArgs | args ≡ [] = ":"
+        passedArgs | null args = ":"
                    | otherwise = (init ∘ init ∘ list) passArg
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
         parseReply | t ≡ Typename "Void" = " _ in }"
