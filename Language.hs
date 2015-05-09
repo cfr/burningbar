@@ -3,23 +3,29 @@ module Language where
 
 import Control.Monad.Unicode
 import Control.Arrow.Unicode
+import Control.Monad (join)
+import Data.List (partition)
 
 type Name = String
-type PrettyName = String -- interface name alias for remote call
+type RemoteName = Name
 type Typename = String
 data Type = Array Type | Dictionary Type Type
           | Optional Type | Typename String deriving (Show, Eq)
-type RawType = String -- unparsed type
+type ReturnType = Type
 data Variable = Variable Name Type deriving (Show, Eq)
-data Function = Function PrettyName Name [Variable] Type deriving Show
-data Record = Record Name [Variable] deriving Show
+data Declaration = Record Name [Variable]
+                 | Method RemoteName ReturnType Name [Variable] deriving Show
 
 data Language = Language
-    { function ∷ Function → String
-    , record ∷ Record → String }
+    { generate ∷ Declaration → String
+    , wrapEntities ∷ String → String
+    , wrapInterface ∷ String → String }
 
-type Spec = ([Record], [Function])
+data Spec = Spec { fromSpec ∷ [Declaration] } deriving Show
 
 translator ∷ Language → Spec → (String, String)
-translator (Language f r) = (r =≪) ⁂ (f =≪)
+translator (Language gen we wi) = fromSpec ⋙ partition isRec ⋙ gen' ⋙ we ⁂ wi
+  where gen' = join (⁂) (gen =≪)
+        isRec (Record _ _) = True
+        isRec _ = False
 

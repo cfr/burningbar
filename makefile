@@ -7,12 +7,15 @@ all: deps
 	mkdir -p out
 	ghc -O2 --make burningbar.hs -outputdir out -o burningbar
 
+debug:
+	ghci *.hs -DDEBUG
+
 test:
-	./burningbar.sh
-	@echo using spec.json, written Entities.swift \& Interface.swift
+	./runburningbar
+	@echo using spec.bb, written Entities.swift \& Interface.swift
 
 run:
-	open ./TestGen.xcworkspace # TODO: xcbuild
+	open ./TestGen.xcworkspace
 
 lint:
 	#cabal install hlint
@@ -22,7 +25,7 @@ deps:
 	$(PM) install haskell-platform
 	# or install manually from https://www.haskell.org/platform/
 	cabal update
-	cabal install json base-unicode-symbols
+	cabal install base-unicode-symbols
 
 clean:
 	rm -rf out
