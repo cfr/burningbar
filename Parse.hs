@@ -27,7 +27,7 @@ type RawType = String
 
 parseMethod ∷ Lines → Maybe Declaration
 parseMethod = parseDeclarationAs cm proto
-  where proto ∷ Words → Maybe (RemoteName, RawType, Name)
+  where proto ∷ Words → Maybe (Name, RawType, Name)
         proto ["met", rn, rrt] = Just (rn, rrt, rn)
         proto ["met", rn, rrt, n] = Just (rn, rrt, n)
         proto _ = Nothing

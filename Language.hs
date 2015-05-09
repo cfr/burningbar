@@ -7,25 +7,24 @@ import Data.List (partition)
 import Unicode
 
 type Name = String
-type RemoteName = Name
 type Typename = String
-data Type = Array Type | Dictionary Type Type
+data Type = Array Type | Dictionary { key ∷ Type, value ∷ Type }
           | Optional Type | Typename String deriving (Show, Eq)
-type ReturnType = Type
-data Variable = Variable Name Type deriving (Show, Eq)
-data Declaration = Record Name [Variable]
-                 | Method RemoteName ReturnType Name [Variable] deriving Show
 
-data Language = Language
-    { generate ∷ Declaration → String
-    , wrapEntities ∷ String → String
-    , wrapInterface ∷ String → String }
+data Variable = Variable Name Type deriving Show
+data Declaration = Record { name ∷ Name, vars ∷ [Variable] }
+                 | Method { remote ∷ Name, returns ∷ Type,
+                            name ∷ Name, args ∷ [Variable] } deriving Show
+
+data Language = Language { generate ∷ Declaration → String
+                         , wrapEntities ∷ String → String
+                         , wrapInterface ∷ String → String }
 
 type Spec = [Declaration]
 
 translator ∷ Language → Spec → (String, String)
-translator (Language {..}) = partition isRec ⋙ gen' ⋙ wrapEntities ⁂ wrapInterface
-  where gen' = join (⁂) (generate =≪)
-        isRec (Record _ _) = True
+translator (Language {..}) = partition isRec ⋙ gen ⋙ wrapEntities ⁂ wrapInterface
+  where gen = join (⁂) (generate =≪)
+        isRec Record {} = True
         isRec _ = False
 
