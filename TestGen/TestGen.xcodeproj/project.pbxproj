@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E63C00461AED576C00F21E64 /* TestGen.h in Headers */ = {isa = PBXBuildFile; fileRef = E63C00451AED576C00F21E64 /* TestGen.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E687EA701AFB2D40004360E1 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = E687EA6E1AFB2D40004360E1 /* Entities.swift */; };
 		E687EA711AFB2D40004360E1 /* Interface.swift in Sources */ = {isa = PBXBuildFile; fileRef = E687EA6F1AFB2D40004360E1 /* Interface.swift */; };
 /* End PBXBuildFile section */
@@ -15,7 +14,6 @@
 /* Begin PBXFileReference section */
 		E63C00401AED576C00F21E64 /* TestGen.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestGen.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E63C00441AED576C00F21E64 /* TestGen.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TestGen.plist; sourceTree = "<group>"; };
-		E63C00451AED576C00F21E64 /* TestGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestGen.h; sourceTree = "<group>"; };
 		E687EA6E1AFB2D40004360E1 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = SOURCE_ROOT; };
 		E687EA6F1AFB2D40004360E1 /* Interface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interface.swift; sourceTree = SOURCE_ROOT; };
 		E6FEA0E41AFE875B000A38CD /* spec.bb */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.bb; path = ../../spec.bb; sourceTree = "<group>"; };
@@ -54,7 +52,6 @@
 				E6FEA0E41AFE875B000A38CD /* spec.bb */,
 				E687EA6E1AFB2D40004360E1 /* Entities.swift */,
 				E687EA6F1AFB2D40004360E1 /* Interface.swift */,
-				E63C00451AED576C00F21E64 /* TestGen.h */,
 				E63C00431AED576C00F21E64 /* Supporting Files */,
 			);
 			path = TestGen;
@@ -75,7 +72,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E63C00461AED576C00F21E64 /* TestGen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
