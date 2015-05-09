@@ -1,4 +1,4 @@
-// Generated with http://j.mp/burningbar v0.5.9
+// Generated with http://j.mp/burningbar v0.5.10
 
 import Foundation
 

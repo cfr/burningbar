@@ -16,7 +16,7 @@ import Swift
 import Unicode
 
 bbURL = "http://j.mp/burningbar"
-version = " v0.5.9"
+version = " v0.5.10"
 
 main = do
   args ← getArgs
@@ -27,7 +27,7 @@ main = do
   spec ← spec ≫= return ∘ parse
   let (ent, int) = translator (swift transport interface) spec
   (createDir root ≫ write entFn ent ≫ write intFn int)
-      `catch` handleEx "Syntax error ¬ ¬"
+      `catch` handleEx "Error ¬ ¬: "
 #ifdef DEBUG
   print (spec, ent, int)
 #endif
@@ -55,5 +55,5 @@ use _ = error $ "Usage: hsrpcgen [-vhgtrdsp]\n" ⧺ bbURL ⧺ version
 ver _ = error $ bbURL ⧺ version
 
 createDir name = createDirectoryIfMissing True name `catch` handleEx "Can't create dir."
-handleEx err (e ∷ SomeException) = print e ≫ error err
+handleEx err (e ∷ SomeException) = error (err ++ show e)
 

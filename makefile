@@ -1,7 +1,17 @@
-PM := brew
+
+CASK_VER := $(shell brew cask --version 2>/dev/null)
+
 ifeq ($(shell uname -s), Linux)
-PM = sudo apt
+INSTALL_DEPS = sudo apt install ghc cabal-install
+else
+ifneq ($(strip $(CASK_VER)),)
+INSTALL_DEPS := brew cask install haskell-platform
+else
+INSTALL_DEPS := brew install ghc cabal-install
 endif
+endif
+
+
 
 all: deps
 	mkdir -p out
@@ -22,8 +32,8 @@ lint:
 	hlint *hs
 
 deps:
-	$(PM) install ghc
-	# or install manually from https://www.haskell.org/platform/
+	$(INSTALL_DEPS)
+	# or install manually: https://www.haskell.org/platform/
 
 clean:
 	rm -rf out

@@ -1,4 +1,6 @@
 
+met ping Void
+
 rec Credentials
    login  String
    pass  String
@@ -17,4 +19,3 @@ met register Credentials
     username String
     password String
 
-met ping Void
