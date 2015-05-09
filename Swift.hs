@@ -20,7 +20,7 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
                            ⧺ " -> T.CancellationToken"
                            ⧺ " {\n" ⧺ body ⇝ "}\n"
   where body = s 6 ⧺ "return t.call(\"" ⧺ rpc ⧺ "\", arguments: [" ⧺ passedArgs ⧺ "]) { " ⧺ parseReply
-        argList | null args = "" -- FIXME: keep arg list order
+        argList | null args = ""
                 | otherwise = list fromArg
         fromArg (Variable n t) = n +:+ t ⧺ ", "
         passedArgs | null args = ":"
@@ -55,7 +55,7 @@ initVar (Variable n t)            | t ∈ primitives = initPrimitive t n
                                   | otherwise = s 8 ⧺ n +=+ initNewtype n t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
 
 initWithElem n = s 8 ⧺ n +=+ sub n ⧺ " as"
-initNewtype n d@(Dictionary _ _) _ = mapJSON (n ⧺ "!") d -- FIXME: expl pass optional
+initNewtype n d@(Dictionary _ _) _ = mapJSON (n ⧺ "!") d
 --initNewtype n d@(Array _ ) _ = mapJSON (n ⧺ "!") d
 initNewtype n t from = n +=+ fromType t ⧺ "(" ⧺ from ⧺ ")"
 initPrimitive (Optional t) n = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
@@ -74,7 +74,7 @@ n +:+ t = n ⧺ ": " ⧺ fromType t
 jsonT = "[String: AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
-primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt] -- FIXME: more?
+primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt]
   where atoms = map Typename ["String", "Bool", "Int", "Float", "NSNumber"]
         ap = (take 2 ∘) ∘ iterate
         opt = ap Optional

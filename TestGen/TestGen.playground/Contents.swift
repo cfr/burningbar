@@ -23,4 +23,4 @@ let i = Interface(transport: printer)
 
 i.ping({ })
 
-i.register("user", password: "pwd", completion: { print($0) })
+i.register(nil, password: "pwd", completion: { print($0) })

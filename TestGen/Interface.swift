@@ -29,5 +29,9 @@ public class Interface <T: Transport> {
       }
     }
 
+    public func test(a1: Int, a2: NSNumber?, a3: Bool, completion: Void -> Void) -> T.CancellationToken {
+      return t.call("test", arguments: ["a1": a1 as Any, "a2": a2 as Any, "a3": a3 as Any]) {  _ in }
+    }
+
     private let t: T
 }

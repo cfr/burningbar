@@ -19,3 +19,7 @@ met register Credentials
     username String
     password String
 
+met test Void
+    a1 Int
+    a2 NSNumber?
+    a3 Bool
