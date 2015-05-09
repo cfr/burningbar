@@ -13,7 +13,7 @@ rec UserInfo - TODO: Any, Equatable, Hashable
 met user.login UserInfo login
    creds Credentials
 
-met register Bool
+met register Credentials
     username String
     password String
 

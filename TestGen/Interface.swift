@@ -1,20 +1,33 @@
-// Generated with http://j.mp/burningbar
+// Generated with http://j.mp/burningbar v0.5.9
 
 import Foundation
 
-public class Interface {
-    public init() { }
-    public func call(method: String, _ args: [String: AnyObject], completion: [String: AnyObject] -> Void) -> [String: AnyObject] {
-        print("calling \(method) with \(args.description)")
-        return [:]
-    }
+public protocol Transport {
+    typealias CancellationToken
+    func call(method: String, arguments: Dictionary<String, AnyObject>,
+              completion: Dictionary<String, AnyObject> -> Void) -> Void
 }
+public class Interface <T: Transport> {
 
-public extension Interface {
-  public func register(password: String, username: String, completion: (UserInfo -> Void)) -> Void {
-      call("user.register", ["password": password ,"username": username]) {
-        let v = UserInfo($0)
+    public init(transport: T) { t = transport }
+
+    public func login(creds: Credentials, completion: (UserInfo -> Void)) -> T.CancellationToken {
+      return t.call("user.login", arguments: ["creds": creds]) { (r: Dictionary<String, AnyObject>) in
+        let v = UserInfo(r)
         completion(v)
       }
-  }
+    }
+
+    public func register(username: String, password: String, completion: (Credentials -> Void)) -> T.CancellationToken {
+      return t.call("register", arguments: ["username": username ,"password": password]) { (r: Dictionary<String, AnyObject>) in
+        let v = Credentials(r)
+        completion(v)
+      }
+    }
+
+    public func ping(completion: (Void -> Void)) -> T.CancellationToken {
+      return t.call("ping", arguments: [:]) {  _ in }
+    }
+
+    private let t: T
 }

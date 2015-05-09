@@ -18,6 +18,7 @@
 		E63C00451AED576C00F21E64 /* TestGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestGen.h; sourceTree = "<group>"; };
 		E687EA6E1AFB2D40004360E1 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = SOURCE_ROOT; };
 		E687EA6F1AFB2D40004360E1 /* Interface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interface.swift; sourceTree = SOURCE_ROOT; };
+		E6FEA0E41AFE875B000A38CD /* spec.bb */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.bb; path = ../../spec.bb; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +51,7 @@
 		E63C00421AED576C00F21E64 /* TestGen */ = {
 			isa = PBXGroup;
 			children = (
+				E6FEA0E41AFE875B000A38CD /* spec.bb */,
 				E687EA6E1AFB2D40004360E1 /* Entities.swift */,
 				E687EA6F1AFB2D40004360E1 /* Interface.swift */,
 				E63C00451AED576C00F21E64 /* TestGen.h */,
@@ -152,7 +154,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "../burningbar --int-stub --spec-file ../spec.json";
+			shellScript = "../burningbar --spec-file ../spec.bb";
 		};
 /* End PBXShellScriptBuildPhase section */
 

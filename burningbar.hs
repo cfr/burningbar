@@ -25,7 +25,7 @@ main = do
   let copy = (("// Generated with " ⧺ bbURL ⧺ version ⧺ "\n\n") ⧺)
   let write = (∘ copy) ∘ writeFile ∘ (root ⧄)
   spec ← spec ≫= return ∘ parse
-  let (ent, int) = translator (swift cancel transport interface) spec
+  let (ent, int) = translator (swift transport interface) spec
   (createDir root ≫ write entFn ent ≫ write intFn int)
       `catch` handleEx "Syntax error ¬ ¬"
 #ifdef DEBUG
@@ -33,10 +33,10 @@ main = do
 #endif
 
 
-data Options = Options { cancel ∷ Typename, transport ∷ Typename, interface ∷ Typename
+data Options = Options { transport ∷ Typename, interface ∷ Typename
                        , spec ∷ IO String, root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath }
 defaults ∷ Options
-defaults = Options "Void" "Transport" "Interface" (readFile "spec.bb") "./" entFn intFn
+defaults = Options "Transport" "Interface" (readFile "spec.bb") "./" entFn intFn
   where { intFn = "Interface" ⊡ ext; entFn = "Entities" ⊡ ext; ext = "swift" }
 
 options ∷ [OptDescr (Options → Options)]
@@ -44,7 +44,6 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   [ ("v", ["version"], NoArg ver, "show version number")
   , ("h", ["help"], NoArg use, "show help")
   , ("a", ["transport"], ReqArg (\a o → o {transport = a}) "T", "transport type name")
-  , ("c", ["cancel"], ReqArg (\a o → o {cancel= a}) "C", "cancellation token type name")
   , ("t", ["interface"], ReqArg (\a o → o {interface = a}) "I", "interface class name")
   , ("r", ["interface-file"], ReqArg (\a o → o {intFn = a}) "i", "interface output file")
   , ("d", ["entities-file"], ReqArg (\a o → o {entFn = a}) "e", "entities outout file")

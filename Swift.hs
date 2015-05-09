@@ -6,20 +6,20 @@ import Language hiding (wrapInterface, wrapEntities, generate)
 import Data.Char (toLower)
 import Unicode
 
-swift ∷ Typename → Typename → Typename → Language
-swift cancelType transportType interfaceType = Language generate' wrapEntities wrapInterface'
+swift ∷ Typename → Typename → Language
+swift transportType interfaceType = Language generate wrapEntities wrapInterface'
   where wrapInterface' = wrapInterface transportType interfaceType
-        generate' = generate cancelType
 
-generate ∷ Typename → Declaration → String
-generate _ (Record name vars) = record name vars
-generate cancelType method = function name remoteName args rawRetType cancelType
+generate ∷ Declaration → String
+generate (Record name vars) = record name vars
+generate method = function name remoteName args rawRetType
     where (Method remoteName rawRetType name args) = method
 
-function name rpc args t ct = "" ⇝ "public func " ⧺ name
-                              ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ fromType t ⧺ " -> Void))" ⧺ " -> " ⧺ ct
-                              ⧺ " {\n" ⧺ body ⇝ "}\n"
-  where body = s 6 ⧺ "return t.call(\"" ⧺ rpc ⧺ "\", arguments: [" ⧺ passedArgs ⧺ "]) {" ⧺ parseReply
+function name rpc args t = "" ⇝ "public func " ⧺ name
+                           ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ fromType t ⧺ " -> Void))"
+                           ⧺ " -> T.CancellationToken"
+                           ⧺ " {\n" ⧺ body ⇝ "}\n"
+  where body = s 6 ⧺ "return t.call(\"" ⧺ rpc ⧺ "\", arguments: [" ⧺ passedArgs ⧺ "]) { " ⧺ parseReply
         argList | null args = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
         fromArg (Variable n t) = n +:+ t ⧺ ", "
@@ -27,7 +27,8 @@ function name rpc args t ct = "" ⇝ "public func " ⧺ name
                    | otherwise = (init ∘ init ∘ list) passArg
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
         parseReply | t ≡ Typename "Void" = " _ in }"
-                   | otherwise = "" ⟿  "let v = " ⧺ fromType t ⧺ "($0)" -- FIXME: ""/name
+                   | otherwise = "(r: Dictionary<String, AnyObject>) in"
+                                 ⟿  "let v = " ⧺ fromType t ⧺ "(r)"
                                  ⟿  "completion(v)\n" ⧺ s 6 ⧺ "}"
         list = (args ≫=)
 
@@ -86,7 +87,7 @@ fromType (Typename typename) = typename
 
 wrapInterface ∷ Typename → Typename → String → String
 wrapInterface transportType interfaceType rpcs = foundation header
-  where header = "public class " ⧺ interfaceType ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
+  where header = defTransport ↝ "public class " ⧺ interfaceType ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
                ⇝ "public init(" ⧺ transport ⧺ ": T) { t = " ⧺ transport ⧺ " }" ↝ rpcs
                ⇝ "private let t: T\n" ⧺ "}\n"
         decapitalize (c:cs) = toLower c : cs
@@ -95,6 +96,11 @@ wrapInterface transportType interfaceType rpcs = foundation header
 wrapEntities ∷ String → String
 wrapEntities = foundation
 foundation = ("import Foundation\n" ↝)
+defTransport = "public protocol Transport {"
+               ⇝ "typealias CancellationToken"
+               ⇝ "func call(method: String, arguments: Dictionary<String, AnyObject>,"
+               ⇝ s 10 ⧺ "completion: Dictionary<String, AnyObject> -> Void) -> Void"
+               ↝ "}"
 
 s ∷ Int → String -- n spaces
 s = concat ∘ flip take (repeat " ")
