@@ -1,11 +1,11 @@
-PM := brew cask
+PM := brew
 ifeq ($(shell uname -s), Linux)
 PM = sudo apt
 endif
 
 all: deps
 	mkdir -p out
-	ghc -O2 --make burningbar.hs -outputdir out -o burningbar
+	ghc -O2 --make BurningBar.hs -outputdir out -o burningbar
 
 debug:
 	ghci *.hs -DDEBUG
@@ -22,10 +22,8 @@ lint:
 	hlint *hs
 
 deps:
-	$(PM) install haskell-platform
+	$(PM) install ghc
 	# or install manually from https://www.haskell.org/platform/
-	cabal update
-	cabal install base-unicode-symbols
 
 clean:
 	rm -rf out

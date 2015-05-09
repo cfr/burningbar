@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 D=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-runhaskell -i$D $D/burningbar.hs "$@"
+runhaskell -i$D $D/BurningBar.hs "$@"
 
