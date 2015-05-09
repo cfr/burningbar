@@ -12,14 +12,16 @@ swift cancelType transportType interfaceType = Language generate' wrapEntities w
   where wrapInterface' = wrapInterface transportType interfaceType
         generate' = generate cancelType
 
-generate ct (Method rn rrt n args) = function n rn args rrt ct
-generate _ (Record n vars) = record n vars
+generate ∷ Typename → Declaration → String
+generate _ (Record name vars) = record name vars
+generate cancelType method = function name remoteName args rawRetType cancelType
+    where (Method remoteName rawRetType name args) = method
 
 function name rpc args t ct = "" ⇝ "public func " ⧺ name
                               ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ fromType t ⧺ " -> Void))" ⧺ " -> " ⧺ ct
                               ⧺ " {\n" ⧺ body ⇝ "}\n"
   where body = s 6 ⧺ "return t.call(\"" ⧺ rpc ⧺ "\", arguments: [" ⧺ passedArgs ⧺ "]) {" ⧺ parseReply
-        argList | args ≡ [] = "" -- FIXME: keep arg list order
+        argList | null args = "" -- FIXME: keep arg list order
                 | otherwise = list fromArg
         fromArg (Variable n t) = n +:+ t ⧺ ", "
         passedArgs | args ≡ [] = ":"

@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE UnicodeSyntax, RecordWildCards #-}
 module Language where
 
 import Control.Monad.Unicode
@@ -21,11 +21,11 @@ data Language = Language
     , wrapEntities ∷ String → String
     , wrapInterface ∷ String → String }
 
-data Spec = Spec { fromSpec ∷ [Declaration] } deriving Show
+type Spec = [Declaration]
 
 translator ∷ Language → Spec → (String, String)
-translator (Language gen we wi) = fromSpec ⋙ partition isRec ⋙ gen' ⋙ we ⁂ wi
-  where gen' = join (⁂) (gen =≪)
-        isRec (Record _ _) = True
+translator (Language {..}) = partition isRec ⋙ gen' ⋙ wrapEntities ⁂ wrapInterface
+  where gen' = join (⁂) (generate =≪)
+        isRec (Record {..}) = True
         isRec _ = False
 

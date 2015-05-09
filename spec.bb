@@ -17,3 +17,4 @@ met register Bool
     username String
     password String
 
+met ping Void

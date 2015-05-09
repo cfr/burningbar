@@ -26,23 +26,12 @@ import Language
 -- rec name
 --  name type
 --  ...
---
--- rec(ord) / met(hod) / rem(ark)
+
 parseDeclaration ∷ String → Maybe Declaration
 parseDeclaration (lines → ls) = parseMethod ls ⦶ parseRecord ls
 
--- (+) `fmap` pR pM ==> pure (+) <*> 
--- liftM2 (+) parseRec parseM
--- last = liftM2 mod ps [10]
--- last = mod `fmap` ps <*> [10] --fmap==<$>
--- (pure fromMaybe <*> Comment) == fromMaybe `fmap` Comment
---  'fmap' f x = 'pure' f '<*>' x
-(⊚) = (<$>)
-(⦶) = (<|>)
-
 type Lines = [String]
 type Words = [String]
-
 type RawType = String
 
 parseMethod ∷ Lines → Maybe Declaration
@@ -83,11 +72,11 @@ parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
 
 paragraphs ∷ Lines → [String]
 paragraphs [] = []
-paragraphs lines = let (p, rest) = (break null ∘ dropWhile null ∘ map strip) lines
-                   in unlines p : paragraphs rest
+paragraphs ls = let (p, rest) = (break null ∘ dropWhile null ∘ map strip) ls
+                in unlines p : paragraphs rest
 
 parse ∷ String → Spec
-parse = Spec ∘ catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComments ∘ lines
+parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComments ∘ lines
   where stripComments = takeWhile (≠ '-')
 
 stripSuffix ∷ String → String → Maybe String
@@ -95,4 +84,8 @@ stripSuffix = (fmap unpack ∘) ∘ (∘ pack) ∘ Data.Text.stripSuffix ∘ pac
 
 strip ∷ String → String
 strip = unpack ∘ Data.Text.strip ∘ pack
+
+(⊚) = (<$>)
+(⦶) = (<|>)
+-- (⩕) = (&&&)
 
