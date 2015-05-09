@@ -16,7 +16,7 @@ generate method = function name remoteName args rawRetType
     where (Method remoteName rawRetType name args) = method
 
 function name rpc args t = "" ⇝ "public func " ⧺ name
-                           ⧺ "(" ⧺ argList ⧺ "completion: (" ⧺ fromType t ⧺ " -> Void))"
+                           ⧺ "(" ⧺ argList ⧺ "completion: " ⧺ fromType t ⧺ " -> Void)"
                            ⧺ " -> T.CancellationToken"
                            ⧺ " {\n" ⧺ body ⇝ "}\n"
   where body = s 6 ⧺ "return t.call(\"" ⧺ rpc ⧺ "\", arguments: [" ⧺ passedArgs ⧺ "]) { " ⧺ parseReply
@@ -25,9 +25,9 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
         fromArg (Variable n t) = n +:+ t ⧺ ", "
         passedArgs | null args = ":"
                    | otherwise = (init ∘ init ∘ list) passArg
-        passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " ,"
+        passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " as Any, "
         parseReply | t ≡ Typename "Void" = " _ in }"
-                   | otherwise = "(r: Dictionary<String, AnyObject>) in"
+                   | otherwise = "r in"
                                  ⟿  "let v = " ⧺ fromType t ⧺ "(r)"
                                  ⟿  "completion(v)\n" ⧺ s 6 ⧺ "}"
         list = (args ≫=)
@@ -98,8 +98,8 @@ wrapEntities = foundation
 foundation = ("import Foundation\n" ↝)
 defTransport = "public protocol Transport {"
                ⇝ "typealias CancellationToken"
-               ⇝ "func call(method: String, arguments: Dictionary<String, AnyObject>,"
-               ⇝ s 10 ⧺ "completion: Dictionary<String, AnyObject> -> Void) -> Void"
+               ⇝ "func call(method: String, arguments: [String: Any],"
+               ⇝ s 10 ⧺ "completion: [String: AnyObject] -> Void) -> CancellationToken"
                ↝ "}"
 
 s ∷ Int → String -- n spaces
