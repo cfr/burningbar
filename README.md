@@ -12,9 +12,10 @@ See Swift example in Xcode workspace: `$ open TestGen.xcworkspace`.
 
 Build TestGen framework to run generator and compile module for the playground.
 
+
     $ burningbar --spec-file spec.bb
 
-reads [spec.bb][] and generates [Interface.swift][], [Entities.swift][] with
+reads [spec.bb][Spec] and generates [Interface.swift][], [Entities.swift][] with
 corresponding structs/parsers and RPC funcs declarations. Functions are encapsulated
 in Interface class, parameterized by `Transport` protocol containing `call` func
 and `CancellationToken` typealias. Structs `init(json:)` takes `[String: AnyObject]`
@@ -24,9 +25,9 @@ See help for more options:
 
     $ burningbar --help
 
-   [Interface.swift][https://github.com/cfr/burningbar/blob/master/TestGen/Interface.swift]
-   [Entities.swift][https://github.com/cfr/burningbar/blob/master/TestGen/Entities.swift]
-   [Spec][https://github.com/cfr/burningbar/blob/master/spec.bb]
+   [Interface.swift]: [https://github.com/cfr/burningbar/blob/master/TestGen/Interface.swift]
+   [Entities.swift]: [https://github.com/cfr/burningbar/blob/master/TestGen/Entities.swift]
+   [Spec]: [https://github.com/cfr/burningbar/blob/master/spec.bb]
 
 Spec syntax:
 
