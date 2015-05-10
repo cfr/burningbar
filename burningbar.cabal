@@ -2,7 +2,7 @@ name:                burningbar
 version:             0.5.10
 synopsis:            Swift RPC generator
 homepage:            http://j.mp/burnbar
-license:             Unlicense
+license:             PublicDomain
 license-file:        UNLICENSE
 author:              Stan Serebryakov
 maintainer:          i+cabal@cfr.pw
@@ -13,7 +13,7 @@ cabal-version:       >=1.10
 
 executable burningbar
   main-is:             BurningBar.hs
-  other-modules:       Unicode.hs, Language.hs, Parse.hs, Swift.hs
+  other-modules:       Unicode, Language, Parse, Swift
   other-extensions:    ScopedTypeVariables, UnicodeSyntax, CPP, RecordWildCards, ViewPatterns, NoImplicitPrelude
   build-depends:       base >=4.7 && <4.8, directory >=1.2 && <1.3, filepath >=1.3 && <1.4
   default-language:    Haskell2010
