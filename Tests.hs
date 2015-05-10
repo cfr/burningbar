@@ -18,7 +18,8 @@ ping = (parse "met ping Void") @?= [Method "ping" (Typename "Void") "ping" []]
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
-                    , liftM2 Dictionary (elements Language.atoms) arbitrary
+                    -- no dictionaries because swift and burnbar spec synax differs
+                    --, liftM2 Dictionary (elements Language.atoms) arbitrary
                     , liftM Optional arbitrary
                     , elements Language.atoms]
 
