@@ -34,16 +34,14 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
 
 record name vars = "public struct " ⧺ name ⧺ " {\n"
                    ⧺ concat decls ⧺ "}\n\n"
-  where decls = initDecl : map varDecl vars
-        initDecl = s 4 ⧺ "public init(_ json: " ⧺ jsonT ⧺ ") {\n"
-                   ⧺ concatMap initDict vars
-                   ⧺ concatMap initVar vars ⧺ s 4 ⧺ "}\n"
-                 -- TODO: public toJSON() -> JSON
+  where decls = initDecl : serializeDecl : map varDecl vars
+        initDecl = s 4 ⧺ "public init(_ json: " ⧺ jsonT ⧺ ") {"
+                   ↝ (initDict =≪ vars) ⧺ (initVar =≪ vars) ⧺ s 4 ⧺ "}\n"
+        serializeDecl = s 4 ⧺ "public var serialized: [String: AnyObject] { get { return [:] } }\n"
+        varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n +:+ t ⧺ "\n"
         initDict (Variable n d@(Dictionary k t)) | t ∉ primitives = s 8 ⧺ n +=+ fromType d ⧺ "()\n"
         initDict (Variable n (Optional d@(Dictionary k t))) | t ∉ primitives = s 8 ⧺ n +=+ fromType d ⧺ "()\n"
         initDict _ = ""
-
-varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n +:+ t ⧺ "\n"
 
 initVar v@(Variable n (Optional t)) | t ∈ primitives = initPrimitive (Optional t) n
                                     | otherwise = withOptionalJSON n (initNewtype n t)
@@ -75,7 +73,7 @@ jsonT = "[String: AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
 primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt]
-  where atoms = map Typename ["String", "Bool", "Int", "Float", "NSNumber"]
+  where atoms = map Typename ["String", "NSNumber"] -- TODO: "Bool", "Int", "Float", "URL", "IntString"
         ap = (take 2 ∘) ∘ iterate
         opt = ap Optional
         dict a = a : [Dictionary x a | x ← atoms]
@@ -106,6 +104,7 @@ defTransport t = "public protocol " ⧺ t ⧺ " {"
 s ∷ Int → String -- n spaces
 s = concat ∘ flip take (repeat " ")
 
+infixr 5 ↝, ⇝, ⟿
 joinLinesWithIndent n l l' = l ⧺ '\n':s n ⧺ l'
 (↝) = joinLinesWithIndent 0
 (⇝) = joinLinesWithIndent 4

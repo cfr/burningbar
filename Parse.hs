@@ -55,7 +55,7 @@ parseType ∷ RawType → Type
 parseType (stripSuffix "?" → Just t) = Optional (parseType t)
 parseType (stripPrefix "[" → Just t) = (Array ∘ parseType ∘ init) t -- TODO: check "]"
 parseType (stripPrefix "{" → Just t) = parseDictType t
-parseType u = Typename (trim u)
+parseType u = Typename (trim u) -- TODO: only prims
 parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
   where (keyType, valType) = join (⁂) parseType (splitAtColon t)
         splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')

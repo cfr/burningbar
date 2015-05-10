@@ -12,7 +12,7 @@
 - # Record
 -
 -     rec name
--      name varType - non-optional is not implemented yet
+-      name varType - same as type but with different primitives
 -      ...
 -
 - # Examples:
@@ -20,11 +20,11 @@
 met ping Void
 
 rec Credentials
-   login  String
-   pass  String
+   login  String?
+   pass  String?
 
 rec UserInfo - TODO: Any, Equatable, Hashable
-   age Int
+   age NSNumber?
    photoURLs  [String]?
    creds  Credentials?
    services  { String : [String] }
@@ -44,11 +44,12 @@ met test Void
 
 - # Type grammar
 - type → array-type | dictionary-type | type-identifier | optional-type | primitive-type
-- varType → optional-type
-- returnType → type-identifier
-- primitive-type → String | Bool | Int | Float | NSNumber
+- returnType → type-identifier | Void
+- primitive-var-type → String | NSNumber
+- primitive-type → String | Int | Float | Bool | NSNumber
 - array-type → [ type ]
 - dictionary-type → [ type : type ]
 - optional-type → type ?
-- implicitly-unwrapped-optional-type → type !
+- optional-var-type → type ?
+- unwrapped-optional-type → type !
 
