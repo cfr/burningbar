@@ -1,5 +1,5 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Swift (swift) where
+module Swift (swift, fromType) where
 
 import Language hiding (wrapInterface, wrapEntities, generate)
 

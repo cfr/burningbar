@@ -21,7 +21,9 @@ executable burningbar
 Test-Suite Tests
   type:              exitcode-stdio-1.0
   main-is:           Tests.hs
-  build-depends:     base, test-framework, test-framework-hunit, HUnit,
-                     filepath, directory
+  build-depends:     base, filepath, directory,
+                     HUnit, QuickCheck,
+                     test-framework, test-framework-hunit,
+                     test-framework-quickcheck
   default-language:  Haskell2010
 

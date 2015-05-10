@@ -28,10 +28,12 @@ translator (Language {..}) = partition isRec ⋙ gen ⋙ wrapEntities ⁂ wrapIn
         isRec Record {} = True
         isRec _ = False
 
+atoms ∷ [Type]
+atoms = map Typename ["String", "NSNumber"] -- TODO: "Bool", "Int", "Float", "URL", "IntString"
+
 primitives ∷ [Type]
 primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt]
-  where atoms = map Typename ["String", "NSNumber"] -- TODO: "Bool", "Int", "Float", "URL", "IntString"
-        ap = (take 2 ∘) ∘ iterate
+  where ap = (take 2 ∘) ∘ iterate
         opt = ap Optional
         dict a = a : [Dictionary x a | x ← atoms]
 

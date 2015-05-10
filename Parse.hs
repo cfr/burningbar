@@ -1,5 +1,5 @@
 {-# LANGUAGE ViewPatterns, UnicodeSyntax #-}
-module Parse (Spec, parse, Language(..), Typename, translator) where
+module Parse (Spec, parse, Language(..), Typename, translator, parseType) where
 
 import Data.List (stripPrefix)
 import Data.Maybe (maybe, catMaybes)
