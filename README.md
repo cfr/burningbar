@@ -25,9 +25,9 @@ See help for more options:
 
     $ burningbar --help
 
-   [Interface.swift]: [https://github.com/cfr/burningbar/blob/master/TestGen/Interface.swift]
-   [Entities.swift]: [https://github.com/cfr/burningbar/blob/master/TestGen/Entities.swift]
-   [Spec]: [https://github.com/cfr/burningbar/blob/master/spec.bb]
+   [Interface.swift]: TestGen/Interface.swift
+   [Entities.swift]: TestGen/Entities.swift
+   [Spec]: spec.bb
 
 Spec syntax:
 
