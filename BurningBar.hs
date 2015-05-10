@@ -15,7 +15,7 @@ import Swift
 
 import Unicode
 
-bbURL = "http://j.mp/burningbar"
+bbURL = "http://j.mp/burnbar"
 version = " v0.5.10"
 
 main = do
