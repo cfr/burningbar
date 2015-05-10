@@ -16,7 +16,7 @@ let json = ["age": 15, "name": "T",
 
 let u = UserInfo(json)
 
-println(u.creds?.login)
+println(u.creds?.serialized)
 
 let printer = Printer()
 let i = Interface(transport: printer)
