@@ -36,7 +36,7 @@ main = do
 data Options = Options { transport ∷ Typename, interface ∷ Typename
                        , spec ∷ IO String, root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath }
 defaults ∷ Options
-defaults = Options "Transport" "Interface" (readFile "spec.bb") "./" entFn intFn
+defaults = Options "Transport" "Interface" (readFile "spec.burbar") "./" entFn intFn
   where { intFn = "Interface" ⊡ ext; entFn = "Entities" ⊡ ext; ext = "swift" }
 
 options ∷ [OptDescr (Options → Options)]
@@ -47,7 +47,7 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("i", ["interface"], ReqArg (\a o → o {interface = a}) "Iterface", "interface class name")
   , ("r", ["interface-file"], ReqArg (\a o → o {intFn = a}) "Interface.swift", "interface out filename")
   , ("d", ["entities-file"], ReqArg (\a o → o {entFn = a}) "Entities.swift", "entities out filename")
-  , ("s", ["spec-file"], ReqArg (\a o → o {spec = readFile a}) "spec.bb", "input spec file")
+  , ("s", ["spec-file"], ReqArg (\a o → o {spec = readFile a}) "spec.burbar", "input spec file")
   , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix") ]
 
 
