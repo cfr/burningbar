@@ -22,7 +22,7 @@ instance Arbitrary Type where
                     , liftM Optional arbitrary
                     , elements Language.atoms]
 
-typeId = (Parse.parseType ∘ Swift.fromType) ≡ id
+typeId = ap (≡) (Parse.parseType ∘ Swift.fromType)
 
 tests = [testGroup "Misc" [ testCase "empty" emptySpec
                           , testCase "ping" ping

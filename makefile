@@ -20,9 +20,12 @@ all: deps
 debug:
 	ghci *.hs -DDEBUG
 
-test:
+example:
 	./runburningbar
 	@echo using spec.burnbar, written Entities.swift and Interface.swift.
+
+test:
+	cabal test
 
 run:
 	open ./TestGen.xcworkspace
@@ -40,3 +43,4 @@ clean:
 	rm -rf *\.hi
 	rm -rf *\.o
 	rm -f Entities.swift Interface.swift
+	cabal clean

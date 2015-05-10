@@ -8,7 +8,7 @@ Clone and run:
 
     $ git clone https://github.com/cfr/burningbar.git
     $ cd burningbar
-    $ make test
+    $ make example
 
 ## Playground
 
