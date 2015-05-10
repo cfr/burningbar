@@ -1,8 +1,7 @@
 # Burning Bar
 
 [![Join the chat at https://gitter.im/cfr/burningbar](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cfr/burningbar?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-[![license][badge-license]][UNLICESE]
+[![Unlicensed][badge-license]][license]
 
 Swift RPC generator written in Haskell.
 
@@ -46,6 +45,6 @@ See help for more options:
    [Interface.swift]: TestGen/Interface.swift
    [Entities.swift]: TestGen/Entities.swift
    [Spec]: spec.burnbar
-   [badge-license]: https://img.shields.io/badge/license-MIT-green.svg?dummy
-
+   [license]: UNLICENSE
+   [badge-license]: https://img.shields.io/badge/license-Unlicense-brightgreen.svg
 
