@@ -87,20 +87,21 @@ fromType (Typename typename) = typename
 
 wrapInterface ∷ Typename → Typename → String → String
 wrapInterface transportType interfaceType rpcs = foundation header
-  where header = defTransport ↝ "public class " ⧺ interfaceType ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
-               ⇝ "public init(" ⧺ transport ⧺ ": T) { t = " ⧺ transport ⧺ " }" ↝ rpcs
-               ⇝ "private let t: T\n" ⧺ "}\n"
+  where header = defTransport transportType ↝ "public class " ⧺ interfaceType
+                 ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
+                 ⇝ "public init(" ⧺ transport ⧺ ": T) { t = " ⧺ transport ⧺ " }" ↝ rpcs
+                 ⇝ "private let t: T\n" ⧺ "}\n"
         decapitalize (c:cs) = toLower c : cs
         transport = decapitalize transportType
 
 wrapEntities ∷ String → String
 wrapEntities = foundation
 foundation = ("import Foundation\n" ↝)
-defTransport = "public protocol Transport {"
-               ⇝ "typealias CancellationToken"
-               ⇝ "func call(method: String, arguments: [String: Any],"
-               ⇝ s 10 ⧺ "completion: [String: AnyObject] -> Void) -> CancellationToken"
-               ↝ "}"
+defTransport t = "public protocol " ⧺ t ⧺ " {"
+                 ⇝ "typealias CancellationToken"
+                 ⇝ "func call(method: String, arguments: [String: Any],"
+                 ⇝ s 10 ⧺ "completion: [String: AnyObject] -> Void) -> CancellationToken"
+                 ↝ "}"
 
 s ∷ Int → String -- n spaces
 s = concat ∘ flip take (repeat " ")
