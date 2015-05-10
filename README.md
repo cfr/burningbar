@@ -15,9 +15,9 @@ Build TestGen framework to run generator and compile module for the playground.
 
 ## Usage
 
-    $ burningbar --spec-file spec.burbar
+    $ burningbar --spec-file spec.burnbar
 
-reads [spec.burbar][Spec] and generates [Interface.swift][], [Entities.swift][] with
+reads [spec.burnbar][Spec] and generates [Interface.swift][], [Entities.swift][] with
 corresponding structs/parsers and RPC funcs declarations. Functions are encapsulated
 in Interface class, parameterized by `Transport` protocol containing `call` func
 and `CancellationToken` typealias. Structs `init(json:)` takes `[String: AnyObject]`
@@ -34,12 +34,12 @@ See help for more options:
     -i Iterface         --interface=Iterface              interface class name
     -r Interface.swift  --interface-file=Interface.swift  interface out filename
     -d Entities.swift   --entities-file=Entities.swift    entities out filename
-    -s spec.burbar      --spec-file=spec.burbar           input spec file
+    -s spec.burnbar     --spec-file=spec.burnbar          input spec file
     -p .                --path=.                          output path prefix
 
    [Interface.swift]: TestGen/Interface.swift
    [Entities.swift]: TestGen/Entities.swift
-   [Spec]: spec.burbar
+   [Spec]: spec.burnbar
 
 ## Spec syntax
 

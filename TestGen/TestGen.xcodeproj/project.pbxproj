@@ -12,9 +12,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		E61622D11AFEDEEC008EE9E1 /* spec.burbar */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.burbar; path = ../../spec.burbar; sourceTree = "<group>"; };
 		E63C00401AED576C00F21E64 /* TestGen.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestGen.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E63C00441AED576C00F21E64 /* TestGen.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TestGen.plist; sourceTree = "<group>"; };
+		E64C60FB1AFEE70000D2BC52 /* spec.burnbar */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.burnbar; path = ../../spec.burnbar; sourceTree = "<group>"; };
 		E687EA6E1AFB2D40004360E1 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = SOURCE_ROOT; };
 		E687EA6F1AFB2D40004360E1 /* Interface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interface.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -49,7 +49,7 @@
 		E63C00421AED576C00F21E64 /* TestGen */ = {
 			isa = PBXGroup;
 			children = (
-				E61622D11AFEDEEC008EE9E1 /* spec.burbar */,
+				E64C60FB1AFEE70000D2BC52 /* spec.burnbar */,
 				E687EA6E1AFB2D40004360E1 /* Entities.swift */,
 				E687EA6F1AFB2D40004360E1 /* Interface.swift */,
 				E63C00431AED576C00F21E64 /* Supporting Files */,
@@ -150,7 +150,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "../burningbar --spec-file ../spec.burbar";
+			shellScript = "../burningbar --spec-file ../spec.burnbar";
 		};
 /* End PBXShellScriptBuildPhase section */
 
