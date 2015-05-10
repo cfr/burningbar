@@ -46,4 +46,6 @@ See help for more options:
    [Interface.swift]: TestGen/Interface.swift
    [Entities.swift]: TestGen/Entities.swift
    [Spec]: spec.burnbar
+   [badge-license]: https://img.shields.io/badge/license-MIT-green.svg?dummy
+
 
