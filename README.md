@@ -1,5 +1,5 @@
-# Burning Bar [![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis] [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay]
-<!--[![Available on Hackage][badge-hackage]][hackage] -->
+# Burning Bar [![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis]
+<!--[![Available on Hackage][badge-hackage]][hackage] [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay]-->
 
 Swift RPC generator written in Haskell.
 
@@ -47,7 +47,7 @@ See help for more options:
    [badge-license]: https://img.shields.io/badge/license-Unlicense-brightgreen.svg
    [badge-cabal]: https://wiki.haskell.org/wikiupload/4/43/Built-with-Cabal-light.png
    [cabal]: https://www.haskell.org/cabal
-   [badge-gitter]: https://badges.gitter.im/Join%20Chat.svg
+   [badge-gitter]: https://img.shields.io/badge/GITTER-join%20chat-brightgreen.svg
    [gitter]: https://gitter.im/cfr/burningbar?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
    [badge-travis]: https://travis-ci.org/cfr/burningbar.svg?branch=master
    [travis]: https://travis-ci.org/cfr/burningbar
