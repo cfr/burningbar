@@ -48,8 +48,7 @@ met test Void
 - primitive-var-type → String | NSNumber
 - primitive-type → String | Int | Float | Bool | NSNumber
 - array-type → [ type ]
-- dictionary-type → [ primitiveType : type ]
+- dictionary-type → { primitiveType : type }
 - optional-type → type ?
-- optional-var-type → type ?
 - unwrapped-optional-type → type !
 
