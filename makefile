@@ -22,7 +22,7 @@ debug:
 
 test:
 	./runburningbar
-	@echo using spec.bb, written Entities.swift \& Interface.swift
+	@echo using spec.burnbar, written Entities.swift and Interface.swift.
 
 run:
 	open ./TestGen.xcworkspace

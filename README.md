@@ -37,33 +37,9 @@ See help for more options:
     -s spec.burnbar     --spec-file=spec.burnbar          input spec file
     -p .                --path=.                          output path prefix
 
+## [Spec syntax][Spec]
+
    [Interface.swift]: TestGen/Interface.swift
    [Entities.swift]: TestGen/Entities.swift
    [Spec]: spec.burnbar
-
-## Spec syntax
-
-    - comments starts with dash
-    - methods defined with met
-    - local (pretty) name is optional
-    - see type and return type grammar below
-    met remoteName returnType [name]
-     name type - first arg
-     ... - more arguments
-    
-    - record
-    rec name
-     name varType - non-optional is not implemented yet
-     ...
-
-where
-
-    type → array-type | dictionary-type | type-identifier | optional-type | primitive-type
-    varType → optional-type
-    returnType → type-identifier
-    primitive-type → String | Bool | Int | Float | NSNumber
-    array-type → [ type ]
-    dictionary-type → [ type : type ]
-    optional-type → type ?
-    implicitly-unwrapped-optional-type → type !
 
