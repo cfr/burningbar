@@ -22,7 +22,7 @@ main = do
   args ← getArgs
   let (actions, _, _) = getOpt RequireOrder options args
   let (Options {..}) = foldr ($) defaults actions
-  let copy = (("// Generated with " ⧺ bbURL ⧺ version ⧺ "\n\n") ⧺)
+  let copy = (("// 📏🔥 Generated with " ⧺ bbURL ⧺ version ⧺ "\n\n") ⧺)
   let write = (∘ copy) ∘ writeFile ∘ (root ⧄)
   spec ← spec ≫= return ∘ parse
   let (ent, int) = translator (swift transport interface) spec

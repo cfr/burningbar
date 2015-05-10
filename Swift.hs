@@ -22,7 +22,7 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
   where body = s 6 ⧺ "return t.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
         argList = args ≫= fromArg
         fromArg (Variable n t) = n ≑ t ⧺ ", "
-        passedArgs = constructDict serializeVar args
+        passedArgs = constructDict (serializeVar "AnyObject") args
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " as Any, "
         parseReply | t ≡ Typename "Void" = " _ in }"
                    | otherwise = "r in"
@@ -36,26 +36,29 @@ record name vars = "public struct " ⧺ name ⧺ " {"
                    ↝ list initDict ⧺ list initVar ⧺ s 4 ⧺ "}\n"
         serializeDecl = s 4 ⧺ "public var serialized: " ⧺ jsonT ⧺ " { get {"
                         ⟿  "return " ⧺ serialized ⧺ " } }\n"
-        serialized = constructDict serializeVar vars
+        serialized = constructDict (serializeVar "AnyObject") vars
         varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n ≑ t ⧺ "\n"
-        initDict (Variable n d@(Dictionary k t)) | t ∉ primitives = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
-        initDict (Variable n (Optional d@(Dictionary k t))) | t ∉ primitives = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
+        initDict (Variable n d@(Dictionary k t)) | primitive t = ""
+                                               | otherwise = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
+        initDict (Variable n (Optional d)) = initDict (Variable n d)
         initDict _ = ""
         list = (vars ≫=)
 
 constructDict ∷ (Variable → String) → [Variable] → String
 constructDict rule vars | null vars = "[:]"
                         | otherwise = "[" ⧺ (init ∘ init ∘ (vars ≫=)) rule ⧺ "]"
-serializeVar (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " as Any, "
+serializeVar as (Variable n t) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ " as " ⧺ as ⧺ ", "
+  where unwrap | Optional t' ← t = n ⧺ "?.serialized" ⧺ " ?? \"null\""
+               | otherwise = n ⧺ ".serialized"
 
-initVar v@(Variable n (Optional t)) | t ∈ primitives = initPrimitive (Optional t) n
+initVar v@(Variable n (Optional t)) | primitive t = initPrimitive (Optional t) n
                                     | otherwise = withOptionalJSON n (initNewtype n t)
-initVar (Variable n d@(Dictionary k t)) | t ∈ primitives = initPrimitive (Dictionary k t) n
+initVar (Variable n d@(Dictionary k t)) | primitive t = initPrimitive (Dictionary k t) n
                                         | otherwise = s 8 ⧺ mapJSON n d ⧺ "\n"
-initVar (Variable n (Array t))    | t ∈ primitives = initPrimitive (Array t) n
-                                  | otherwise = s 8 ⧺ n ⧧ mapJSON n (Array t) ⧺ "\n"
-initVar (Variable n t)            | t ∈ primitives = initPrimitive t n
-                                  | otherwise = s 8 ⧺ n ⧧ initNewtype n t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
+initVar (Variable n (Array t)) | primitive t = initPrimitive (Array t) n
+                               | otherwise = s 8 ⧺ n ⧧ mapJSON n (Array t) ⧺ "\n"
+initVar (Variable n t) | primitive t = initPrimitive t n
+                       | otherwise = s 8 ⧺ n ⧧ initNewtype n t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
 
 initWithElem n = s 8 ⧺ n ⧧ sub n ⧺ " as"
 initNewtype n d@(Dictionary _ _) _ = mapJSON (n ⧺ "!") d
@@ -77,19 +80,13 @@ n ≑ t = n ⧺ ": " ⧺ fromType t
 jsonT = "[String: AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
-primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt]
-  where atoms = map Typename ["String", "NSNumber"] -- TODO: "Bool", "Int", "Float", "URL", "IntString"
-        ap = (take 2 ∘) ∘ iterate
-        opt = ap Optional
-        dict a = a : [Dictionary x a | x ← atoms]
-
 fromType (Array t) = "[" ⧺ fromType t ⧺ "]"
 fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk ≑ tv ⧺ "]"
 fromType (Typename typename) = typename
 
 wrapInterface ∷ Typename → Typename → String → String
-wrapInterface transportType interfaceType rpcs = foundation header
+wrapInterface transportType interfaceType rpcs = foundation ↝ header
   where header = defTransport transportType ↝ "public class " ⧺ interfaceType
                  ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
                  ⇝ "public init(" ⧺ transport ⧺ ": T) { t = " ⧺ transport ⧺ " }" ↝ rpcs
@@ -98,8 +95,40 @@ wrapInterface transportType interfaceType rpcs = foundation header
         transport = decapitalize transportType
 
 wrapEntities ∷ String → String
-wrapEntities = foundation
-foundation = ("import Foundation\n" ↝)
+wrapEntities es = foundation ↝ es
+                ↝ "internal extension Dictionary {"
+                ↝ "  var serialized: [String: AnyObject] {"
+                ⇝ "get { var d = [String: AnyObject]()"
+                ⟿ "  for key in self.keys { d[key as! String] = self[key] as? AnyObject }" -- TODO: .serialized
+                ⟿ "  return d }"
+                ↝ "  }" ↝ "}"
+                ↝ "internal extension Array {"
+                ↝ "  var serialized: [AnyObject] {"
+                ⇝ "get { var a = [AnyObject]()"
+                ⟿ "  for i in self { if let o: AnyObject = i as? AnyObject { a.append(o) } }" -- TODO: .serialized
+                ⟿ "  return a }"
+                ↝ "  }" ↝ "}"
+                ↝ "internal extension Int {"
+                ↝ "  var serialized: String {"
+                ⇝ "get { return self.description } "
+                ↝ "  }" ↝ "}"
+                ↝ "internal extension String {"
+                ↝ "  var serialized: String {"
+                ⇝ "get { return self } "
+                ↝ "  }" ↝ "}"
+                ↝ "internal extension NSNumber {"
+                ↝ "  var serialized: String {"
+                ⇝ "get { return self.description } "
+                ↝ "  }" ↝ "}"
+                ↝ "internal extension Bool {"
+                ↝ "  var serialized: String {"
+                ⇝ "get { return self ? \"true\" : \"false\" } "
+                ↝ "  }" ↝ "}"
+-- TODO: protocol BBSerializable {
+--    var serialized: String
+--    var desirialize<A>: String -> A
+-- }
+foundation = "import Foundation\n"
 defTransport t = "public protocol " ⧺ t ⧺ " {"
                  ⇝ "typealias CancellationToken"
                  ⇝ "func call(method: String, arguments: " ⧺ jsonT ⧺ ","

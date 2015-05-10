@@ -27,7 +27,7 @@ rec UserInfo - TODO: Any, Equatable, Hashable
    age NSNumber?
    photoURLs  [String]?
    creds  Credentials?
-   services  { String : [String] }
+   friends { String : UserInfo }
    name  String?
 
 met user.login UserInfo login
