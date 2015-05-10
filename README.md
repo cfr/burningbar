@@ -1,4 +1,5 @@
-# Burning Bar [![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis] ![Built with cabal][badge-cabal]
+# Burning Bar [![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis] [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay]
+<!--[![Available on Hackage][badge-hackage]][hackage] -->
 
 Swift RPC generator written in Haskell.
 
@@ -50,4 +51,11 @@ See help for more options:
    [gitter]: https://gitter.im/cfr/burningbar?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
    [badge-travis]: https://travis-ci.org/cfr/burningbar.svg?branch=master
    [travis]: https://travis-ci.org/cfr/burningbar
+   [badge-haskell]: http://evenmere.org/~bts/haskell-logo/logo-0.svg
+   [haskell]: https://haskell.org
+   [badge-gratipay]: http://img.shields.io/gratipay/cfr.svg
+   [gratipay]: https://www.gratipay.com/cfr
+   [badge-hackage]: https://img.shields.io/hackage/v/burningbar.svg?dummy
+   [hackage]: https://hackage.haskell.org/package/burningbar
+
 
