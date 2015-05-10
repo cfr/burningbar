@@ -1,6 +1,6 @@
-# Burning Bar [![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis] [![Coverage Status][badge-coverage]][coverage]
+# Burning Bar [![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis] [![Coverage Status](https://coveralls.io/repos/cfr/burningbar/badge.svg)](https://coveralls.io/r/cfr/burningbar)
 
-<!--[![Available on Hackage][badge-hackage]][hackage] [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay]-->
+<!-- [![Coverage Status][badge-coverage]][coverage] [![Available on Hackage][badge-hackage]][hackage] [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay] -->
 
 Swift RPC generator written in Haskell.
 
