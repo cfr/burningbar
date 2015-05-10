@@ -20,7 +20,7 @@ Build TestGen framework to run generator and compile module for the playground.
 reads [spec.burnbar][Spec] and generates [Interface.swift][], [Entities.swift][] with
 corresponding structs/parsers and RPC funcs declarations. Functions are encapsulated
 in Interface class, parameterized by `Transport` protocol containing `call` func
-and `CancellationToken` typealias. Structs `init(json:)` takes `[String: AnyObject]`
+and `CancellationToken` typealias. Struct's `init(json:)` takes `[String: AnyObject]`
 representing json object.
 
 See help for more options:
