@@ -54,15 +54,15 @@ serializeVar as (Variable n t) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ " as " ⧺
 initVar v@(Variable n (Optional t)) | primitive t = initPrimitive (Optional t) n
                                     | otherwise = withOptionalJSON n (initNewtype n t)
 initVar (Variable n d@(Dictionary k t)) | primitive t = initPrimitive (Dictionary k t) n
-                                        | otherwise = s 8 ⧺ mapJSON n d ⧺ "\n"
+                                        | otherwise = s 8 ⧺ mapJSON n d ⧺ "\n" -- TODO: if let json = ..
 initVar (Variable n (Array t)) | primitive t = initPrimitive (Array t) n
-                               | otherwise = s 8 ⧺ n ⧧ mapJSON n (Array t) ⧺ "\n"
+                               | otherwise = s 8 ⧺ n ⧧ mapJSON n (Array t) ⧺ "\n" -- TODO: check
 initVar (Variable n t) | primitive t = initPrimitive t n
                        | otherwise = s 8 ⧺ n ⧧ initNewtype n t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
 
 initWithElem n = s 8 ⧺ n ⧧ sub n ⧺ " as"
-initNewtype n d@(Dictionary _ _) _ = mapJSON (n ⧺ "!") d
---initNewtype n d@(Array _ ) _ = mapJSON (n ⧺ "!") d
+initNewtype n d@(Dictionary _ _) _ = mapJSON (n ⧺ "!") d -- TODO: check
+--initNewtype n d@(Array _ ) _ = mapJSON (n ⧺ "!") d -- TODO: impl
 initNewtype n t from = n ⧧ fromType t ⧺ "(" ⧺ from ⧺ ")"
 initPrimitive (Optional t) n = initWithElem n ⧺ "? " ⧺ fromType t ⧺ "\n"
 initPrimitive t n = initWithElem n ⧺ "! " ⧺ fromType t ⧺ "\n"
