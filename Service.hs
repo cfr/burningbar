@@ -13,7 +13,10 @@ import Unicode
 import Swift
 import Parse
 
-main = serverWith config process -- $ http localhost:9604 < spec.burnbar
+-- available at http://cfr.pw/burnbar
+-- https://github.com/cfr/cfr.github.io/blob/master/burnbar.html
+-- $ http localhost:9604 < spec.burnbar
+main = serverWith config process
   where process _ url request = case rqMethod request of
           POST → (return ∘ sendJSON OK ∘ toSwift ∘ decodeString ∘ rqBody) request
           otherwise → return $ sendJSON BadRequest "[\"Ｃ:。ミ\"]"

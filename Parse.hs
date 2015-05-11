@@ -78,16 +78,8 @@ stripSuffix xs ys = reverse ⊚ stripPrefix (reverse xs) (reverse ys)
 --(⊒) = lift stripSuffix
 --parseType ("[" ⊑ rt ⊒ "]") | Just t = (Array ∘ parseType) t
 
-stripPrefAndSuff ∷ Eq α ⇒ ([α], [α]) → [α] → Maybe [α]
-stripPrefAndSuff = undefined
-
-data SubstringOf = ∀ α. Eq α ⇒  SubstringOf ([α], [α])
-data IsSubstring = ∀ α. Eq α ⇒  IsPrefix { stripP ∷ SubstringOf → Maybe [α] }
-                 | ∀ α. Eq α ⇒  IsSuffix { stripS ∷ SubstringOf → Maybe [α] }
-                 | ∀ α. Eq α ⇒  IsRoot { stripR ∷ SubstringOf → Maybe ([α], [α]) } -- PS | PR | SR | PSR
-
-stripSubstring ∷ IsSubstring
-stripSubstring = (⊥)
+stripAffixes ∷ Eq α ⇒ ([α], [α]) → [α] → Maybe [α]
+stripAffixes = undefined
 
 trim ∷ String → String
 trim = let f = reverse ∘ dropWhile isSpace in f ∘ f
