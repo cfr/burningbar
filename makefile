@@ -11,8 +11,6 @@ INSTALL_DEPS := brew install ghc cabal-install
 endif
 endif
 
-
-
 all: deps
 	mkdir -p out
 	ghc -O2 --make BurningBar.hs -outputdir out -o burningbar
@@ -44,3 +42,4 @@ clean:
 	rm -rf *\.o
 	rm -f Entities.swift Interface.swift
 	cabal clean
+
