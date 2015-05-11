@@ -6,25 +6,36 @@ import Network.URL as URL
 import Codec.Binary.UTF8.String
 import Control.Exception (try, SomeException)
 import System.FilePath
+import Data.List (intercalate, break)
+import Control.Arrow (second)
 
 import Unicode
 import Swift
 import Parse
 
-main = serverWith config process
+main = serverWith config process -- $ http localhost:9604 < spec.burnbar
   where process _ url request = case rqMethod request of
-          POST → (return ∘ sendText OK ∘ decodeString ∘ rqBody) request
-          otherwise → return $ sendText BadRequest "Ｃ:。ミ"
+          POST → (return ∘ sendJSON OK ∘ toSwift ∘ decodeString ∘ rqBody) request
+          otherwise → return $ sendJSON BadRequest "[\"Ｃ:。ミ\"]"
 
-sendText ∷ StatusCode → String → Response String
-sendText s v = headers reponse
-  where reponse = (respond s ∷ Response String) { rspBody = toSwift text }
+sendJSON ∷ StatusCode → String → Response String
+sendJSON s v = headers reponse
+  where reponse = (respond s ∷ Response String) { rspBody = text }
         headers = insertHeader HdrContentLength (show $ length text)
                 ∘ insertHeader HdrContentEncoding "UTF-8"
-                ∘ insertHeader HdrContentType "text/plain"
+                ∘ insertHeader HdrContentType "application/json"
         text = encodeString v
 
-toSwift = show ∘ translator (swift "Singularity" "Horizon") ∘ parse
+toSwift = toJSON ∘ translator (swift "Singularity" "Horizon") ∘ parse
+  where toJSON (e, i) = "{ \"Entities\": \"" ⧺ escape e
+                        ⧺ "\", \"Interface\": \"" ⧺ escape i
+                        ⧺ "\"}"
+        escape = replace '\"' "\\\"" ∘ replace '\n' "\\n"
 
 config = defaultConfig { srvLog = stdLogger, srvPort = 9604 }
+
+replace old new = intercalate new ∘ split old
+split _ [] = []
+split d s = let (l, r) = break (≡ d) s
+            in l : split d (drop 1 r)
 

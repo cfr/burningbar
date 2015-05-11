@@ -82,12 +82,9 @@ stripPrefAndSuff ∷ Eq α ⇒ ([α], [α]) → [α] → Maybe [α]
 stripPrefAndSuff = undefined
 
 data SubstringOf = ∀ α. Eq α ⇒  SubstringOf ([α], [α])
-data Prefix = Prefix SubstringOf
-data Suffix = Suffix SubstringOf
-data Root = Root SubstringOf
-data IsSubstring = ∀ α. Eq α ⇒  IsPrefix { stripP ∷ Prefix → Maybe [α] }
-                 | ∀ α. Eq α ⇒  IsSuffix { stripS ∷ Suffix → Maybe [α] }
-                 | ∀ α. Eq α ⇒  IsRoot { stripR ∷ Root → Maybe ([α], [α]) } -- PS | PR | SR | PSR
+data IsSubstring = ∀ α. Eq α ⇒  IsPrefix { stripP ∷ SubstringOf → Maybe [α] }
+                 | ∀ α. Eq α ⇒  IsSuffix { stripS ∷ SubstringOf → Maybe [α] }
+                 | ∀ α. Eq α ⇒  IsRoot { stripR ∷ SubstringOf → Maybe ([α], [α]) } -- PS | PR | SR | PSR
 
 stripSubstring ∷ IsSubstring
 stripSubstring = (⊥)
