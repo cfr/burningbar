@@ -1,14 +1,11 @@
 language: haskell
 
 before_install:
-  - cabal sandbox init
   - cabal install hpc-coveralls -j --bindir=$HOME/.cabal/bin/
-  - cabal sandbox delete
-  - cabal sandbox init
 
 script:
   - cabal configure --enable-tests --enable-library-coverage --ghc-options=-Werror && cabal build
-  - run-cabal-test Tests --show-details=always
+  - run-cabal-test --show-details=always
 
 after_script:
   - hpc-coveralls Tests --exclude-dir=Tests
