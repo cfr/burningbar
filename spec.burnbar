@@ -2,7 +2,7 @@
 -
 - # Method
 - defined with met
-- local (pretty) name is optional
+- name is optional, remoteName is used if missing
 - see type and return type grammar below
 -
 -     met remoteName returnType [name]

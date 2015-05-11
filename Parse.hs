@@ -1,4 +1,4 @@
-{-# LANGUAGE ViewPatterns, UnicodeSyntax #-}
+{-# LANGUAGE ViewPatterns, UnicodeSyntax, ExistentialQuantification #-}
 module Parse (Spec, parse, Language(..), Typename, translator, parseType) where
 
 import Data.List (stripPrefix)
@@ -26,23 +26,23 @@ type Words = [String]
 type RawType = String
 
 parseMethod ∷ Lines → Maybe Declaration
-parseMethod = parseDeclarationAs cm proto
+parseMethod = parseDeclarationAs met proto
   where proto ∷ Words → Maybe (Name, RawType, Name)
         proto ["met", rn, rrt] = Just (rn, rrt, rn)
         proto ["met", rn, rrt, n] = Just (rn, rrt, n)
         proto _ = Nothing
-        cm vars (rn, rrt, n) = Method rn (parseType rrt) n vars
+        met vars (rn, rrt, n) = Method rn (parseType rrt) n vars
 
 parseRecord ∷ Lines → Maybe Declaration
-parseRecord = parseDeclarationAs (flip Record) name
-  where name ["rec", nm] = Just nm
-        name _ = Nothing
+parseRecord = parseDeclarationAs (flip Record) named
+  where named ["rec", nm] = Just nm
+        named _ = Nothing
 
 parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe α) → Lines → Maybe Declaration
+parseDeclarationAs _ _ [] = Nothing
 parseDeclarationAs construct parseHeader (head:vars) = construct' ⊚ header
   where header = parseHeader (words head)
         construct' = construct (map parseVar vars)
-parseDeclarationAs con parseHeader [] = Nothing
 
 parseVar ∷ String → Variable
 parseVar (words → (n:rt)) | (not ∘ null) rt = parseVar' (n, join rt)
@@ -55,7 +55,7 @@ parseType ∷ RawType → Type
 parseType (stripSuffix "?" → Just t) = Optional (parseType t)
 parseType (stripPrefix "[" → Just t) = (Array ∘ parseType ∘ init) t -- TODO: check "]"
 parseType (stripPrefix "{" → Just t) = parseDictType t
-parseType u = Typename (trim u) -- TODO: only prims
+parseType u = Typename (trim u) -- TODO: only prims and introduced?
 parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
   where (keyType, valType) = join (⁂) parseType (splitAtColon t)
         splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
@@ -73,6 +73,26 @@ parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComments 
 stripSuffix ∷ Eq α ⇒ [α] → [α] → Maybe [α]
 stripSuffix xs ys = reverse ⊚ stripPrefix (reverse xs) (reverse ys)
 
+--(⊑) ∷ [a] → Maybe a → Maybe a
+--(⊑) = lift stripPrefix
+--(⊒) = lift stripSuffix
+--parseType ("[" ⊑ rt ⊒ "]") | Just t = (Array ∘ parseType) t
+
+stripPrefAndSuff ∷ Eq α ⇒ ([α], [α]) → [α] → Maybe [α]
+stripPrefAndSuff = undefined
+
+data SubstringOf = ∀ α. Eq α ⇒  SubstringOf ([α], [α])
+data Prefix = Prefix SubstringOf
+data Suffix = Suffix SubstringOf
+data Root = Root SubstringOf
+data IsSubstring = ∀ α. Eq α ⇒  IsPrefix { stripP ∷ Prefix → Maybe [α] }
+                 | ∀ α. Eq α ⇒  IsSuffix { stripS ∷ Suffix → Maybe [α] }
+                 | ∀ α. Eq α ⇒  IsRoot { stripR ∷ Root → Maybe ([α], [α]) } -- PS | PR | SR | PSR
+
+stripSubstring ∷ IsSubstring
+stripSubstring = (⊥)
+
 trim ∷ String → String
 trim = let f = reverse ∘ dropWhile isSpace in f ∘ f
+
 
