@@ -12,9 +12,9 @@ import Language
 import Swift
 import Unicode
 
-emptySpec = (parse "") @?= []
+emptySpec = parse "" @?= []
 
-ping = (parse "met ping Void") @?= [Method "ping" (Typename "Void") "ping" []]
+ping = parse "met ping Void" @?= [Method "ping" (Typename "Void") "ping" []]
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary

@@ -32,10 +32,9 @@ toSwift = toJSON ∘ translator (swift "Singularity" "Horizon") ∘ parse
                         ⧺ "\"}"
         escape = replace '\"' "\\\"" ∘ replace '\n' "\\n"
 
-config = defaultConfig { srvLog = stdLogger, srvPort = 9604 }
+config = defaultConfig { srvLog = stdLogger, srvPort = 9604, srvHost = "0.0.0.0" }
 
 replace old new = intercalate new ∘ split old
 split _ [] = []
-split d s = let (l, r) = break (≡ d) s
-            in l : split d (drop 1 r)
+split d s = let (l, r) = break (≡ d) s in l : split d (drop 1 r)
 
