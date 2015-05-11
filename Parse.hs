@@ -67,8 +67,8 @@ paragraphs ls = let (p, rest) = (break null ∘ dropWhile null ∘ map trim) ls
                 in unlines p : paragraphs rest
 
 parse ∷ String → Spec
-parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComments ∘ lines
-  where stripComments = takeWhile (≠ '-')
+parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComment ∘ lines
+  where stripComment = takeWhile (≠ '-')
 
 stripSuffix ∷ Eq α ⇒ [α] → [α] → Maybe [α]
 stripSuffix xs ys = reverse ⊚ stripPrefix (reverse xs) (reverse ys)
