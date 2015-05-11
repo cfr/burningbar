@@ -12,3 +12,4 @@ script:
 
 after_script:
   - hpc-coveralls Tests --exclude-dir=Tests
+
