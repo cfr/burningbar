@@ -2,7 +2,7 @@ module Main where
 
 import Test.Framework
 import Test.Framework.Providers.HUnit
-import Test.Framework.Providers.QuickCheck (testProperty)
+import Test.Framework.Providers.QuickCheck
 import Test.HUnit
 import Test.QuickCheck
 import Control.Monad
@@ -25,8 +25,7 @@ instance Arbitrary Type where
 
 typeId = ap (≡) (Parse.parseType ∘ Swift.fromType)
 
-tests = [testGroup "Misc" [ testCase "empty" emptySpec
-                          , testCase "ping" ping
+tests = [testGroup "Misc" [ testCase "empty" emptySpec, testCase "ping" ping
                           , testProperty "parse/write type" typeId ]]
 
 main = defaultMain tests

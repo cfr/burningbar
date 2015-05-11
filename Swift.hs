@@ -25,12 +25,10 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
         passedArgs = constructDict (serializeVar "AnyObject") args
         passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " as Any, "
         parseReply | t ≡ Typename "Void" = " _ in }"
-                   | otherwise = "r in"
-                                 ⟿  "let v = " ⧺ fromType t ⧺ "(r)"
+                   | otherwise = "r in" ⟿  "let v = " ⧺ fromType t ⧺ "(r)"
                                  ⟿  "completion(v)" ↝ s 6 ⧺ "}"
 
-record name vars = "public struct " ⧺ name ⧺ " {"
-                   ↝ concat decls ⧺ "}\n\n"
+record name vars = "public struct " ⧺ name ⧺ " {" ↝ concat decls ⧺ "}\n\n"
   where decls = initDecl : serializeDecl : map varDecl vars
         initDecl = s 4 ⧺ "public init(_ json: " ⧺ jsonT ⧺ ") {"
                    ↝ list initDict ⧺ list initVar ⧺ s 4 ⧺ "}\n"
@@ -39,7 +37,7 @@ record name vars = "public struct " ⧺ name ⧺ " {"
         serialized = constructDict (serializeVar "AnyObject") vars
         varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n ≑ t ⧺ "\n"
         initDict (Variable n d@(Dictionary k t)) | primitive t = ""
-                                               | otherwise = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
+                                                 | otherwise = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
         initDict (Variable n (Optional d)) = initDict (Variable n d)
         initDict _ = ""
         list = (vars ≫=)
@@ -75,11 +73,6 @@ mapJSON n t = "map(" ⧺ castArr ⧺ ") {" ⧺ closure ⧺ "}"
                 | Dictionary k v ← t = "(k" ≑ k ⧺ ") in self." ⧺ n ⧺ "[k]"
                                        ⧧ fromType v ⧺ "(" ⧺ ("json[k] as! " ⧺ jsonT) ⧺ ")"
 
-n ⧧ v = n ⧺ " = " ⧺ v
-n ≑ t = n ⧺ ": " ⧺ fromType t
-jsonT = "[String: AnyObject]"
-sub k = "json[\"" ⧺ k ⧺ "\"]"
-
 fromType (Array t) = "[" ⧺ fromType t ⧺ "]"
 fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk ≑ tv ⧺ "]"
@@ -96,50 +89,35 @@ wrapInterface transportType interfaceType rpcs = foundation ↝ header
 
 wrapEntities ∷ String → String
 wrapEntities es = foundation ↝ es
-                ↝ "internal extension Dictionary {"
-                ↝ "  var serialized: [String: AnyObject] {"
+                ↝ "internal extension Dictionary {" ↝ "  var serialized: [String: AnyObject] {"
                 ⇝ "get { var d = [String: AnyObject]()"
                 ⟿ "  for key in self.keys { d[key as! String] = self[key] as? AnyObject }" -- TODO: .serialized
-                ⟿ "  return d }"
-                ↝ "  }" ↝ "}"
-                ↝ "internal extension Array {"
-                ↝ "  var serialized: [AnyObject] {"
+                ⟿ "  return d }" ↝ "  }" ↝ "}" ↝ "internal extension Array {" ↝ "  var serialized: [AnyObject] {"
                 ⇝ "get { var a = [AnyObject]()"
                 ⟿ "  for i in self { if let o: AnyObject = i as? AnyObject { a.append(o) } }" -- TODO: .serialized
-                ⟿ "  return a }"
-                ↝ "  }" ↝ "}"
-                ↝ "internal extension Int {"
-                ↝ "  var serialized: String {"
-                ⇝ "get { return self.description } "
-                ↝ "  }" ↝ "}"
-                ↝ "internal extension String {"
-                ↝ "  var serialized: String {"
-                ⇝ "get { return self } "
-                ↝ "  }" ↝ "}"
-                ↝ "internal extension NSNumber {"
-                ↝ "  var serialized: String {"
-                ⇝ "get { return self.description } "
-                ↝ "  }" ↝ "}"
-                ↝ "internal extension Bool {"
-                ↝ "  var serialized: String {"
-                ⇝ "get { return self ? \"true\" : \"false\" } "
-                ↝ "  }" ↝ "}"
--- TODO: protocol BBSerializable {
---    var serialized: String
---    var desirialize<A>: String -> A
--- }
+                ⟿ "  return a }" ↝ "  }" ↝ "}" ↝ "internal extension Int {" ↝ "  var serialized: String {"
+                ⇝ "get { return self.description } " ↝ "  }" ↝ "}" ↝ "internal extension String {"
+                ↝ "  var serialized: String {" ⇝ "get { return self } " ↝ "  }" ↝ "}"
+                ↝ "internal extension NSNumber {" ↝ "  var serialized: String {" ⇝ "get { return self.description } "
+                ↝ "  }" ↝ "}" ↝ "internal extension Bool {" ↝ "  var serialized: String {"
+                ⇝ "get { return self ? \"true\" : \"false\" } " ↝ "  }" ↝ "}"
+                -- TODO: protocol BBSerializable { var serialized: String; var desirialize<A>: String -> A }
+
 foundation = "import Foundation\n"
-defTransport t = "public protocol " ⧺ t ⧺ " {"
-                 ⇝ "typealias CancellationToken"
+defTransport t = "public protocol " ⧺ t ⧺ " {" ⇝ "typealias CancellationToken"
                  ⇝ "func call(method: String, arguments: " ⧺ jsonT ⧺ ","
-                 ⇝ s 10 ⧺ "completion: " ⧺ jsonT ⧺ " -> Void) -> CancellationToken"
-                 ↝ "}"
+                 ⇝ s 10 ⧺ "completion: " ⧺ jsonT ⧺ " -> Void) -> CancellationToken" ↝ "}"
 
 s ∷ Int → String -- n spaces
 s = concat ∘ flip take (repeat " ")
 
+n ⧧ v = n ⧺ " = " ⧺ v
+n ≑ t = n ⧺ ": " ⧺ fromType t
+jsonT = "[String: AnyObject]"
+sub k = "json[\"" ⧺ k ⧺ "\"]"
+
 infixr 5 ↝, ⇝, ⟿
-joinLinesWithIndent n l l' = l ⧺ '\n':s n ⧺ l'
+joinLinesWithIndent n l l' = l ⧺ '\n' : s n ⧺ l'
 (↝) = joinLinesWithIndent 0
 (⇝) = joinLinesWithIndent 4
 (⟿ ) = joinLinesWithIndent 8

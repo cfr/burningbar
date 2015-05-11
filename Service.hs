@@ -2,12 +2,9 @@
 import Network.HTTP.Server
 import Network.HTTP.Server.Logger
 import Network.HTTP.Server.HtmlForm as Form
-import Network.URL as URL
 import Codec.Binary.UTF8.String
 import Control.Exception (try, SomeException)
-import System.FilePath
 import Data.List (intercalate, break)
-import Control.Arrow (second)
 
 import Unicode
 import Swift
@@ -32,8 +29,7 @@ sendJSON s v = headers reponse
 
 toSwift = toJSON ∘ translator (swift "Singularity" "Horizon") ∘ parse
   where toJSON (e, i) = "{ \"Entities\": \"" ⧺ escape e
-                        ⧺ "\", \"Interface\": \"" ⧺ escape i
-                        ⧺ "\"}"
+                        ⧺ "\", \"Interface\": \"" ⧺ escape i ⧺ "\"}"
         escape = replace '\"' "\\\"" ∘ replace '\n' "\\n"
 
 config = defaultConfig { srvLog = stdLogger, srvPort = 9604, srvHost = "0.0.0.0" }
