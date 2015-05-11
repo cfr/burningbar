@@ -43,7 +43,7 @@ See help for more options:
 
 ## Service
 
-Generator available [online](http://cfr.pw/burnbar), with a simple [HTTP server](Service.hw)
+Generator available [online](http://cfr.pw/burnbar), with a simple [HTTP server](Service.hs)
 and a [editor interface](https://github.com/cfr/cfr.github.io/blob/master/burnbar.html).
 
    [Interface.swift]: TestGen/Interface.swift
