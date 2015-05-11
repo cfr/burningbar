@@ -1,6 +1,6 @@
 # Burning Bar [![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis] [![Coverage Status](https://coveralls.io/repos/cfr/burningbar/badge.svg)](https://coveralls.io/r/cfr/burningbar)
 
-<!-- [![Coverage Status][badge-coverage]][coverage] [![Available on Hackage][badge-hackage]][hackage] [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay] -->
+<!-- [![Available on Hackage][badge-hackage]][hackage] [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay] -->
 
 Swift RPC generator written in Haskell.
 
@@ -41,6 +41,11 @@ See help for more options:
 
 ## [Spec syntax][Spec]
 
+## Service
+
+Generator available [online](http://cfr.pw/burnbar), with a simple [HTTP server](Service.hw)
+and a [editor interface](https://github.com/cfr/cfr.github.io/blob/master/burnbar.html).
+
    [Interface.swift]: TestGen/Interface.swift
    [Entities.swift]: TestGen/Entities.swift
    [Spec]: spec.burnbar
@@ -48,7 +53,7 @@ See help for more options:
    [badge-license]: https://img.shields.io/badge/license-Unlicense-brightgreen.svg
    [badge-cabal]: https://wiki.haskell.org/wikiupload/4/43/Built-with-Cabal-light.png
    [cabal]: https://www.haskell.org/cabal
-   [badge-gitter]: https://img.shields.io/badge/GITTER-join%20chat-brightgreen.svg
+   [badge-gitter]: https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg
    [gitter]: https://gitter.im/cfr/burningbar?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
    [badge-travis]: https://travis-ci.org/cfr/burningbar.svg?branch=master
    [travis]: https://travis-ci.org/cfr/burningbar
