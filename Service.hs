@@ -24,6 +24,7 @@ sendJSON s v = headers reponse
         headers = insertHeader HdrContentLength (show $ length text)
                 ∘ insertHeader HdrContentEncoding "UTF-8"
                 ∘ insertHeader HdrContentType "application/json"
+                ∘ insertHeader (HdrCustom "Access-Control-Allow-Origin") "*"
         text = encodeString v
 
 toSwift = toJSON ∘ translator (swift "Singularity" "Horizon") ∘ parse
