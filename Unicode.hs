@@ -12,7 +12,7 @@ import Control.Category (Category, (.))
 import Control.Applicative (Applicative, Alternative, (<*>), (<|>), (<$>))
 import Data.Functor (Functor)
 import Control.Arrow (Arrow, (>>>), (***), (&&&))
-import Control.Monad ( Monad, (>>=), (>>), (=<<) )
+import Control.Monad (Monad, (>>=), (>>), (=<<))
 import Data.List ((++), elem, notElem)
 import System.FilePath.Posix ((</>), (<.>))
 
@@ -40,12 +40,10 @@ infix  4 ≡, ≠, ≤, ≥
 (≤) ∷ Ord α ⇒ α → α → Bool
 (≤) = (<=)
 
--- Category
+-- Category, Applicative
 infixr 9 ∘
 (∘) ∷ Category c ⇒ c β γ → c α β → c α γ
 (∘) = (.)
-
--- Applicative
 infixl 4 ⊛, ⦶, ⊚
 (⊚) ∷ Functor f ⇒ (α → β) → f α → f β
 (⊚) = (<$>)
@@ -65,7 +63,6 @@ infixr 1 ⋙
 (⋙) = (>>>)
 
 -- Monad
-
 infixl 1 ≫=, ≫, =≪
 (≫=) ∷ Monad m ⇒ m α → (α → m β) → m β
 (≫=) = (>>=)
