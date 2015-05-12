@@ -12,10 +12,12 @@ import Language
 import Swift
 import Unicode
 
-emptySpec = parse "" @?= []
+emptySpec = parse "-\n-" @?= []
 
 method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (Typename "Void") "m" [])
+methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (Typename "Void") "n" [])
 record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [])
+var = Parse.parseVar "a T" @?= Variable "a" (Typename "T")
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
@@ -27,6 +29,7 @@ instance Arbitrary Type where
 typeId = ap (≡) (Parse.parseType ∘ Swift.fromType)
 
 tests = [testGroup "Misc" [ testCase "empty" emptySpec, testCase "rec" record, testCase "met" method
+                          , testCase "var" var, testCase "named met" methodN
                           , testProperty "parse/write type" typeId ]]
 
 main = defaultMain tests

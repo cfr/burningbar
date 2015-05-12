@@ -1,6 +1,6 @@
 {-# LANGUAGE ViewPatterns, UnicodeSyntax, ExistentialQuantification #-}
 module Parse (Spec, parse, Language(..), Typename, translator,
-              parseType, parseRecord, parseMethod) where
+              parseType, parseVar, parseRecord, parseMethod) where
 
 import Data.List (stripPrefix)
 import Data.Maybe (maybe, catMaybes)
