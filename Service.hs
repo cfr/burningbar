@@ -12,7 +12,7 @@ import Parse
 
 -- available at http://cfr.pw/burnbar
 -- https://github.com/cfr/cfr.github.io/blob/master/burnbar.html
--- $ http localhost:9604 < spec.burnbar
+-- $ curl --data @spec.burnbar localhost:9604
 main = serverWith config process
   where process _ url request = case rqMethod request of
           POST → (return ∘ sendJSON OK ∘ toSwift ∘ decodeString ∘ rqBody) request

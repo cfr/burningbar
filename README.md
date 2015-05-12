@@ -4,16 +4,15 @@
 
 Swift RPC generator written in Haskell.
 
+Generator available [online](http://cfr.pw/burnbar) with simple spec editor and output viewer.
+
 Clone and run:
 
     $ git clone https://github.com/cfr/burningbar.git
     $ cd burningbar
     $ make example
 
-## Playground
-
-See Swift example in Xcode workspace: `$ open TestGen.xcworkspace`.
-Build TestGen framework to run generator and compile module for the playground.
+See [INSTALL](INSTALL.md) for general installation and Xcode integration instruction.
 
 ## Usage
 
@@ -41,11 +40,6 @@ See help for more options:
 
 ## [Spec syntax][Spec]
 
-## Service
-
-Generator available [online](http://cfr.pw/burnbar), with a simple [HTTP server](Service.hs)
-and a [editor interface](https://github.com/cfr/cfr.github.io/blob/master/burnbar.html).
-
    [Interface.swift]: TestGen/Interface.swift
    [Entities.swift]: TestGen/Entities.swift
    [Spec]: spec.burnbar
@@ -65,6 +59,4 @@ and a [editor interface](https://github.com/cfr/cfr.github.io/blob/master/burnba
    [hackage]: https://hackage.haskell.org/package/burningbar
    [badge-coverage]: https://coveralls.io/repos/cfr/burningbar/badge.svg
    [coverage]: https://coveralls.io/r/cfr/burningbar
-
-
 
