@@ -5,6 +5,7 @@ import Network.HTTP.Server.HtmlForm as Form
 import Codec.Binary.UTF8.String
 import Control.Exception (try, SomeException)
 import Data.List (intercalate, break)
+import Data.List.Split (splitOn)
 
 import Unicode
 import Swift
@@ -30,11 +31,8 @@ sendJSON s v = headers reponse
 toSwift = toJSON ∘ translator (swift "Singularity" "Horizon") ∘ parse
   where toJSON (e, i) = "{ \"Entities\": \"" ⧺ escape e
                         ⧺ "\", \"Interface\": \"" ⧺ escape i ⧺ "\"}"
-        escape = replace '\"' "\\\"" ∘ replace '\n' "\\n"
+        escape = replace "\"" "\\\"" ∘ replace "\n" "\\n"
+        replace old new = intercalate new ∘ splitOn old
 
 config = defaultConfig { srvLog = stdLogger, srvPort = 9604, srvHost = "0.0.0.0" }
-
-replace old new = intercalate new ∘ split old
-split _ [] = []
-split d s = let (l, r) = break (≡ d) s in l : split d (drop 1 r)
 

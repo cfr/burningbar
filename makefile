@@ -23,7 +23,7 @@ example:
 	@echo using spec.burnbar, written Entities.swift and Interface.swift.
 
 test:
-	cabal test
+	cabal install --only-dependencies --enable-tests && cabal build && cabal test
 
 run:
 	open ./TestGen.xcworkspace

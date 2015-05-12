@@ -31,15 +31,15 @@ See help for more options:
 
     $ burningbar --help
     burningbar: Usage: burningbar [-vhtirdsp]
-    http://j.mp/burnbar v0.5.10
-    -v                  --version                         print version number
-    -h                  --help                            print help
-    -t Transport        --transport=Transport             transport protocol name
-    -i Iterface         --interface=Iterface              interface class name
-    -r Interface.swift  --interface-file=Interface.swift  interface out filename
-    -d Entities.swift   --entities-file=Entities.swift    entities out filename
-    -s spec.burnbar     --spec-file=spec.burnbar          input spec file
-    -p .                --path=.                          output path prefix
+    http://j.mp/burnbar v0.5.11
+      -v                  --version                         print version number
+      -h                  --help                            print help
+      -t Transport        --transport=Transport             transport protocol name
+      -i Iterface         --interface=Iterface              interface class name
+      -r Interface.swift  --interface-file=Interface.swift  interface out filename
+      -d Entities.swift   --entities-file=Entities.swift    entities out filename
+      -s spec.burnbar     --spec-file=spec.burnbar          input spec file
+      -p .                --path=.                          output path prefix
 
 ## [Spec syntax][Spec]
 
