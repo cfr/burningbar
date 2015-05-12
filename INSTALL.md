@@ -1,6 +1,6 @@
 # INSTALL
 
-You have three options for building/running burningbar: make, cabal and runhaskell.
+You have three options for building/running generator: make, cabal and runhaskell.
 Anyway you have to install [ghc](https://www.haskell.org/ghc/) or compatible Haskell2010 compiler.
 
 Tested on OS X and Ubuntu.
@@ -11,8 +11,8 @@ Tested on OS X and Ubuntu.
 
     $ make
 
-Will try to install dependency (ghc, using [brew.sh](http://brew.sh) or apt) and compile executable
-`./burningbar`. Repo provides OS X binary to use with Xcode.
+Will try to install dependency (ghc, using [brew.sh](http://brew.sh) or apt) and compile `./burningbar` executable.
+Repo provides OS X binary to use with Xcode.
 
 ### [Cabal](burningbar.cabal)
 
@@ -21,7 +21,7 @@ Cabal is part of ghc or [haskell platform](https://www.haskell.org/platform/).
     $ cabal configure
     $ cabal install
 
-Builds `burgningbar` and [`burningbard` http service](Service hs) in `dist/build/`.
+Builds `burningbar` and [`burningbard` http service](Servic..hs) in `dist/build/`.
 burningbard depends on dozen of hackage packages and cabal will install them in `~/.cabal`.
 
 Use `burningbard` as http service:
@@ -37,7 +37,7 @@ See also [online editor](http://cfr.pw/burnbar) ([src](https://github.com/cfr/cf
 
 ### Interpret
 
-[`runburningbar`](runburningbar) script runs burningbar sources in interpreted mode.
+[`runburningbar`](runburningbar) script runs generator sources in interpreted mode.
 Requires ghc(i) (or any other interpreter providing `runhaskell` cmd).
 
 ## Xcode integration
