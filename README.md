@@ -31,7 +31,7 @@ See help for more options:
 
     $ burningbar --help
     burningbar: Usage: burningbar [-vhtirdsp]
-    http://j.mp/burnbar v0.5.11
+    http://j.mp/burnbar v0.5.12
       -v                  --version                         print version number
       -h                  --help                            print help
       -t Transport        --transport=Transport             transport protocol name

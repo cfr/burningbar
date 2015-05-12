@@ -30,17 +30,17 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
 
 record name vars = "public struct " ⧺ name ⧺ " : BBSerializable {" ↝ concat decls ⧺ "}\n\n"
   where decls = initDecl : statics : map varDecl vars
-        initDecl = s 4 ⧺ "let asDictionary: " ⧺ jsonT
+        initDecl = s 4 ⧺ "public let asDictionary: " ⧺ jsonT
                    ⇝ "public init(_ json: " ⧺ jsonT ⧺ ") {" ⟿  "asDictionary = json"
                    ↝ list initDict ⧺ list initVar ⧺ s 4 ⧺ "}\n"
         statics = s 4 ⧺ "public static let Name = \"" ⧺ name ⧺ "\""
                   ↝ list staticName ↝ list staticPut
         staticName (Variable n _) = s 4 ⧺ "public static let " ⧺ n ⧺ " = \"" ⧺ n ⧺ "\"\n"
         staticPut (Variable n (Optional t)) = staticPut (Variable n t)
-        staticPut (Variable n t) = s 4 ⧺ "public static func put" ⧺ capitalize n ⧺ "(_ " ⧺ n ⧺ ": "
-                                   ⧺ fromType t ⧺ ") -> (" ⧺ jsonT ⧺ " -> " ⧺ jsonT ⧺ ") {"
-                                   ⟿  "return { d in d[\"" ⧺ n ⧺ "\"] = " ⧺ n ⧺ "; return d }"
-                                   ⇝ "}\n"
+        staticPut (Variable n t) = s 4 ⧺ "public static func put" ⧺ capitalize n ⧺ "(" ⧺ n ⧺ ": "
+                                   ⧺ fromType t ⧺ ") -> ((inout " ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ ") {"
+                                   ⟿  "return { (inout d: " ⧺ jsonT ⧺ ") in d[\"" ⧺ n
+                                              ⧺ "\"] = " ⧺ n ⧺ " as? AnyObject; return d }" ⇝ "}\n"
         varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n ≑ t ⧺ "\n"
         initDict (Variable n d@(Dictionary k t)) | primitive t = ""
                                                  | otherwise = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
@@ -52,7 +52,7 @@ record name vars = "public struct " ⧺ name ⧺ " : BBSerializable {" ↝ conca
 constructDict ∷ (Variable → String) → [Variable] → String
 constructDict rule vars | null vars = "[:]"
                         | otherwise = "[" ⧺ (init ∘ init ∘ (vars ≫=)) rule ⧺ "]"
-varOrNull (Variable n t) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ " as AnyObject, "
+varOrNull (Variable n t) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ " as! AnyObject, "
   where unwrap | Optional t' ← t = "(" ⧺ n ⧺ " ?? \"null\")"
                | otherwise = n
 

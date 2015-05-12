@@ -1,20 +1,32 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.5.10
+// 📏🔥 Generated with http://j.mp/burnbar v0.5.12
 
 import Foundation
 
-public struct Credentials {
+public struct Credentials : BBSerializable {
+    public let asDictionary: [String: AnyObject]
     public init(_ json: [String: AnyObject]) {
+        asDictionary = json
         login = json["login"] as? String
         pass = json["pass"] as? String
     }
-    public var serialized: [String: AnyObject] { get {
-        return ["login": login?.serialized ?? "null" as AnyObject, "pass": pass?.serialized ?? "null" as AnyObject] } }
+    public static let Name = "Credentials"
+    public static let login = "login"
+    public static let pass = "pass"
+
+    public static func putLogin(login: String) -> ((inout [String: AnyObject]) -> [String: AnyObject]) {
+        return { (inout d: [String: AnyObject]) in d["login"] = login as? AnyObject; return d }
+    }
+    public static func putPass(pass: String) -> ((inout [String: AnyObject]) -> [String: AnyObject]) {
+        return { (inout d: [String: AnyObject]) in d["pass"] = pass as? AnyObject; return d }
+    }
     public var login: String?
     public var pass: String?
 }
 
-public struct UserInfo {
+public struct UserInfo : BBSerializable {
+    public let asDictionary: [String: AnyObject]
     public init(_ json: [String: AnyObject]) {
+        asDictionary = json
         friends = [String: UserInfo]()
         age = json["age"] as? NSNumber
         photoURLs = json["photoURLs"] as? [String]
@@ -24,8 +36,28 @@ public struct UserInfo {
         map(json.keys) {(k: String) in self.friends[k] = UserInfo(json[k] as! [String: AnyObject])}
         name = json["name"] as? String
     }
-    public var serialized: [String: AnyObject] { get {
-        return ["age": age?.serialized ?? "null" as AnyObject, "photoURLs": photoURLs?.serialized ?? "null" as AnyObject, "creds": creds?.serialized ?? "null" as AnyObject, "friends": friends.serialized as AnyObject, "name": name?.serialized ?? "null" as AnyObject] } }
+    public static let Name = "UserInfo"
+    public static let age = "age"
+    public static let photoURLs = "photoURLs"
+    public static let creds = "creds"
+    public static let friends = "friends"
+    public static let name = "name"
+
+    public static func putAge(age: NSNumber) -> ((inout [String: AnyObject]) -> [String: AnyObject]) {
+        return { (inout d: [String: AnyObject]) in d["age"] = age as? AnyObject; return d }
+    }
+    public static func putPhotoURLs(photoURLs: [String]) -> ((inout [String: AnyObject]) -> [String: AnyObject]) {
+        return { (inout d: [String: AnyObject]) in d["photoURLs"] = photoURLs as? AnyObject; return d }
+    }
+    public static func putCreds(creds: Credentials) -> ((inout [String: AnyObject]) -> [String: AnyObject]) {
+        return { (inout d: [String: AnyObject]) in d["creds"] = creds as? AnyObject; return d }
+    }
+    public static func putFriends(friends: [String: UserInfo]) -> ((inout [String: AnyObject]) -> [String: AnyObject]) {
+        return { (inout d: [String: AnyObject]) in d["friends"] = friends as? AnyObject; return d }
+    }
+    public static func putName(name: String) -> ((inout [String: AnyObject]) -> [String: AnyObject]) {
+        return { (inout d: [String: AnyObject]) in d["name"] = name as? AnyObject; return d }
+    }
     public var age: NSNumber?
     public var photoURLs: [String]?
     public var creds: Credentials?
@@ -34,37 +66,7 @@ public struct UserInfo {
 }
 
 
-internal extension Dictionary {
-  var serialized: [String: AnyObject] {
-    get { var d = [String: AnyObject]()
-          for key in self.keys { d[key as! String] = self[key] as? AnyObject }
-          return d }
-  }
-}
-internal extension Array {
-  var serialized: [AnyObject] {
-    get { var a = [AnyObject]()
-          for i in self { if let o: AnyObject = i as? AnyObject { a.append(o) } }
-          return a }
-  }
-}
-internal extension Int {
-  var serialized: String {
-    get { return self.description } 
-  }
-}
-internal extension String {
-  var serialized: String {
-    get { return self } 
-  }
-}
-internal extension NSNumber {
-  var serialized: String {
-    get { return self.description } 
-  }
-}
-internal extension Bool {
-  var serialized: String {
-    get { return self ? "true" : "false" } 
-  }
+public protocol BBSerializable {
+    var asDictionary: [String: AnyObject] { get }
+    static var Name: String { get }
 }
