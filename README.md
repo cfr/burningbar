@@ -60,6 +60,5 @@ See help for more options:
    [gratipay]: https://www.gratipay.com/cfr
    [badge-hackage]: https://img.shields.io/hackage/v/burningbar.svg?dummy
    [hackage]: https://hackage.haskell.org/package/burningbar
-   [badge-coverage]: https://coveralls.io/repos/cfr/burningbar/badge.svg
+   [badge-coverage]: https://coveralls.io/repos/cfr/burningbar/badge.svg?branch=master
    [coverage]: https://coveralls.io/r/cfr/burningbar
-
