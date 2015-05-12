@@ -16,7 +16,7 @@ Will try to install dependency (ghc, using [brew.sh](http://brew.sh) or apt) and
 
 ### [Cabal](burningbar.cabal)
 
-Cabal is part of ghc or [haskell platform](http://platform.haskell.org).
+Cabal is part of ghc or [haskell platform](https://www.haskell.org/platform/).
 
     $ cabal configure
     $ cabal install
