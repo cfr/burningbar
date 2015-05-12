@@ -28,7 +28,7 @@ executable burningbard
 
 Test-Suite Tests
   type:             exitcode-stdio-1.0
-  main-is:          Tests.hs
+  main-is:          Tests/Main.hs
   other-modules:    Unicode, Language, Parse, Swift
   build-depends:    base, filepath, directory,
                     HUnit, QuickCheck, test-framework,

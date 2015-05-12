@@ -14,7 +14,8 @@ import Unicode
 
 emptySpec = parse "" @?= []
 
-ping = parse "met ping Void" @?= [Method "ping" (Typename "Void") "ping" []]
+method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (Typename "Void") "m" [])
+record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [])
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
@@ -25,7 +26,7 @@ instance Arbitrary Type where
 
 typeId = ap (≡) (Parse.parseType ∘ Swift.fromType)
 
-tests = [testGroup "Misc" [ testCase "empty" emptySpec, testCase "ping" ping
+tests = [testGroup "Misc" [ testCase "empty" emptySpec, testCase "rec" record, testCase "met" method
                           , testProperty "parse/write type" typeId ]]
 
 main = defaultMain tests
