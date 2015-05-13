@@ -18,7 +18,8 @@ generate method = function name remoteName args rawRetType
 function name rpc args t = "" ⇝ "public func " ⧺ name
                            ⧺ "(" ⧺ argList ⧺ "completion: " ⧺ fromType t ⧺ " -> Void)"
                            ⧺ " -> T.CancellationToken"
-                           ⧺ " {" ↝ body ⇝ "}\n"
+                           ⧺ " {" ↝ body ⇝ "}"
+                           ⇝ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\""
   where body = s 6 ⧺ "return t.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
         argList = args ≫= fromArg
         fromArg (Variable n t) = n ≑ t ⧺ ", "
