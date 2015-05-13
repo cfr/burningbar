@@ -1,5 +1,6 @@
 .L.hs
 dist
+out
 .cabal-sandbox
 TestGen.xcworkspace/xcuserdata/Cfr.xcuserdatad/UserInterfaceState.xcuserstate
 

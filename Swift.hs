@@ -40,7 +40,9 @@ record name vars = "public struct " ⧺ name ⧺ " : BBSerializable {" ↝ conca
         staticPut (Variable n t) = s 4 ⧺ "public static func put" ⧺ capitalize n ⧺ "(" ⧺ n ⧺ ": "
                                    ⧺ fromType t ⧺ ") -> ((inout " ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ ") {"
                                    ⟿  "return { (inout d: " ⧺ jsonT ⧺ ") in d[\"" ⧺ n
-                                              ⧺ "\"] = " ⧺ n ⧺ " as? AnyObject; return d }" ⇝ "}\n"
+                                              ⧺ "\"] = " ⧺ asAnyObject ⧺ "; return d }" ⇝ "}\n"
+                    where asAnyObject | primitive t = n
+                                      | otherwise = n ⧺ ".asDictionary"
         varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n ≑ t ⧺ "\n"
         initDict (Variable n d@(Dictionary k t)) | primitive t = ""
                                                  | otherwise = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
@@ -52,7 +54,7 @@ record name vars = "public struct " ⧺ name ⧺ " : BBSerializable {" ↝ conca
 constructDict ∷ (Variable → String) → [Variable] → String
 constructDict rule vars | null vars = "[:]"
                         | otherwise = "[" ⧺ (init ∘ init ∘ (vars ≫=)) rule ⧺ "]"
-varOrNull (Variable n t) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ " as! AnyObject, "
+varOrNull (Variable n t) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ ", "
   where unwrap | Optional t' ← t = "(" ⧺ n ⧺ " ?? \"null\")"
                | otherwise = n
 
@@ -98,6 +100,11 @@ wrapEntities ∷ String → String
 wrapEntities es = foundation ↝ es
                 ↝ "public protocol BBSerializable {" ⇝ "var asDictionary: " ⧺ jsonT ⧺ " { get }"
                 ⇝ "static var Name: String { get }" ↝ "}"
+                ↝ "extension Dictionary {" ⇝ "var asDictionary: [Key: AnyObject] { get {"
+                ⟿ "var d = [Key: AnyObject](); for k in self.keys {"
+                ⟿ "  let o = self[k]; if let o: AnyObject = o as? AnyObject { d[k] = o }"
+                ⟿ "  else { d[k] = (o as! BBSerializable).asDictionary }"
+                ⟿ "}" ⟿ "return d\n    }}\n}"
 
 foundation = "import Foundation\n"
 defTransport t = "public protocol " ⧺ t ⧺ " {" ⇝ "typealias CancellationToken"
