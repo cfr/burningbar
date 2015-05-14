@@ -35,7 +35,6 @@ toSwift = toJSON ∘ translator (swift "Singularity" "Horizon") ∘ parse
   where toJSON (e, i) = "{ \"Entities\": \"" ⧺ escape e
                         ⧺ "\", \"Interface\": \"" ⧺ escape i
                         ⧺ "\", \"version\": \"" ⧺ showVersion version ⧺ "\"}"
-        -- | escapes quotes and newlines
         -- >>> escape "\"\n"
         -- "\\\"\\n"
         escape = replace "\"" "\\\"" ∘ replace "\n" "\\n"
