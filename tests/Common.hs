@@ -9,6 +9,7 @@ import Parse
 import Language
 import Swift
 import Unicode
+import Service
 
 emptySpec = parse "-\n-" @?= []
 

@@ -1,4 +1,5 @@
 {-# LANGUAGE UnicodeSyntax #-}
+module Service ( ) where
 import Network.HTTP.Server
 import Network.HTTP.Server.Logger
 import Network.HTTP.Server.HtmlForm as Form
