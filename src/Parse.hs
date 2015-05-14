@@ -75,6 +75,9 @@ parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComment �
 stripSuffix ∷ Eq α ⇒ [α] → [α] → Maybe [α]
 stripSuffix xs ys = reverse ⊚ stripPrefix (reverse xs) (reverse ys)
 
+-- | remove spaces from the string ends
+-- >>> trim " \tsdf   "
+-- "sdf"
 trim ∷ String → String
 trim = let f = reverse ∘ dropWhile isSpace in f ∘ f
 

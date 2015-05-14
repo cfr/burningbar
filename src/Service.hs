@@ -35,10 +35,16 @@ toSwift = toJSON ∘ translator (swift "Singularity" "Horizon") ∘ parse
   where toJSON (e, i) = "{ \"Entities\": \"" ⧺ escape e
                         ⧺ "\", \"Interface\": \"" ⧺ escape i
                         ⧺ "\", \"version\": \"" ⧺ showVersion version ⧺ "\"}"
-        -- >>> escape "\"\n"
-        -- "\\\"\\n"
-        escape = replace "\"" "\\\"" ∘ replace "\n" "\\n"
-        replace old new = intercalate new ∘ splitOn old
 
 config = defaultConfig { srvLog = stdLogger, srvPort = 9604, srvHost = "0.0.0.0" }
+
+-- | escapes quotes and newlines
+-- >>> escape "\"\n"
+-- "\\\"\\n"
+escape = replace "\"" "\\\"" ∘ replace "\n" "\\n"
+
+-- | relace substring
+-- >>> replace "a" "b" "ab"
+-- "bb"
+replace old new = intercalate new ∘ splitOn old
 

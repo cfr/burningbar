@@ -13,10 +13,10 @@ endif
 
 all: deps
 	mkdir -p out
-	ghc -O2 --make BurningBar.hs -outputdir out -o burningbar
+	ghc -O2 --make src/BurningBar.hs -isrc -outputdir out -o burningbar
 
 debug:
-	ghci *.hs -DDEBUG
+	ghci -isrc src/Language.hs src/BurningBar.hs src/Parse.hs src/Swift.hs -DDEBUG
 
 example:
 	./runburningbar
