@@ -20,7 +20,7 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
                            ⧺ " -> T.CancellationToken"
                            ⧺ " {" ↝ body ⇝ "}"
                            ⇝ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\""
-  where body = s 6 ⧺ "return t.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
+  where body = s 6 ⧺ "return singularity.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
         argList = args ≫= fromArg
         fromArg (Variable n t) = n ≑ t ⧺ ", "
         passedArgs = constructDict varOrNull args
@@ -37,6 +37,7 @@ record name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ con
                    ⇝ "public init(_ json: " ⧺ jsonT ⧺ ") {" ⟿  "asDictionary = json"
                    ↝ list initDict ⧺ list initVar ⧺ s 4 ⧺ "}\n"
         statics = s 4 ⧺ "public static let Name = \"" ⧺ name ⧺ "\""
+                  ⇝ "public let Name = \"" ⧺ name ⧺ "\""
                   ↝ list staticName ↝ list staticPut
         staticName (Variable n _) = s 4 ⧺ "public static let " ⧺ n ⧺ " = \"" ⧺ n ⧺ "\"\n"
         staticPut (Variable n (Optional t)) = staticPut (Variable n t)
@@ -94,15 +95,15 @@ wrapInterface ∷ Typename → Typename → String → String
 wrapInterface transportType interfaceType rpcs = foundation ↝ header
   where header = defTransport transportType ↝ "public class " ⧺ interfaceType
                  ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
-                 ⇝ "public init(" ⧺ transport ⧺ ": T) { t = " ⧺ transport ⧺ " }" ↝ rpcs
-                 ⇝ "private let t: T" ↝ "}\n"
+                 ⇝ "public init(" ⧺ transport ⧺ ": T) { singularity = " ⧺ transport ⧺ " }" ↝ rpcs
+                 ⇝ "public let singularity: T" ↝ "}\n"
         decapitalize (c:cs) = toLower c : cs
         transport = decapitalize transportType
 
 wrapEntities ∷ String → String
 wrapEntities es = foundation ↝ es
                 ↝ "public protocol BBSerializable {" ⇝ "var asDictionary: " ⧺ jsonT ⧺ " { get }"
-                ⇝ "static var Name: String { get }" ↝ "}"
+                ⇝ "var Name: String { get }" ↝ "}"
                 ↝ "extension Dictionary {" ⇝ "var asDictionary: [Key : AnyObject] { get {"
                 ⟿ "var d = [Key : AnyObject](); for k in self.keys {"
                 ⟿ "  let o = self[k]; if let o: AnyObject = o as? AnyObject { d[k] = o }"
