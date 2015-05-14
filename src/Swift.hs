@@ -22,9 +22,9 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
                            ⇝ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\""
   where body = s 6 ⧺ "return singularity.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
         argList = args ≫= fromArg
-        fromArg (Variable n t) = n ≑ t ⧺ ", "
+        fromArg (Variable n t _) = n ≑ t ⧺ ", "
         passedArgs = constructDict varOrNull args
-        passArg (Variable n _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " as Any, "
+        passArg (Variable n _ _) = "\"" ⧺ n ⧺ "\": " ⧺ n ⧺ " as Any, "
         parseReply | t ≡ Typename "Void" = " _ in }"
                    | otherwise = "r in" ⟿  "let v = " ⧺ fromType t ⧺ "(r)"
                                  ⟿  "completion(v)" ↝ s 6 ⧺ "}"
@@ -39,18 +39,19 @@ record name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ con
         statics = s 4 ⧺ "public static let Name = \"" ⧺ name ⧺ "\""
                   ⇝ "public let Name = \"" ⧺ name ⧺ "\""
                   ↝ list staticName ↝ list staticPut
-        staticName (Variable n _) = s 4 ⧺ "public static let " ⧺ n ⧺ " = \"" ⧺ n ⧺ "\"\n"
-        staticPut (Variable n (Optional t)) = staticPut (Variable n t)
-        staticPut (Variable n t) = s 4 ⧺ "public static func put" ⧺ capitalize n ⧺ "(" ⧺ n ⧺ ": "
-                                   ⧺ fromType t ⧺ ") -> ((inout " ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ ") {"
-                                   ⟿  "return { (inout d: " ⧺ jsonT ⧺ ") in d[\"" ⧺ n
+        staticName (Variable n _ _) = s 4 ⧺ "public static let " ⧺ n ⧺ " = \"" ⧺ n ⧺ "\"\n"
+        staticPut (Variable n (Optional t) dv) = staticPut (Variable n t dv)
+        staticPut (Variable n t _) = s 4 ⧺ "public static func put" ⧺ capitalize n ⧺ "(" ⧺ n ⧺ ": "
+                                     ⧺ fromType t ⧺ ") -> ((inout " ⧺ jsonT ⧺ ") -> " ⧺ jsonT ⧺ ") {"
+                                     ⟿  "return { (inout d: " ⧺ jsonT ⧺ ") in d[\"" ⧺ n
                                               ⧺ "\"] = " ⧺ asAnyObject ⧺ "; return d }" ⇝ "}\n"
                     where asAnyObject | primitive t = n
                                       | otherwise = n ⧺ ".asDictionary"
-        varDecl (Variable n t) = s 4 ⧺ "public var " ⧺ n ≑ t ⧺ "\n"
-        initDict (Variable n d@(Dictionary k t)) | primitive t = ""
-                                                 | otherwise = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
-        initDict (Variable n (Optional d)) = initDict (Variable n d)
+        varDecl (Variable n t dv) = s 4 ⧺ "public var " ⧺ n ≑ t ⧺ defVal ⧺ "\n"
+                    where defVal = maybe "" (" = " ⧺) dv
+        initDict (Variable n d@(Dictionary k t) _) | primitive t = ""
+                                                   | otherwise = s 8 ⧺ n ⧧ fromType d ⧺ "()\n"
+        initDict (Variable n (Optional d) dv) = initDict (Variable n d dv)
         initDict _ = ""
         list = (vars ≫=)
         capitalize (c:cs) = toUpper c : cs
@@ -58,18 +59,18 @@ record name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ con
 constructDict ∷ (Variable → String) → [Variable] → String
 constructDict rule vars | null vars = "[:]"
                         | otherwise = "[" ⧺ (init ∘ init ∘ (vars ≫=)) rule ⧺ "]"
-varOrNull (Variable n t) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ ", "
+varOrNull (Variable n t _) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ ", "
   where unwrap | Optional t' ← t = "(" ⧺ n ⧺ " ?? \"null\")"
                | otherwise = n
 
-initVar v@(Variable n (Optional t)) | primitive t = initPrimitive (Optional t) n
-                                    | otherwise = withOptionalJSON n (initNewtype n t)
-initVar (Variable n d@(Dictionary k t)) | primitive t = initPrimitive (Dictionary k t) n
-                                        | otherwise = s 8 ⧺ mapJSON n d ⧺ "\n" -- TODO: if let json = ..
-initVar (Variable n (Array t)) | primitive t = initPrimitive (Array t) n
-                               | otherwise = s 8 ⧺ n ⧧ mapJSON n (Array t) ⧺ "\n" -- TODO: check
-initVar (Variable n t) | primitive t = initPrimitive t n
-                       | otherwise = s 8 ⧺ n ⧧ initNewtype n t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
+initVar v@(Variable n (Optional t) _) | primitive t = initPrimitive (Optional t) n
+                                      | otherwise = withOptionalJSON n (initNewtype n t)
+initVar (Variable n d@(Dictionary k t) _) | primitive t = initPrimitive (Dictionary k t) n
+                                          | otherwise = s 8 ⧺ mapJSON n d ⧺ "\n" -- TODO: if let json = ..
+initVar (Variable n (Array t) _) | primitive t = initPrimitive (Array t) n
+                                 | otherwise = s 8 ⧺ n ⧧ mapJSON n (Array t) ⧺ "\n" -- TODO: check
+initVar (Variable n t _) | primitive t = initPrimitive t n
+                         | otherwise = s 8 ⧺ n ⧧ initNewtype n t (sub n ⧺ " as! " ⧺ jsonT) ⧺ "\n"
 
 initWithElem n = s 8 ⧺ n ⧧ sub n ⧺ " as"
 initNewtype n d@(Dictionary _ _) _ = mapJSON (n ⧺ "!") d -- TODO: check

@@ -12,7 +12,8 @@
 - # Record
 -
 -     rec name
--      name varType - same as type but with different primitives
+-      name varType [ = defaultValue] - same as type but with different
+-                                     - optional default value
 -      ...
 -
 - # Examples:
@@ -20,7 +21,7 @@
 met ping Void
 
 rec Credentials
-   login  String?
+   login  String? = "user"
    pass  String?
 
 rec UserInfo YourProto

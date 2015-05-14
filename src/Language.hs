@@ -11,10 +11,13 @@ type Typename = String
 data Type = Array Type | Dictionary { key ∷ Type, value ∷ Type }
           | Optional Type | Typename String deriving (Show, Eq)
 
-data Variable = Variable Name Type deriving (Show, Eq)
-data Declaration = Record { name ∷ Name, vars ∷ [Variable], super ∷ Maybe Typename }
-                 | Method { remote ∷ Name, returns ∷ Type,
-                            name ∷ Name, args ∷ [Variable] } deriving (Show, Eq)
+data Variable = Variable Name Type (Maybe String) -- default value
+                deriving (Show, Eq)
+data Declaration = Record { name ∷ Name, vars ∷ [Variable]
+                          , super ∷ Maybe Typename }
+                 | Method { remote ∷ Name, returns ∷ Type
+                          , name ∷ Name, args ∷ [Variable]
+                          } deriving (Show, Eq)
 
 data Language = Language { generate ∷ Declaration → String
                          , wrapEntities ∷ String → String
@@ -29,7 +32,8 @@ translator (Language {..}) = partition isRec ⋙ gen ⋙ wrapEntities ⁂ wrapIn
         isRec _ = False
 
 atoms ∷ [Type]
-atoms = map Typename ["String", "NSNumber"] -- TODO: "Bool", "Int", "Float", "URL", "IntString"
+atoms = map Typename ["String", "NSNumber"]
+-- TODO: "Bool", "Int", "Float", "URL", "IntString"
 
 primitives ∷ [Type]
 primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt]

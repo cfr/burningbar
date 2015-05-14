@@ -16,7 +16,7 @@ emptySpec = parse "-\n-" @?= []
 method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (Typename "Void") "m" [])
 methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (Typename "Void") "n" [])
 record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [] Nothing)
-var = Parse.parseVar "a T" @?= Variable "a" (Typename "T")
+var = Parse.parseVar "a T" @?= Variable "a" (Typename "T") Nothing
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
@@ -24,6 +24,7 @@ instance Arbitrary Type where
                     --, liftM2 Dictionary (elements Language.atoms) arbitrary
                     , liftM Optional arbitrary
                     , elements Language.atoms]
+  coarbitrary = undefined
 
 typeId = ap (≡) (Parse.parseType ∘ Swift.fromType)
 

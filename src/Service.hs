@@ -1,5 +1,5 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Service ( ) where
+module Service (srv) where
 import Network.HTTP.Server
 import Network.HTTP.Server.Logger
 import Network.HTTP.Server.HtmlForm as Form
@@ -18,7 +18,7 @@ import Parse
 -- available at http://cfr.pw/burnbar
 -- https://github.com/cfr/cfr.github.io/blob/master/burnbar.html
 -- $ curl --data @spec.burnbar localhost:9604
-main = serverWith config process
+srv = serverWith config process
   where process _ url request = case rqMethod request of
           POST → (return ∘ sendJSON OK ∘ toSwift ∘ decodeString ∘ rqBody) request
           otherwise → return $ sendJSON BadRequest "[\"Ｃ:。ミ\"]"

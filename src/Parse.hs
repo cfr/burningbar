@@ -47,11 +47,17 @@ parseDeclarationAs construct parseHeader (head:vars) = construct' ⊚ header
         construct' = construct (map parseVar vars)
 
 parseVar ∷ String → Variable
-parseVar (words → (n:rt)) | (not ∘ null) rt = parseVar' (n, join rt)
+parseVar (words → (n:rtdv)) | (not ∘ null) rtdv = parseVar' (n, join rtdv)
 parseVar s = error $ s ⧺ " — expecting variable declaration."
 
+-- |
+-- >>> parseVar "v T = 0"
+-- Variable "v" (Typename "T") (Just "0")
 parseVar' ∷ (Name, RawType) → Variable
-parseVar' (n, rt) = Variable n (parseType rt)
+parseVar' (n, rtdv) = Variable n (parseType t) dv
+  where dv | null rdv = Nothing
+           | otherwise = Just (tail rdv)
+        (t, rdv) = break (≡ '=') rtdv
 
 parseType ∷ RawType → Type
 parseType (stripSuffix "?" → Just t) = Optional (parseType t)
