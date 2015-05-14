@@ -7,6 +7,9 @@ import Control.Exception (try, SomeException)
 import Data.List (intercalate, break)
 import Data.List.Split (splitOn)
 
+import Paths_burningbar (version)
+import Data.Version (showVersion)
+
 import Unicode
 import Swift
 import Parse
@@ -30,7 +33,10 @@ sendJSON s v = headers reponse
 
 toSwift = toJSON ∘ translator (swift "Singularity" "Horizon") ∘ parse
   where toJSON (e, i) = "{ \"Entities\": \"" ⧺ escape e
-                        ⧺ "\", \"Interface\": \"" ⧺ escape i ⧺ "\"}"
+                        ⧺ "\", \"Interface\": \"" ⧺ escape i
+                        ⧺ "\", \"version\": \"" ⧺ showVersion version ⧺ "\"}"
+        -- >>> escape "\"\n"
+        -- "\\\"\\n"
         escape = replace "\"" "\\\"" ∘ replace "\n" "\\n"
         replace old new = intercalate new ∘ splitOn old
 
