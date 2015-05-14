@@ -11,7 +11,7 @@ swift transportType interfaceType = Language generate wrapEntities wrapInterface
   where wrapInterface' = wrapInterface transportType interfaceType
 
 generate ∷ Declaration → String
-generate (Record name vars) = record name vars
+generate (Record name vars super) = record name vars super
 generate method = function name remoteName args rawRetType
     where (Method remoteName rawRetType name args) = method
 
@@ -29,8 +29,10 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
                    | otherwise = "r in" ⟿  "let v = " ⧺ fromType t ⧺ "(r)"
                                  ⟿  "completion(v)" ↝ s 6 ⧺ "}"
 
-record name vars = "public struct " ⧺ name ⧺ " : BBSerializable {" ↝ concat decls ⧺ "}\n\n"
+record name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ concat decls ⧺ "}\n\n"
   where decls = initDecl : statics : map varDecl vars
+        conforms | (Just s) ← super = " : " ⧺ s
+                 | otherwise = " : BBSerializable"
         initDecl = s 4 ⧺ "public let asDictionary: " ⧺ jsonT
                    ⇝ "public init(_ json: " ⧺ jsonT ⧺ ") {" ⟿  "asDictionary = json"
                    ↝ list initDict ⧺ list initVar ⧺ s 4 ⧺ "}\n"
@@ -101,8 +103,8 @@ wrapEntities ∷ String → String
 wrapEntities es = foundation ↝ es
                 ↝ "public protocol BBSerializable {" ⇝ "var asDictionary: " ⧺ jsonT ⧺ " { get }"
                 ⇝ "static var Name: String { get }" ↝ "}"
-                ↝ "extension Dictionary {" ⇝ "var asDictionary: [Key: AnyObject] { get {"
-                ⟿ "var d = [Key: AnyObject](); for k in self.keys {"
+                ↝ "extension Dictionary {" ⇝ "var asDictionary: [Key : AnyObject] { get {"
+                ⟿ "var d = [Key : AnyObject](); for k in self.keys {"
                 ⟿ "  let o = self[k]; if let o: AnyObject = o as? AnyObject { d[k] = o }"
                 ⟿ "  else { d[k] = (o as! BBSerializable).asDictionary }"
                 ⟿ "}" ⟿ "return d\n    }}\n}"
@@ -117,7 +119,7 @@ s = concat ∘ flip take (repeat " ")
 
 n ⧧ v = n ⧺ " = " ⧺ v
 n ≑ t = n ⧺ ": " ⧺ fromType t
-jsonT = "[String: AnyObject]"
+jsonT = "[String : AnyObject]"
 sub k = "json[\"" ⧺ k ⧺ "\"]"
 
 infixr 5 ↝, ⇝, ⟿

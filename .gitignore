@@ -1,6 +1,8 @@
 .L.hs
 dist
 out
+Interface.swift
+Entities.swift
 .cabal-sandbox
 TestGen.xcworkspace/xcuserdata/Cfr.xcuserdatad/UserInterfaceState.xcuserstate
 

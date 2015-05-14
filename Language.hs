@@ -12,7 +12,7 @@ data Type = Array Type | Dictionary { key ∷ Type, value ∷ Type }
           | Optional Type | Typename String deriving (Show, Eq)
 
 data Variable = Variable Name Type deriving (Show, Eq)
-data Declaration = Record { name ∷ Name, vars ∷ [Variable] }
+data Declaration = Record { name ∷ Name, vars ∷ [Variable], super ∷ Maybe Typename }
                  | Method { remote ∷ Name, returns ∷ Type,
                             name ∷ Name, args ∷ [Variable] } deriving (Show, Eq)
 

@@ -34,9 +34,11 @@ parseMethod = parseDeclarationAs met proto
         met vars (rn, rrt, n) = Method rn (parseType rrt) n vars
 
 parseRecord ∷ [String] → Maybe Declaration
-parseRecord = parseDeclarationAs (flip Record) named
-  where named ["rec", nm] = Just nm
+parseRecord = parseDeclarationAs rec named
+  where named ["rec", nm, super] = Just (nm, Just super)
+        named ["rec", nm] = Just (nm, Nothing)
         named _ = Nothing
+        rec vars (nm, super) = Record nm vars super
 
 parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe α) → [String] → Maybe Declaration
 parseDeclarationAs _ _ [] = Nothing
