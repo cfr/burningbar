@@ -96,9 +96,9 @@ wrapInterface ∷ Typename → Typename → String → String
 wrapInterface transportType interfaceType rpcs = foundation ↝ header
   where header = defTransport transportType ↝ "public class " ⧺ interfaceType
                  ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
-                 ⇝ "public func cancel(token: CancellationToken) { transport.cancel() }"
-                 ⇝ "public init(" ⧺ transport ⧺ ": T) { transport = " ⧺ transport ⧺ " }" ↝ rpcs
-                 ⇝ "public let transport: T" ↝ "}\n"
+                 ⇝ "public func cancel(token: CancellationToken) { transport.cancel(token) }"
+                 ⇝ "public init(" ⧺ transport ⧺ ": T) { self.transport = " ⧺ transport ⧺ " }"
+                 ↝ rpcs ⇝ "public let transport: T" ↝ "}\n"
         decapitalize (c:cs) = toLower c : cs
         transport = decapitalize transportType
 
@@ -114,7 +114,7 @@ wrapEntities es = foundation ↝ es
 
 foundation = "import Foundation\n"
 defTransport t = "public protocol " ⧺ t ⧺ " {" ⇝ "typealias CancellationToken"
-                 ⇝ "public func cancel(token: CancellationToken)"
+                 ⇝ "func cancel(token: CancellationToken)"
                  ⇝ "func call(method: String, arguments: " ⧺ jsonT ⧺ ","
                  ⇝ s 10 ⧺ "completion: " ⧺ jsonT ⧺ " -> Void) -> CancellationToken" ↝ "}"
 
