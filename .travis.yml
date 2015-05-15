@@ -9,5 +9,5 @@ script:
   - run-cabal-test --show-details=always
 
 after_script:
-  - hpc-coveralls tests doctests --exclude-dir=tests
+  - hpc-coveralls tests doctests --exclude-dir={tests,dist}
 
