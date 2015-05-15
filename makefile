@@ -28,8 +28,15 @@ test:
 run:
 	open ./TestGen.xcworkspace
 
+update:
+	git pull -u
+	cabal build
+
+restart: update
+	dist/build/burningbard/burningbard
+
 lint:
-	#cabal install hlint
+	# cabal install hlint
 	hlint *hs
 
 deps:
