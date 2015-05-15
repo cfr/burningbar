@@ -20,7 +20,7 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
                            ⧺ " -> T.CancellationToken"
                            ⧺ " {" ↝ body ⇝ "}"
                            ⇝ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\""
-  where body = s 6 ⧺ "return singularity.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
+  where body = s 6 ⧺ "return transport.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
         argList = args ≫= fromArg
         fromArg (Variable n t _) = n ≑ t ⧺ ", "
         passedArgs = constructDict varOrNull args
@@ -96,8 +96,9 @@ wrapInterface ∷ Typename → Typename → String → String
 wrapInterface transportType interfaceType rpcs = foundation ↝ header
   where header = defTransport transportType ↝ "public class " ⧺ interfaceType
                  ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
-                 ⇝ "public init(" ⧺ transport ⧺ ": T) { singularity = " ⧺ transport ⧺ " }" ↝ rpcs
-                 ⇝ "public let singularity: T" ↝ "}\n"
+                 ⇝ "public func cancel(token: CancellationToken) { transport.cancel() }"
+                 ⇝ "public init(" ⧺ transport ⧺ ": T) { transport = " ⧺ transport ⧺ " }" ↝ rpcs
+                 ⇝ "public let transport: T" ↝ "}\n"
         decapitalize (c:cs) = toLower c : cs
         transport = decapitalize transportType
 
@@ -113,6 +114,7 @@ wrapEntities es = foundation ↝ es
 
 foundation = "import Foundation\n"
 defTransport t = "public protocol " ⧺ t ⧺ " {" ⇝ "typealias CancellationToken"
+                 ⇝ "public func cancel(token: CancellationToken)"
                  ⇝ "func call(method: String, arguments: " ⧺ jsonT ⧺ ","
                  ⇝ s 10 ⧺ "completion: " ⧺ jsonT ⧺ " -> Void) -> CancellationToken" ↝ "}"
 
