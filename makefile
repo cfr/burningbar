@@ -37,7 +37,7 @@ restart: update
 
 lint:
 	# cabal install hlint
-	hlint *hs
+	hlint src/*hs
 
 deps:
 	$(INSTALL_DEPS)
