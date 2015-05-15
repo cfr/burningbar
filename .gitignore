@@ -3,6 +3,7 @@ dist
 out
 Interface.swift
 Entities.swift
+.hpc
 .cabal-sandbox
 TestGen.xcworkspace/xcuserdata/Cfr.xcuserdatad/UserInterfaceState.xcuserstate
 
