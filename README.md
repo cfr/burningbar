@@ -1,5 +1,5 @@
 
-# Burning Bar [![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis] [![Coverage Status](https://coveralls.io/repos/cfr/burningbar/badge.svg?branch=master)](https://coveralls.io/r/cfr/burningbar?branch=master)
+# Burning Bar 📏🔥[![Join the chat at https://gitter.im/cfr/burningbar][badge-gitter]][gitter] [![Unlicensed][badge-license]][license] [![Build Status][badge-travis]][travis] [![Coverage Status](https://coveralls.io/repos/cfr/burningbar/badge.svg?branch=master)](https://coveralls.io/r/cfr/burningbar?branch=master)
 
 <!-- [![Available on Hackage][badge-hackage]][hackage]
      [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay]
