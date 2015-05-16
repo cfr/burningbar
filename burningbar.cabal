@@ -1,11 +1,16 @@
 name:               burningbar
 version:            0.5.14
 synopsis:           Swift RPC generator
+description:
+    Tool and service to generate Swift JSON mappers and RPC functions.
+    <https://github.com/cfr/burningbar/blob/master/README.md README>.
 homepage:           http://j.mp/burnbar
+bug-reports:        https://github.com/cfr/burningbar/issues
 license:            PublicDomain
 license-file:       UNLICENSE
 author:             Stan Serebryakov
 maintainer:         i+cabal@cfr.pw
+stability:          experimental
 category:           Web
 build-type:         Simple
 extra-source-files: README.md
@@ -20,23 +25,23 @@ executable burningbar
   other-modules:    Util, Language, Parse, Swift
   other-extensions: ScopedTypeVariables, UnicodeSyntax, CPP, RecordWildCards,
                     ViewPatterns, NoImplicitPrelude
-  build-depends:    base, directory, filepath
+  build-depends:    base <5, directory, filepath
   hs-source-dirs:   src
   default-language: Haskell2010
 
 executable burningbard
   main-is:          BurningBard.hs
   other-modules:    Service, Util, Language, Parse, Swift, Paths_burningbar
-  build-depends:    base, http-server, directory, filepath, url,
+  build-depends:    base <5, http-server, directory, filepath, url,
                     utf8-string, split
   hs-source-dirs:   src
   default-language: Haskell2010
 
-Test-Suite test
+test-suite test
   type:             exitcode-stdio-1.0
   main-is:          Common.hs
   other-modules:    Util, Language, Parse, Swift, Service
-  build-depends:    base, filepath, directory, http-server, utf8-string,
+  build-depends:    base <5, filepath, directory, http-server, utf8-string,
                     HUnit, QuickCheck, test-framework, url, split,
                     test-framework-hunit, test-framework-quickcheck
   hs-source-dirs:   src test
@@ -45,16 +50,9 @@ Test-Suite test
 test-suite doctests
   type:             exitcode-stdio-1.0
   main-is:          doctests.hs
-  build-depends:    base, doctest, process, http-server,
+  build-depends:    base <5, doctest, process, http-server,
                     directory, filepath, url,
                     utf8-string, split
   hs-source-dirs:   src test
-  default-language: Haskell2010
-
-test-suite lint
-  type:             exitcode-stdio-1.0
-  main-is:          lint.hs
-  build-depends:    base, hlint
-  hs-source-dirs:   test
   default-language: Haskell2010
 
