@@ -111,7 +111,7 @@ wrapEntities es = foundation ↝ es
                 ⟿ "var d = [Key : AnyObject](); for k in self.keys {"
                 ⟿ "  let o = self[k]; if let o: AnyObject = o as? AnyObject { d[k] = o }"
                 ⟿ "  else { d[k] = (o as! BBSerializable).asDictionary }"
-                ⟿ "}" ⟿ "return d\n    }}\n}"
+                ⟿ "}" ⟿ "return d\n    }}\n}\n"
 
 foundation = "import Foundation\n"
 defTransport t = "public protocol " ⧺ t ⧺ " {" ⇝ "typealias CancellationToken"
