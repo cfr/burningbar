@@ -1,10 +1,15 @@
 language: haskell
-ghc: 7.8.3
+ghc: 7.6
 
 script:
-  - cabal configure --enable-tests --enable-library-coverage && cabal build
-  - run-cabal-test --show-details=always
+  - cabal configure --enable-tests --enable-library-coverage && cabal build && cabal test
+
+cache:
+  directories:
+  - ~/.cabal
+  - ~/.ghc
 
 after_script:
+  - cabal install hpc-coveralls
   - hpc-coveralls test doctests --exclude-dir={test,dist}
 
