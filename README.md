@@ -5,9 +5,9 @@
      [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay]
      [![Stories in Ready](https://badge.waffle.io/cfr/burningbar.png?label=ready&title=Ready)](https://waffle.io/cfr/burningbar) -->
 
-Swift RPC generator written in Haskell.
+Swift RPC generator.
 
-Generator available [online](http://cfr.pw/burnbar) with simple spec editor and output viewer.
+Available [online](http://cfr.pw/burnbar) with simple spec editor and output viewer.
 
 Clone and run:
 
@@ -19,19 +19,21 @@ See [INSTALL](INSTALL.md) for general installation and Xcode integration instruc
 
 ## Usage
 
+Command
+
     $ burningbar --spec-file spec.burnbar
 
-reads [spec.burnbar][Spec] and generates [Interface.swift][], [Entities.swift][] with
-corresponding structs/parsers and RPC funcs declarations. Functions are encapsulated
-in Interface class, parameterized by `Transport` protocol containing `call` func
-and `CancellationToken` typealias. Struct's `init(json:)` takes `[String: AnyObject]`
-representing json object.
+reads [spec.burnbar][Spec] and generates [Interface.swift][] (RPC funcs) and
+[Entities.swift][] (structs/mappers), Interface class is parameterized by
+`Transport` protocol containing `call`, `cancel` funcs and `CancellationToken`
+typealias. Struct's `init(json:)` takes `[String: AnyObject]` representing
+JSON object, `asDictionary` returns this object back.
 
 See help for more options:
 
     $ burningbar --help
     burningbar: Usage: burningbar [-vhtirdsp]
-    http://j.mp/burnbar v0.5.12
+    http://j.mp/burnbar v0.5.14
       -v                  --version                         print version number
       -h                  --help                            print help
       -t Transport        --transport=Transport             transport protocol name

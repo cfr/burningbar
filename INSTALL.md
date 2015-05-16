@@ -21,7 +21,7 @@ Cabal is part of ghc or [haskell platform](https://www.haskell.org/platform/).
     $ cabal configure
     $ cabal install
 
-Builds `burningbar` and [`burningbard` http service](Servic..hs) in `dist/build/`.
+Builds `burningbar` and [`burningbard` http service](src/Service.hs) in `dist/build/`.
 burningbard depends on dozen of hackage packages and cabal will install them in `~/.cabal`.
 
 Use `burningbard` as http service:
@@ -37,7 +37,7 @@ See also [online editor](http://cfr.pw/burnbar) ([src](https://github.com/cfr/cf
 
 ### Interpret
 
-[`runburningbar`](runburningbar) script runs generator sources in interpreted mode.
+[`runburningbar`](runburningbar) script runs generator in interpreted mode.
 Requires ghc(i) (or any other interpreter providing `runhaskell` cmd).
 
 ## Xcode integration
@@ -47,6 +47,6 @@ Generator integrated as a "Run Script" build phase in example Xcode workspace.
     $ open TestGen.xcworkspace
 
 Build TestGen framework to run generator and compile generated module.
-See example [`Playground`](TestGen/TestGen.playground).
+See example [`Playground`](TestGen/TestGen.playground/Contents.swift).
 Drop `TestGen` project into your workspace to embed generator.
 
