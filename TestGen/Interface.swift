@@ -1,37 +1,39 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.5.12
+// 📏🔥 Generated with http://j.mp/burnbar v0.5.14
 
 import Foundation
 
 public protocol Transport {
     typealias CancellationToken
-    func call(method: String, arguments: [String: AnyObject],
-              completion: [String: AnyObject] -> Void) -> CancellationToken
+    func cancel(token: CancellationToken)
+    func call(method: String, arguments: [String : AnyObject],
+              completion: [String : AnyObject] -> Void) -> CancellationToken
 }
 public class Interface <T: Transport> {
 
-    public init(transport: T) { t = transport }
+    public func cancel(token: T.CancellationToken) { transport.cancel(token) }
+    public init(transport: T) { self.transport = transport }
 
     public func ping(completion: Void -> Void) -> T.CancellationToken {
-      return t.call("ping", arguments: [:]) {  _ in }
+      return transport.call("ping", arguments: [:]) {  _ in }
     }
-
+    public let ping: String = "ping"
     public func login(creds: Credentials, completion: UserInfo -> Void) -> T.CancellationToken {
-      return t.call("user.login", arguments: ["creds": creds as! AnyObject]) { r in
+      return transport.call("user.login", arguments: ["creds": creds.asDictionary]) { r in
         let v = UserInfo(r)
         completion(v)
       }
     }
-
+    public let login: String = "login"
     public func register(username: String, password: String, completion: Credentials -> Void) -> T.CancellationToken {
-      return t.call("register", arguments: ["username": username as! AnyObject, "password": password as! AnyObject]) { r in
+      return transport.call("register", arguments: ["username": username, "password": password]) { r in
         let v = Credentials(r)
         completion(v)
       }
     }
-
+    public let register: String = "register"
     public func test(a1: Int, a2: NSNumber?, a3: Bool, completion: Void -> Void) -> T.CancellationToken {
-      return t.call("test", arguments: ["a1": a1 as! AnyObject, "a2": (a2 ?? "null") as! AnyObject, "a3": a3 as! AnyObject]) {  _ in }
+      return transport.call("test", arguments: ["a1": a1, "a2": (a2 ?? "null"), "a3": a3]) {  _ in }
     }
-
-    private let t: T
+    public let test: String = "test"
+    public let transport: T
 }

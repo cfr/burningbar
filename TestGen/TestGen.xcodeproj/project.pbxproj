@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E60AFB791B07782F005B20D0 /* YourProto.swift in Sources */ = {isa = PBXBuildFile; fileRef = E60AFB781B07782F005B20D0 /* YourProto.swift */; };
 		E687EA701AFB2D40004360E1 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = E687EA6E1AFB2D40004360E1 /* Entities.swift */; };
 		E687EA711AFB2D40004360E1 /* Interface.swift in Sources */ = {isa = PBXBuildFile; fileRef = E687EA6F1AFB2D40004360E1 /* Interface.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E60AFB781B07782F005B20D0 /* YourProto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YourProto.swift; sourceTree = "<group>"; };
 		E63C00401AED576C00F21E64 /* TestGen.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestGen.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E63C00441AED576C00F21E64 /* TestGen.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TestGen.plist; sourceTree = "<group>"; };
 		E64C60FB1AFEE70000D2BC52 /* spec.burnbar */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.burnbar; path = ../../spec.burnbar; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 		E63C00431AED576C00F21E64 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				E60AFB781B07782F005B20D0 /* YourProto.swift */,
 				E63C00441AED576C00F21E64 /* TestGen.plist */,
 			);
 			name = "Supporting Files";
@@ -150,7 +153,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "../burningbar --spec-file ../spec.burnbar";
+			shellScript = "./burningbar --spec-file ../spec.burnbar";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -159,6 +162,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E60AFB791B07782F005B20D0 /* YourProto.swift in Sources */,
 				E687EA701AFB2D40004360E1 /* Entities.swift in Sources */,
 				E687EA711AFB2D40004360E1 /* Interface.swift in Sources */,
 			);

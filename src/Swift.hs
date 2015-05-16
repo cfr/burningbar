@@ -11,15 +11,15 @@ swift transportType interfaceType = Language generate wrapEntities wrapInterface
   where wrapInterface' = wrapInterface transportType interfaceType
 
 generate ∷ Declaration → String
-generate (Record name vars super) = rec name vars super
-generate method = fun name remoteName args rawRetType
+generate (Record name vars super) = struct name vars super
+generate method = func name remoteName args rawRetType
     where (Method remoteName rawRetType name args) = method
 
-fun name rpc args t = "" ⇝ "public func " ⧺ name
-                      ⧺ "(" ⧺ argList ⧺ "completion: " ⧺ fromType t ⧺ " -> Void)"
-                      ⧺ " -> T.CancellationToken"
-                      ⧺ " {" ↝ body ⇝ "}"
-                      ⇝ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\""
+func name rpc args t = "" ⇝ "public func " ⧺ name
+                       ⧺ "(" ⧺ argList ⧺ "completion: " ⧺ fromType t ⧺ " -> Void)"
+                       ⧺ " -> T.CancellationToken"
+                       ⧺ " {" ↝ body ⇝ "}"
+                       ⇝ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\""
   where body = s 6 ⧺ "return transport.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
         argList = args ≫= fromArg
         fromArg (Variable n t _) = n ≑ t ⧺ ", "
@@ -29,7 +29,7 @@ fun name rpc args t = "" ⇝ "public func " ⧺ name
                    | otherwise = "r in" ⟿  "let v = " ⧺ fromType t ⧺ "(r)"
                                  ⟿  "completion(v)" ↝ s 6 ⧺ "}"
 
-rec name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ concat decls ⧺ "}\n\n"
+struct name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ concat decls ⧺ "}\n\n"
   where decls = initDecl : statics : map varDecl vars
         conforms | (Just s) ← super = " : " ⧺ s
                  | otherwise = " : BBSerializable"
@@ -60,8 +60,9 @@ constructDict ∷ (Variable → String) → [Variable] → String
 constructDict rule vars | null vars = "[:]"
                         | otherwise = "[" ⧺ (init ∘ init ∘ (vars ≫=)) rule ⧺ "]"
 varOrNull (Variable n t _) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ ", "
-  where unwrap | Optional t' ← t = "(" ⧺ n ⧺ " ?? \"null\")"
-               | otherwise = n
+  where toObj = if primitive t then n else n ++ ".asDictionary"
+        unwrap | Optional t' ← t = "(" ⧺ toObj ⧺ " ?? \"null\")"
+               | otherwise = toObj
 
 initVar v@(Variable n (Optional t) _) | primitive t = initPrimitive (Optional t) n
                                       | otherwise = withOptionalJSON n (initNewtype n t)
@@ -96,7 +97,7 @@ wrapInterface ∷ Typename → Typename → String → String
 wrapInterface transportType interfaceType rpcs = foundation ↝ header
   where header = defTransport transportType ↝ "public class " ⧺ interfaceType
                  ⧺ " <T: " ⧺ transportType ⧺ "> {\n"
-                 ⇝ "public func cancel(token: CancellationToken) { transport.cancel(token) }"
+                 ⇝ "public func cancel(token: T.CancellationToken) { transport.cancel(token) }"
                  ⇝ "public init(" ⧺ transport ⧺ ": T) { self.transport = " ⧺ transport ⧺ " }"
                  ↝ rpcs ⇝ "public let transport: T" ↝ "}\n"
         decapitalize (c:cs) = toLower c : cs

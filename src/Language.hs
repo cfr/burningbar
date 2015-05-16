@@ -32,8 +32,8 @@ translator (Language {..}) = partition isRec ⋙ gen ⋙ wrapEntities ⁂ wrapIn
         isRec _ = False
 
 atoms ∷ [Type]
-atoms = map Typename ["String", "NSNumber"]
--- TODO: "Bool", "Int", "Float", "URL", "IntString"
+atoms = map Typename ["String", "NSNumber", "Int", "Float", "Bool"]
+-- TODO: "URL", "IntString"
 
 primitives ∷ [Type]
 primitives = foldr (=≪) atoms [opt, dict, opt, ap Array, opt]

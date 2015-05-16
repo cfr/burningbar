@@ -16,19 +16,19 @@ type Words = [String]
 type RawType = String
 
 parseMethod ∷ [String] → Maybe Declaration
-parseMethod = parseDeclarationAs met proto
-  where proto ∷ Words → Maybe (Name, RawType, Name)
+parseMethod = parseDeclarationAs method proto
+  where method vars (rn, rrt, n) = Method rn (parseType rrt) n vars
+        proto ∷ Words → Maybe (Name, RawType, Name)
         proto ["met", rn, rrt] = Just (rn, rrt, rn)
         proto ["met", rn, rrt, n] = Just (rn, rrt, n)
         proto _ = Nothing
-        met vars (rn, rrt, n) = Method rn (parseType rrt) n vars
 
 parseRecord ∷ [String] → Maybe Declaration
-parseRecord = parseDeclarationAs rec named
-  where named ["rec", nm, super] = Just (nm, Just super)
+parseRecord = parseDeclarationAs record named
+  where record vars (nm, super) = Record nm vars super
+        named ["rec", nm, super] = Just (nm, Just super)
         named ["rec", nm] = Just (nm, Nothing)
         named _ = Nothing
-        rec vars (nm, super) = Record nm vars super
 
 parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe α) → [String] → Maybe Declaration
 parseDeclarationAs _ _ [] = Nothing

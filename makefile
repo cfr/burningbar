@@ -13,7 +13,7 @@ endif
 
 all: deps
 	mkdir -p out
-	ghc -O2 --make src/BurningBar.hs -isrc -outputdir out -o burningbar
+	ghc -O2 --make src/BurningBar.hs -isrc -outputdir out -o TestGen/burningbar
 
 debug:
 	ghci -isrc src/Language.hs src/BurningBar.hs src/Parse.hs src/Swift.hs -DDEBUG
@@ -37,7 +37,7 @@ restart: update
 
 lint:
 	# cabal install hlint
-	hlint src/*hs
+	hlint src test
 
 deps:
 	$(INSTALL_DEPS)

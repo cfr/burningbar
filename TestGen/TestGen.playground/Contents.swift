@@ -9,6 +9,7 @@ class Printer: Transport {
                -> CancellationToken {
         println("Called \(method) with \(arguments)")
     }
+    func cancel(token: CancellationToken) { }
 }
 
 let printer = Printer()
@@ -16,13 +17,10 @@ let i = Interface(transport: printer)
 
 i.ping({ })
 
-i.register("u", password: "pwd", completion: { print($0) })
+i.register("u", password: "p", completion: { print($0) })
 
-let json = ["age": NSNumber(int:15), "friends": [], "name": "T",
-            "creds": ["login":"user1", "pass":"123"],
-            "services":["":[""]]] as [String : AnyObject]
+let json = ["login":"l", "pass":"p"]
 
-//let u = UserInfo(json)
+let c = Credentials(json)
 
-//println(u.creds?.serialized)
-
+print(c.asDictionary)
