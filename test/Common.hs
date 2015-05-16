@@ -5,24 +5,24 @@ import Test.HUnit
 import Test.QuickCheck
 import Control.Monad
 
-import Parse
+import qualified Swift
+import qualified Parse
 import Language
-import Swift
 import Util
 import Service
 
-emptySpec = parse "-\n-" @?= []
+emptySpec = Parse.parse "-\n-" @?= []
 
 method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (Typename "Void") "m" [])
 methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (Typename "Void") "n" [])
 record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [] Nothing)
 var = Parse.parseVar "a T" @?= Variable "a" (Typename "T") Nothing
-genDict = Swift.struct "s" [] Nothing @?= "public struct s : ToJSON {\n\
-                                          \    public let asJSON: [String : AnyObject]\n\
-                                          \    public init(_ json: [String : AnyObject]) {\n\
-                                          \        asJSON = json\n    }\n\
-                                          \    public static let Name = \"s\"\n\
-                                          \    public let Name = \"s\"\n\n}\n\n"
+struct = Swift.struct "s" [] Nothing @?= "public struct s : ToJSON {\n\
+                                         \    public let asJSON: [String : AnyObject]\n\
+                                         \    public init(_ json: [String : AnyObject]) {\n\
+                                         \        asJSON = json\n    }\n\
+                                         \    public static let Name = \"s\"\n\
+                                         \    public let Name = \"s\"\n\n}\n\n"
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
@@ -35,8 +35,8 @@ instance Arbitrary Type where
 typeId = ap (≡) (Parse.parseType ∘ Swift.fromType)
 
 tests = [testGroup "Misc" [ testCase "empty" emptySpec, testCase "rec" record, testCase "met" method
-                          , testCase "var" var, testCase "named met" methodN
-                          , testProperty "parse/write type" typeId ]]
+                          , testCase "var" var, testCase "met nm" methodN, testCase "struct" struct
+                          , testProperty "parse/gen t" typeId ]]
 
 main = defaultMain tests
 
