@@ -1,23 +1,21 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Service (srv) where
+module Service where
+
 import Network.HTTP.Server
 import Network.HTTP.Server.Logger
-import Network.HTTP.Server.HtmlForm as Form
 import Codec.Binary.UTF8.String
-import Control.Exception (try, SomeException)
-import Data.List (intercalate, break)
+import Control.Exception (try)
+import Data.List (intercalate)
 import Data.List.Split (splitOn)
 
 import Paths_burningbar (version)
 import Data.Version (showVersion)
 
 import Util
-import Swift
+import Language
 import Parse
+import Swift
 
--- available at http://cfr.pw/burnbar
--- https://github.com/cfr/cfr.github.io/blob/master/burnbar.html
--- $ curl --data @spec.burnbar localhost:9604
 srv = serverWith config process
   where process _ url request = case rqMethod request of
           POST → (return ∘ sendJSON OK ∘ toSwift ∘ decodeString ∘ rqBody) request

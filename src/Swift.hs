@@ -1,9 +1,9 @@
 {-# LANGUAGE UnicodeSyntax #-}
-module Swift (swift, fromType) where
-
-import Language hiding (wrapInterface, wrapEntities, generate)
+module Swift where
 
 import Data.Char (toLower, toUpper)
+
+import Language hiding (wrapInterface, wrapEntities, generate)
 import Util
 
 swift ∷ Typename → Typename → Language
@@ -11,15 +11,15 @@ swift transportType interfaceType = Language generate wrapEntities wrapInterface
   where wrapInterface' = wrapInterface transportType interfaceType
 
 generate ∷ Declaration → String
-generate (Record name vars super) = record name vars super
-generate method = function name remoteName args rawRetType
+generate (Record name vars super) = rec name vars super
+generate method = fun name remoteName args rawRetType
     where (Method remoteName rawRetType name args) = method
 
-function name rpc args t = "" ⇝ "public func " ⧺ name
-                           ⧺ "(" ⧺ argList ⧺ "completion: " ⧺ fromType t ⧺ " -> Void)"
-                           ⧺ " -> T.CancellationToken"
-                           ⧺ " {" ↝ body ⇝ "}"
-                           ⇝ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\""
+fun name rpc args t = "" ⇝ "public func " ⧺ name
+                      ⧺ "(" ⧺ argList ⧺ "completion: " ⧺ fromType t ⧺ " -> Void)"
+                      ⧺ " -> T.CancellationToken"
+                      ⧺ " {" ↝ body ⇝ "}"
+                      ⇝ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\""
   where body = s 6 ⧺ "return transport.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ parseReply
         argList = args ≫= fromArg
         fromArg (Variable n t _) = n ≑ t ⧺ ", "
@@ -29,7 +29,7 @@ function name rpc args t = "" ⇝ "public func " ⧺ name
                    | otherwise = "r in" ⟿  "let v = " ⧺ fromType t ⧺ "(r)"
                                  ⟿  "completion(v)" ↝ s 6 ⧺ "}"
 
-record name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ concat decls ⧺ "}\n\n"
+rec name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ concat decls ⧺ "}\n\n"
   where decls = initDecl : statics : map varDecl vars
         conforms | (Just s) ← super = " : " ⧺ s
                  | otherwise = " : BBSerializable"

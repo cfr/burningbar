@@ -13,7 +13,6 @@ import System.FilePath.Posix ((</>))
 import Language
 import Parse
 import Swift
-
 import Util
 
 bbURL = "http://j.mp/burnbar"

@@ -1,14 +1,12 @@
 {-# LANGUAGE ViewPatterns, UnicodeSyntax, ExistentialQuantification #-}
-module Parse (Spec, parse, Language(..), Typename, translator,
-              parseType, parseVar, parseRecord, parseMethod) where
+module Parse where
 
 import Data.List (stripPrefix)
 import Data.Maybe (maybe, catMaybes)
 import Data.Char (isSpace)
 import Control.Monad (join, mplus)
 
-import Util -- TODO: specify
-
+import Util
 import Language
 
 parseDeclaration ∷ String → Maybe Declaration
@@ -42,9 +40,6 @@ parseVar ∷ String → Variable
 parseVar (words → (n:rtdv)) | (not ∘ null) rtdv = parseVar' (n, join rtdv)
 parseVar s = error $ s ⧺ " — expecting variable declaration."
 
--- |
--- >>> parseVar "v T = 0"
--- Variable "v" (Typename "T") (Just "0")
 parseVar' ∷ (Name, String) → Variable
 parseVar' (n, rtdv) = Variable n (parseType t) dv
   where dv | null rdv = Nothing
