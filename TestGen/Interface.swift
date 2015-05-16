@@ -18,7 +18,7 @@ public class Interface <T: Transport> {
     }
     public let ping: String = "ping"
     public func login(creds: Credentials, completion: UserInfo -> Void) -> T.CancellationToken {
-      return transport.call("user.login", arguments: ["creds": creds.asDictionary]) { r in
+      return transport.call("user.login", arguments: ["creds": creds.asJSON]) { r in
         let v = UserInfo(r)
         completion(v)
       }

@@ -2,10 +2,10 @@
 
 import Foundation
 
-public struct Credentials : BBSerializable {
-    public let asDictionary: [String : AnyObject]
+public struct Credentials : ToJSON {
+    public let asJSON: [String : AnyObject]
     public init(_ json: [String : AnyObject]) {
-        asDictionary = json
+        asJSON = json
         login = json["login"] as? String
         pass = json["pass"] as? String
     }
@@ -25,9 +25,9 @@ public struct Credentials : BBSerializable {
 }
 
 public struct UserInfo : YourProto {
-    public let asDictionary: [String : AnyObject]
+    public let asJSON: [String : AnyObject]
     public init(_ json: [String : AnyObject]) {
-        asDictionary = json
+        asJSON = json
         friends = [String: UserInfo]()
         age = json["age"] as? NSNumber
         photoURLs = json["photoURLs"] as? [String]
@@ -52,10 +52,10 @@ public struct UserInfo : YourProto {
         return { (inout d: [String : AnyObject]) in d["photoURLs"] = photoURLs; return d }
     }
     public static func putCreds(creds: Credentials) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["creds"] = creds.asDictionary; return d }
+        return { (inout d: [String : AnyObject]) in d["creds"] = creds.asJSON; return d }
     }
     public static func putFriends(friends: [String: UserInfo]) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["friends"] = friends.asDictionary; return d }
+        return { (inout d: [String : AnyObject]) in d["friends"] = friends.asJSON; return d }
     }
     public static func putName(name: String) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
         return { (inout d: [String : AnyObject]) in d["name"] = name; return d }
@@ -68,15 +68,15 @@ public struct UserInfo : YourProto {
 }
 
 
-public protocol BBSerializable {
-    var asDictionary: [String : AnyObject] { get }
+public protocol ToJSON {
+    var asJSON: [String : AnyObject] { get }
     var Name: String { get }
 }
 extension Dictionary {
-    var asDictionary: [Key : AnyObject] { get {
+    var asJSON: [Key : AnyObject] { get {
         var d = [Key : AnyObject](); for k in self.keys {
           let o = self[k]; if let o: AnyObject = o as? AnyObject { d[k] = o }
-          else { d[k] = (o as! BBSerializable).asDictionary }
+          else { d[k] = (o as! ToJSON).asJSON }
         }
         return d
     }}

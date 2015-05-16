@@ -17,6 +17,12 @@ method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (Typename "Void")
 methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (Typename "Void") "n" [])
 record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [] Nothing)
 var = Parse.parseVar "a T" @?= Variable "a" (Typename "T") Nothing
+genDict = Swift.struct "s" [] Nothing @?= "public struct s : ToJSON {\n\
+                                          \    public let asJSON: [String : AnyObject]\n\
+                                          \    public init(_ json: [String : AnyObject]) {\n\
+                                          \        asJSON = json\n    }\n\
+                                          \    public static let Name = \"s\"\n\
+                                          \    public let Name = \"s\"\n\n}\n\n"
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary

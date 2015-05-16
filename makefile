@@ -15,7 +15,7 @@ all: deps
 	mkdir -p out
 	ghc -O2 --make src/BurningBar.hs -isrc -outputdir out -o TestGen/burningbar
 
-debug:
+debug: lint
 	ghci -isrc src/Language.hs src/BurningBar.hs src/Parse.hs src/Swift.hs -DDEBUG
 
 example:
@@ -25,7 +25,7 @@ example:
 test:
 	cabal install --only-dependencies --enable-tests && cabal build && cabal test
 
-run:
+run: all
 	open ./TestGen.xcworkspace
 
 update:

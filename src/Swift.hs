@@ -32,9 +32,9 @@ func name rpc args t = "" ⇝ "public func " ⧺ name
 struct name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ concat decls ⧺ "}\n\n"
   where decls = initDecl : statics : map varDecl vars
         conforms | (Just s) ← super = " : " ⧺ s
-                 | otherwise = " : BBSerializable"
-        initDecl = s 4 ⧺ "public let asDictionary: " ⧺ jsonT
-                   ⇝ "public init(_ json: " ⧺ jsonT ⧺ ") {" ⟿  "asDictionary = json"
+                 | otherwise = " : ToJSON"
+        initDecl = s 4 ⧺ "public let asJSON: " ⧺ jsonT
+                   ⇝ "public init(_ json: " ⧺ jsonT ⧺ ") {" ⟿  "asJSON = json"
                    ↝ list initDict ⧺ list initVar ⧺ s 4 ⧺ "}\n"
         statics = s 4 ⧺ "public static let Name = \"" ⧺ name ⧺ "\""
                   ⇝ "public let Name = \"" ⧺ name ⧺ "\""
@@ -46,7 +46,7 @@ struct name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ con
                                      ⟿  "return { (inout d: " ⧺ jsonT ⧺ ") in d[\"" ⧺ n
                                               ⧺ "\"] = " ⧺ asAnyObject ⧺ "; return d }" ⇝ "}\n"
                     where asAnyObject | primitive t = n
-                                      | otherwise = n ⧺ ".asDictionary"
+                                      | otherwise = n ⧺ ".asJSON"
         varDecl (Variable n t dv) = s 4 ⧺ "public var " ⧺ n ≑ t ⧺ defVal ⧺ "\n"
                     where defVal = maybe "" (" = " ⧺) dv
         initDict (Variable n d@(Dictionary k t) _) | primitive t = ""
@@ -60,7 +60,7 @@ constructDict ∷ (Variable → String) → [Variable] → String
 constructDict rule vars | null vars = "[:]"
                         | otherwise = "[" ⧺ (init ∘ init ∘ (vars ≫=)) rule ⧺ "]"
 varOrNull (Variable n t _) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ ", "
-  where toObj = if primitive t then n else n ++ ".asDictionary"
+  where toObj = if primitive t then n else n ++ ".asJSON"
         unwrap | Optional t' ← t = "(" ⧺ toObj ⧺ " ?? \"null\")"
                | otherwise = toObj
 
@@ -105,12 +105,12 @@ wrapInterface transportType interfaceType rpcs = foundation ↝ header
 
 wrapEntities ∷ String → String
 wrapEntities es = foundation ↝ es
-                ↝ "public protocol BBSerializable {" ⇝ "var asDictionary: " ⧺ jsonT ⧺ " { get }"
+                ↝ "public protocol ToJSON {" ⇝ "var asJSON: " ⧺ jsonT ⧺ " { get }"
                 ⇝ "var Name: String { get }" ↝ "}"
-                ↝ "extension Dictionary {" ⇝ "var asDictionary: [Key : AnyObject] { get {"
+                ↝ "extension Dictionary {" ⇝ "var asJSON: [Key : AnyObject] { get {"
                 ⟿ "var d = [Key : AnyObject](); for k in self.keys {"
                 ⟿ "  let o = self[k]; if let o: AnyObject = o as? AnyObject { d[k] = o }"
-                ⟿ "  else { d[k] = (o as! BBSerializable).asDictionary }"
+                ⟿ "  else { d[k] = (o as! ToJSON).asJSON }"
                 ⟿ "}" ⟿ "return d\n    }}\n}\n"
 
 foundation = "import Foundation\n"

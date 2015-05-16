@@ -23,4 +23,4 @@ let json = ["login":"l", "pass":"p"]
 
 let c = Credentials(json)
 
-print(c.asDictionary)
+print(c.asJSON)
