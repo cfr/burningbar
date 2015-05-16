@@ -58,5 +58,3 @@ test-suite lint
   hs-source-dirs:   test
   default-language: Haskell2010
 
-
-
