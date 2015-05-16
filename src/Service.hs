@@ -11,7 +11,7 @@ import Data.List.Split (splitOn)
 import Paths_burningbar (version)
 import Data.Version (showVersion)
 
-import Unicode
+import Util
 import Swift
 import Parse
 

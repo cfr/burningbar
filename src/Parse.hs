@@ -5,22 +5,14 @@ module Parse (Spec, parse, Language(..), Typename, translator,
 import Data.List (stripPrefix)
 import Data.Maybe (maybe, catMaybes)
 import Data.Char (isSpace)
-import Control.Monad (join)
+import Control.Monad (join, mplus)
 
-import Unicode
+import Util -- TODO: specify
 
 import Language
 
--- met remoteName returnType [name]
---  name type
---  ...
---
--- rec name
---  name type
---  ...
-
 parseDeclaration ∷ String → Maybe Declaration
-parseDeclaration (lines → ls) = parseMethod ls ⦶ parseRecord ls
+parseDeclaration (lines → ls) = parseMethod ls `mplus` parseRecord ls
 
 type Words = [String]
 type RawType = String
@@ -42,7 +34,7 @@ parseRecord = parseDeclarationAs rec named
 
 parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe α) → [String] → Maybe Declaration
 parseDeclarationAs _ _ [] = Nothing
-parseDeclarationAs construct parseHeader (head:vars) = construct' ⊚ header
+parseDeclarationAs construct parseHeader (head:vars) = construct' `fmap` header
   where header = parseHeader (words head)
         construct' = construct (map parseVar vars)
 
@@ -53,7 +45,7 @@ parseVar s = error $ s ⧺ " — expecting variable declaration."
 -- |
 -- >>> parseVar "v T = 0"
 -- Variable "v" (Typename "T") (Just "0")
-parseVar' ∷ (Name, RawType) → Variable
+parseVar' ∷ (Name, String) → Variable
 parseVar' (n, rtdv) = Variable n (parseType t) dv
   where dv | null rdv = Nothing
            | otherwise = Just (tail rdv)
@@ -77,13 +69,4 @@ paragraphs ls = let (p, rest) = (break null ∘ dropWhile null ∘ map trim) ls
 parse ∷ String → Spec
 parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComment ∘ lines
   where stripComment = takeWhile (≠ '-')
-
-stripSuffix ∷ Eq α ⇒ [α] → [α] → Maybe [α]
-stripSuffix xs ys = reverse ⊚ stripPrefix (reverse xs) (reverse ys)
-
--- | remove spaces from the string ends
--- >>> trim " \tsdf   "
--- "sdf"
-trim ∷ String → String
-trim = let f = reverse ∘ dropWhile isSpace in f ∘ f
 

@@ -4,7 +4,7 @@ module Swift (swift, fromType) where
 import Language hiding (wrapInterface, wrapEntities, generate)
 
 import Data.Char (toLower, toUpper)
-import Unicode
+import Util
 
 swift ∷ Typename → Typename → Language
 swift transportType interfaceType = Language generate wrapEntities wrapInterface'

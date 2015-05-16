@@ -8,7 +8,7 @@ import Control.Monad
 import Parse
 import Language
 import Swift
-import Unicode
+import Util
 import Service
 
 emptySpec = parse "-\n-" @?= []

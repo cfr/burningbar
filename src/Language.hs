@@ -4,7 +4,7 @@ module Language where
 import Control.Monad (join)
 import Data.List (partition)
 
-import Unicode
+import Util -- specify
 
 type Name = String
 type Typename = String

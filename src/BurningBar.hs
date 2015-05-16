@@ -8,12 +8,13 @@ import Prelude hiding (catch)
 import System.Environment (getArgs)
 import System.Console.GetOpt (getOpt, OptDescr(..), ArgOrder(..), ArgDescr(..), usageInfo)
 import System.Directory (createDirectoryIfMissing)
+import System.FilePath.Posix ((</>))
 
 import Language
 import Parse
 import Swift
 
-import Unicode
+import Util
 
 bbURL = "http://j.mp/burnbar"
 version = " v0.5.14"
@@ -23,7 +24,7 @@ main = do
   let (actions, _, _) = getOpt RequireOrder options args
   let (Options {..}) = foldr ($) defaults actions
   let copy = (("// 📏🔥 Generated with " ⧺ bbURL ⧺ version ⧺ "\n\n") ⧺)
-  let write = (∘ copy) ∘ writeFile ∘ (root ⧄)
+  let write = (∘ copy) ∘ writeFile ∘ (root </>)
   spec ← spec ≫= return ∘ parse
   let (ent, int) = translator (swift transport interface) spec
   (createDir root ≫ write entFn ent ≫ write intFn int)
@@ -36,7 +37,7 @@ data Options = Options { transport ∷ Typename, interface ∷ Typename , spec �
                          root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath }
 
 defaults = Options "Transport" "Interface" (readFile "spec.burnbar") "./" entFn intFn
-  where { intFn = "Interface" ⊡ ext; entFn = "Entities" ⊡ ext; ext = "swift" }
+  where { intFn = "Interface.swift"; entFn = "Entities.swift" }
 
 options ∷ [OptDescr (Options → Options)]
 options = let opt (k, f, a, h) = Option k f a h in map opt
@@ -52,5 +53,5 @@ use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsp]\n" ⧺ bbURL ⧺ versi
 ver _ = error $ bbURL ⧺ version
 
 createDir name = createDirectoryIfMissing True name `catch` handleEx "Can't create dir."
-handleEx err (e ∷ SomeException) = error (err ++ show e)
+handleEx err (e ∷ SomeException) = error (err ⧺ show e)
 
