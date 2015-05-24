@@ -31,8 +31,9 @@ func name rpc args t = "" ⇝ "public func " ⧺ name
 
 struct name vars super = "public struct " ⧺ name ⧺ conforms ⧺ " {" ↝ concat decls ⧺ "}\n\n"
   where decls = initDecl : statics : map varDecl vars
-        conforms | (Just s) ← super = " : " ⧺ s
-                 | otherwise = " : ToJSON"
+        conforms | (Just s) ← super = jsonProtocols ⧺ ", " ⧺ s
+                 | otherwise = jsonProtocols
+                 where jsonProtocols = " : JSONEncodable, JSONDecodable"
         initDecl = s 4 ⧺ "public let asJSON: " ⧺ jsonT
                    ⇝ "public init(_ json: " ⧺ jsonT ⧺ ") {" ⟿  "asJSON = json"
                    ↝ list initDict ⧺ list initVar ⧺ s 4 ⧺ "}\n"
@@ -105,13 +106,20 @@ wrapInterface transportType interfaceType rpcs = foundation ↝ header
 
 wrapEntities ∷ String → String
 wrapEntities es = foundation ↝ es
-                ↝ "public protocol ToJSON {" ⇝ "var asJSON: " ⧺ jsonT ⧺ " { get }"
+                ↝ "public protocol JSONEncodable {" ⇝ asJSON ⧺ " }"
                 ⇝ "var Name: String { get }" ↝ "}"
-                ↝ "extension Dictionary {" ⇝ "var asJSON: [Key : AnyObject] { get {"
-                ⟿ "var d = [Key : AnyObject](); for k in self.keys {"
-                ⟿ "  let o = self[k]; if let o: AnyObject = o as? AnyObject { d[k] = o }"
-                ⟿ "  else { d[k] = (o as! ToJSON).asJSON }"
+                ↝ "public protocol JSONDecodable {" ⇝ "init(json: " ⧺ jsonT ⧺ ")" ↝ "}"
+                ↝ "extension Dictionary {" ⇝ asJSON ⧺ " {"
+                ⟿ "var d = " ⧺ jsonT ⧺ "(); for k in self.keys {"
+                ⟿ "  let o = self[k]; if let o = o as? AnyObject { d[toString(k)] = o }"
+                ⟿ "  else { d[k] = (o as! JSONEncodable).asJSON }" -- TODO: as? JSONEncodable
+                ⟿ "}" ⟿ "return d\n    }}\n}"
+                ↝ "extension Array {" ⇝ asJSON ⧺ " {"
+                ⟿ "var d = " ⧺ jsonT ⧺ "(); for i in 0..<count {"
+                ⟿ "  let o = self[i]; if let o = o as? AnyObject { d[toString(i)] = o }"
+                ⟿ "  else { d[toString(i)] = (o as! JSONEncodable).asJSON }" -- TODO: as? JSONEncodable
                 ⟿ "}" ⟿ "return d\n    }}\n}\n"
+  where asJSON = "var asJSON: " ⧺ jsonT ⧺ " { get"
 
 foundation = "import Foundation\n"
 defTransport t = "public protocol " ⧺ t ⧺ " {" ⇝ "typealias CancellationToken"
