@@ -17,7 +17,7 @@ method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (Typename "Void")
 methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (Typename "Void") "n" [])
 record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [] Nothing)
 var = Parse.parseVar "a T" @?= Variable "a" (Typename "T") Nothing
-struct = Swift.struct "s" [] Nothing @?= "public struct s : ToJSON {\n\
+struct = Swift.struct "s" [] Nothing @?= "public struct s : JSONEncodable, JSONDecodable {\n\
                                          \    public let asJSON: [String : AnyObject]\n\
                                          \    public init(_ json: [String : AnyObject]) {\n\
                                          \        asJSON = json\n    }\n\
