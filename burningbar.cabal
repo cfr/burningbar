@@ -22,7 +22,7 @@ source-repository head
 
 executable burningbar
   main-is:          BurningBar.hs
-  other-modules:    Util, Language, Parse, Swift
+  other-modules:    Util, Language, Parse, Swift, Static
   other-extensions: ScopedTypeVariables, UnicodeSyntax, CPP, RecordWildCards,
                     ViewPatterns, NoImplicitPrelude
   build-depends:    base <5, directory, filepath
@@ -31,7 +31,7 @@ executable burningbar
 
 executable burningbard
   main-is:          BurningBard.hs
-  other-modules:    Service, Util, Language, Parse, Swift, Paths_burningbar
+  other-modules:    Service, Util, Language, Parse, Swift, Static, Paths_burningbar
   build-depends:    base <5, http-server, directory, filepath, url,
                     utf8-string, split
   hs-source-dirs:   src
@@ -40,7 +40,7 @@ executable burningbard
 test-suite test
   type:             exitcode-stdio-1.0
   main-is:          Common.hs
-  other-modules:    Util, Language, Parse, Swift, Service
+  other-modules:    Util, Language, Parse, Swift, Static, Service
   build-depends:    base <5, filepath, directory, http-server, utf8-string,
                     HUnit, QuickCheck, test-framework, url, split,
                     test-framework-hunit, test-framework-quickcheck

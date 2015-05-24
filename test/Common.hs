@@ -22,7 +22,7 @@ struct = Swift.struct "s" [] Nothing @?= "public struct s : JSONEncodable, JSOND
                                          \    public init(_ json: [String : AnyObject]) {\n\
                                          \        asJSON = json\n    }\n\
                                          \    public static let Name = \"s\"\n\
-                                         \    public let Name = \"s\"\n\n}\n\n"
+                                         \    public let Name = \"s\"\n}\n\n"
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
