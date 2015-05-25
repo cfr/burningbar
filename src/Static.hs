@@ -4,7 +4,8 @@ import Util
 
 intDefs protoName name methods = "import Foundation\n\
 \\n\
-\public protocol " ⧺ protoName ⧺ "{\n\
+\public func idTf<T>(a: T) -> T { return a }\n\
+\public protocol " ⧺ protoName ⧺ " {\n\
 \    typealias CancellationToken\n\
 \    func cancel(token: CancellationToken)\n\
 \    func cast(method: String, arguments: [String : AnyObject])\n\
@@ -12,16 +13,16 @@ intDefs protoName name methods = "import Foundation\n\
 \                completion: [String : AnyObject] -> Void) -> CancellationToken\n\
 \    func call(method: String, arguments: [String : AnyObject],\n\
 \              completion: [String : AnyObject] -> Void) -> CancellationToken\n\
-\}\n\
-\    public class " ⧺ name ⧺ " <T: " ⧺ protoName ⧺ "> {\n\
-\    public func cancel(token: T.CancellationToken) { transport.cancel(token) }\n\
-\    func listen(event: String,\n\
-\                completion: [String : AnyObject] -> Void) -> CancellationToken \
+\}\n\n\
+\public class " ⧺ name ⧺ " <T: " ⧺ protoName ⧺ "> {\n\
+\    public func cancel(token: " ⧺ protoName ⧺ ".CancellationToken) { transport.cancel(token) }\n\
+\    public func listen(event: String,\n\
+\        completion: [String : AnyObject] -> Void) -> " ⧺ protoName ⧺ ".CancellationToken \
 \{ transport.listen(event, completion: completion) }\n\
 \    public func cast(method: String, arguments: [String : AnyObject]) \
 \{ transport.cast(method, arguments: arguments) }\n\
-\    public init(transport: T) { self.transport = transport }\n\
-\    public let transport: T\n" ⧺ methods ⧺ "\n}\n"
+\    public init(transport: " ⧺ protoName ⧺ ") { self.transport = transport }\n\
+\    public let transport: " ⧺ protoName ⧺ "\n\n" ⧺ methods ⧺ "}\n"
 
 entDefs = "import Foundation\n\
 \\n\
@@ -63,26 +64,26 @@ entDefs = "import Foundation\n\
 \}\n\
 \\n\
 \public protocol JSONEncodable {\n\
-\    var asJSON: [String : AnyObject] { get }\n\
+\    var json: [String : AnyObject] { get }\n\
 \    var Name: String { get }\n\
 \}\n\
 \public protocol JSONDecodable {\n\
 \    init(json: [String : AnyObject])\n\
 \}\n\
 \extension Dictionary {\n\
-\    var asJSON: [String : AnyObject] { get {\n\
+\    var json: [String : AnyObject] { get {\n\
 \        var d = [String : AnyObject](); for k in self.keys {\n\
 \          let o = self[k]; if let o = o as? AnyObject { d[toString(k)] = o }\n\
-\          else { d[k] = (o as! JSONEncodable).asJSON }\n\
+\          else { d[k] = (o as! JSONEncodable).json }\n\
 \        }\n\
 \        return d\n\
 \    }}\n\
 \}\n\
 \extension Array {\n\
-\    var asJSON: [String : AnyObject] { get {\n\
+\    var json: [String : AnyObject] { get {\n\
 \        var d = [String : AnyObject](); for i in 0..<count {\n\
 \          let o = self[i]; if let o = o as? AnyObject { d[toString(i)] = o }\n\
-\          else { d[toString(i)] = (o as! JSONEncodable).asJSON }\n\
+\          else { d[toString(i)] = (o as! JSONEncodable).json }\n\
 \        }\n\
 \        return d\n\
 \    }}\n\
