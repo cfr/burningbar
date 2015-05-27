@@ -26,66 +26,99 @@ intDefs protoName name methods = "import Foundation\n\
 
 entDefs = "import Foundation\n\
 \\n\
-\// based on http://radex.io/swift/json/\n\
-\\n\
-\infix operator </ { associativity left }\n\
-\infix operator </? { associativity left }\n\
-\\n\
-\func </ <A, B, C>(decoding: (A -> B -> C, [String: AnyObject])?, key: String) -> (B -> C, [String: AnyObject])? {\n\
-\    if let (f, json) = decoding, x = json[key] as? A {\n\
-\        return (f(x), json)\n\
-\    } else {\n\
-\        return nil\n\
-\    }\n\
-\}\n\
-\\n\
-\func </ <A, B>(decoding: (A -> B, [String: AnyObject])?, key: String) -> B? {\n\
-\    if let (f, json) = decoding, x = json[key] as? A {\n\
-\        return f(x)\n\
-\    } else {\n\
-\        return nil\n\
-\    }\n\
-\}\n\
-\\n\
-\func </? <A, B, C>(decoding: (A? -> B -> C, [String: AnyObject])?, key: String) -> (B -> C, [String: AnyObject])? {\n\
-\    if let (f, json) = decoding {\n\
-\        return (f(json[key] as? A), json)\n\
-\    } else {\n\
-\        return nil\n\
-\    }\n\
-\}\n\
-\\n\
-\func </? <A, B>(decoding: (A? -> B, [String: AnyObject])?, key: String) -> B? {\n\
-\    if let (f, json) = decoding {\n\
-\        return f(json[key] as? A)\n\
-\    } else {\n\
-\        return nil\n\
-\    }\n\
-\}\n\
-\\n\
 \public protocol JSONEncodable {\n\
 \    var json: [String : AnyObject] { get }\n\
 \    var Name: String { get }\n\
 \}\n\
 \public protocol JSONDecodable {\n\
-\    init(json: [String : AnyObject])\n\
+\    init?(json: [String : AnyObject])\n\
 \}\n\
-\extension Dictionary {\n\
-\    var json: [String : AnyObject] { get {\n\
-\        var d = [String : AnyObject](); for k in self.keys {\n\
-\          let o = self[k]; if let o = o as? AnyObject { d[toString(k)] = o }\n\
-\          else { d[k] = (o as! JSONEncodable).json }\n\
-\        }\n\
-\        return d\n\
-\    }}\n\
+\\n\
+\// JSON mapping operators\n\
+\\n\
+\typealias JSON = [String: AnyObject]\n\
+\\n\
+\infix operator ~~ { associativity left }\n\
+\infix operator ~~? { associativity left }\n\
+\\n\
+\func ~~ <A, B, C>(t: (A -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t, a = json[key] as? A { return (con(a), json) }\n\
+\    else { return nil }\n\
 \}\n\
-\extension Array {\n\
-\    var json: [String : AnyObject] { get {\n\
-\        var d = [String : AnyObject](); for i in 0..<count {\n\
-\          let o = self[i]; if let o = o as? AnyObject { d[toString(i)] = o }\n\
-\          else { d[toString(i)] = (o as! JSONEncodable).json }\n\
-\        }\n\
-\        return d\n\
-\    }}\n\
-\}\n"
-
+\\n\
+\func ~~ <A: JSONDecodable, B, C>(t: ([A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t, jsons = json[key] as? [JSON] {\n\
+\        var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }\n\
+\        return (con(array), json)\n\
+\    } else { return nil }\n\
+\}\n\
+\\n\
+\func ~~ <A: JSONDecodable, B, C>(t: ([String: A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t, jsons = json[key] as? [String: JSON] {\n\
+\        var dict = [String: A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }\n\
+\        return (con(dict), json)\n\
+\    } else { return nil }\n\
+\}\n\
+\\n\
+\func ~~ <A, B>(t: (A -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t, a = json[key] as? A { return con(a) }\n\
+\    else { return nil }\n\
+\}\n\
+\\n\
+\func ~~ <A: JSONDecodable, B>(t: ([A] -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t, jsons = json[key] as? [JSON] {\n\
+\        var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }\n\
+\        return con(array)\n\
+\    } else { return nil }\n\
+\}\n\
+\\n\
+\func ~~ <A: JSONDecodable, B>(t: ([String: A] -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t, jsons = json[key] as? [String: JSON] {\n\
+\        var dict = [String: A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }\n\
+\        return con(dict)\n\
+\    } else { return nil }\n\
+\}\n\
+\\n\
+\func ~~? <A, B, C>(t: (A? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t { return (con(json[key] as? A), json) }\n\
+\    else { return nil }\n\
+\}\n\
+\\n\
+\func ~~? <A: JSONDecodable, B, C>(t: ([A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t {\n\
+\        if let jsons = json[key] as? [JSON] {\n\
+\            var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }\n\
+\            return (con(array), json)\n\
+\        } else { return (con(nil), json) }\n\
+\    } else { return nil }\n\
+\}\n\
+\\n\
+\func ~~? <A: JSONDecodable, B, C>(t: ([String: A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t { if let jsons = json[key] as? [String: JSON] {\n\
+\            var dict = [String: A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }\n\
+\            return (con(dict), json)\n\
+\        } else { return (con(nil), json) }\n\
+\    } else { return nil }\n\
+\}\n\
+\\n\
+\func ~~? <A, B>(t: (A? -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t { return con(json[key] as? A) }\n\
+\    else { return nil }\n\
+\}\n\
+\\n\
+\func ~~? <A: JSONDecodable, B>(t: ([A]? -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t { if let jsons = json[key] as? [JSON] {\n\
+\            var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }\n\
+\            return con(array)\n\
+\        } else { return con(nil) }\n\
+\    } else { return nil }\n\
+\}\n\
+\\n\
+\func ~~? <A: JSONDecodable, B>(t: ([String: A]? -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t { if let jsons = json[key] as? [String: JSON] {\n\
+\            var dict = [String: A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }\n\
+\            return con(dict)\n\
+\        } else { return con(nil) }\n\
+\    } else { return nil }\n\
+\}\n\
+\\n"
