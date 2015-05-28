@@ -15,14 +15,14 @@ intDefs protoName name methods = "import Foundation\n\
 \              completion: [String : AnyObject] -> Void) -> CancellationToken\n\
 \}\n\n\
 \public class " ⧺ name ⧺ " <T: " ⧺ protoName ⧺ "> {\n\
-\    public func cancel(token: " ⧺ protoName ⧺ ".CancellationToken) { transport.cancel(token) }\n\
+\    public func cancel(token: T.CancellationToken) { transport.cancel(token) }\n\
 \    public func listen(event: String,\n\
-\        completion: [String : AnyObject] -> Void) -> " ⧺ protoName ⧺ ".CancellationToken \
-\{ transport.listen(event, completion: completion) }\n\
+\        completion: [String : AnyObject] -> Void) -> T.CancellationToken \
+\{ return transport.listen(event, completion: completion) }\n\
 \    public func cast(method: String, arguments: [String : AnyObject]) \
 \{ transport.cast(method, arguments: arguments) }\n\
-\    public init(transport: " ⧺ protoName ⧺ ") { self.transport = transport }\n\
-\    public let transport: " ⧺ protoName ⧺ "\n\n" ⧺ methods ⧺ "}\n"
+\    public init(transport: T) { self.transport = transport }\n\
+\    public let transport: T\n\n" ⧺ methods ⧺ "}\n"
 
 entDefs = "import Foundation\n\
 \\n\

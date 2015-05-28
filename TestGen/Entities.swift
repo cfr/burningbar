@@ -1,83 +1,121 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.5.14
+// 📏🔥 Generated with http://j.mp/burnbar v0.5.28
 
 import Foundation
 
-public struct Credentials : ToJSON {
-    public let asJSON: [String : AnyObject]
-    public init(_ json: [String : AnyObject]) {
-        asJSON = json
-        login = json["login"] as? String
-        pass = json["pass"] as? String
+public protocol JSONEncodable {
+    var json: [String : AnyObject] { get }
+    var Name: String { get }
+}
+public protocol JSONDecodable {
+    init?(json: [String : AnyObject])
+}
+
+// JSON mapping operators
+
+typealias JSON = [String: AnyObject]
+
+infix operator ~~ { associativity left }
+infix operator ~~? { associativity left }
+
+func ~~ <A, B, C>(t: (A -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {
+    if let (con, json) = t, a = json[key] as? A { return (con(a), json) }
+    else { return nil }
+}
+
+func ~~ <A: JSONDecodable, B, C>(t: ([A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {
+    if let (con, json) = t, jsons = json[key] as? [JSON] {
+        var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }
+        return (con(array), json)
+    } else { return nil }
+}
+
+func ~~ <A: JSONDecodable, B, C>(t: ([String: A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {
+    if let (con, json) = t, jsons = json[key] as? [String: JSON] {
+        var dict = [String: A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }
+        return (con(dict), json)
+    } else { return nil }
+}
+
+func ~~ <A, B>(t: (A -> B, JSON)?, key: String) -> B? {
+    if let (con, json) = t, a = json[key] as? A { return con(a) }
+    else { return nil }
+}
+
+func ~~ <A: JSONDecodable, B>(t: ([A] -> B, JSON)?, key: String) -> B? {
+    if let (con, json) = t, jsons = json[key] as? [JSON] {
+        var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }
+        return con(array)
+    } else { return nil }
+}
+
+func ~~ <A: JSONDecodable, B>(t: ([String: A] -> B, JSON)?, key: String) -> B? {
+    if let (con, json) = t, jsons = json[key] as? [String: JSON] {
+        var dict = [String: A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }
+        return con(dict)
+    } else { return nil }
+}
+
+func ~~? <A, B, C>(t: (A? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {
+    if let (con, json) = t { return (con(json[key] as? A), json) }
+    else { return nil }
+}
+
+func ~~? <A: JSONDecodable, B, C>(t: ([A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {
+    if let (con, json) = t {
+        if let jsons = json[key] as? [JSON] {
+            var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }
+            return (con(array), json)
+        } else { return (con(nil), json) }
+    } else { return nil }
+}
+
+func ~~? <A: JSONDecodable, B, C>(t: ([String: A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {
+    if let (con, json) = t { if let jsons = json[key] as? [String: JSON] {
+            var dict = [String: A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }
+            return (con(dict), json)
+        } else { return (con(nil), json) }
+    } else { return nil }
+}
+
+func ~~? <A, B>(t: (A? -> B, JSON)?, key: String) -> B? {
+    if let (con, json) = t { return con(json[key] as? A) }
+    else { return nil }
+}
+
+func ~~? <A: JSONDecodable, B>(t: ([A]? -> B, JSON)?, key: String) -> B? {
+    if let (con, json) = t { if let jsons = json[key] as? [JSON] {
+            var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }
+            return con(array)
+        } else { return con(nil) }
+    } else { return nil }
+}
+
+func ~~? <A: JSONDecodable, B>(t: ([String: A]? -> B, JSON)?, key: String) -> B? {
+    if let (con, json) = t { if let jsons = json[key] as? [String: JSON] {
+            var dict = [String: A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }
+            return con(dict)
+        } else { return con(nil) }
+    } else { return nil }
+}
+
+
+public struct Credentials: JSONEncodable, JSONDecodable {
+    static func create(json: [String : AnyObject])(login: String?)(pass: String?) -> Credentials {
+        return Credentials(json: json, login: login, pass: pass)
     }
+    public init?(json: [String : AnyObject]) {
+        if let v = (Credentials.create(json), json) ~~? "login" ~~? "pass" { self = v } else { return nil }
+    }
+    public init(json: [String : AnyObject], login: String?, pass: String?) {
+        self.json = json; self.login = login; self.pass = pass; self.Name = "Credentials"
+    }
+    public let Name: String
     public static let Name = "Credentials"
-    public let Name = "Credentials"
+    public static let json = "json"
     public static let login = "login"
     public static let pass = "pass"
 
-    public static func putLogin(login: String) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["login"] = login; return d }
-    }
-    public static func putPass(pass: String) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["pass"] = pass; return d }
-    }
-    public var login: String? = "user"
-    public var pass: String?
-}
-
-public struct UserInfo : YourProto {
-    public let asJSON: [String : AnyObject]
-    public init(_ json: [String : AnyObject]) {
-        asJSON = json
-        friends = [String: UserInfo]()
-        age = json["age"] as? NSNumber
-        photoURLs = json["photoURLs"] as? [String]
-        if let json = json["creds"] as? [String : AnyObject] {
-          creds = Credentials(json)
-        } else { creds = nil }
-        map(json.keys) {(k: String) in self.friends[k] = UserInfo(json[k] as! [String : AnyObject])}
-        name = json["name"] as? String
-    }
-    public static let Name = "UserInfo"
-    public let Name = "UserInfo"
-    public static let age = "age"
-    public static let photoURLs = "photoURLs"
-    public static let creds = "creds"
-    public static let friends = "friends"
-    public static let name = "name"
-
-    public static func putAge(age: NSNumber) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["age"] = age; return d }
-    }
-    public static func putPhotoURLs(photoURLs: [String]) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["photoURLs"] = photoURLs; return d }
-    }
-    public static func putCreds(creds: Credentials) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["creds"] = creds.asJSON; return d }
-    }
-    public static func putFriends(friends: [String: UserInfo]) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["friends"] = friends.asJSON; return d }
-    }
-    public static func putName(name: String) -> ((inout [String : AnyObject]) -> [String : AnyObject]) {
-        return { (inout d: [String : AnyObject]) in d["name"] = name; return d }
-    }
-    public var age: NSNumber?
-    public var photoURLs: [String]?
-    public var creds: Credentials?
-    public var friends: [String: UserInfo]
-    public var name: String?
-}
-
-
-public protocol ToJSON {
-    var asJSON: [String : AnyObject] { get }
-    var Name: String { get }
-}
-extension Dictionary {
-    var asJSON: [Key : AnyObject] { get {
-        var d = [Key : AnyObject](); for k in self.keys {
-          let o = self[k]; if let o: AnyObject = o as? AnyObject { d[k] = o }
-          else { d[k] = (o as! ToJSON).asJSON }
-        }
-        return d
-    }}
+    public let json: [String : AnyObject]
+    public let login: String?
+    public let pass: String?
 }

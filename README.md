@@ -25,9 +25,9 @@ Command
 
 reads [spec.burnbar][Spec] and generates [Interface.swift][] (RPC funcs) and
 [Entities.swift][] (structs/mappers), Interface class is parameterized by
-`Transport` protocol containing `call`, `cancel` funcs and `CancellationToken`
-typealias. Struct's `init(json:)` takes `[String: AnyObject]` representing
-JSON object, `asJSON` returns this object back.
+`Transport` protocol containing `call`, `cast`, `listen`,`cancel` funcs and
+`CancellationToken` typealias. Struct's `init?(json:)` takes `[String: AnyObject]`
+representing JSON object, `json` returns this object back.
 
 See help for more options:
 

@@ -1,39 +1,47 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.5.14
+// 📏🔥 Generated with http://j.mp/burnbar v0.5.28
 
 import Foundation
 
+public func idTf<T>(a: T) -> T { return a }
 public protocol Transport {
     typealias CancellationToken
     func cancel(token: CancellationToken)
+    func cast(method: String, arguments: [String : AnyObject])
+    func listen(event: String,
+                completion: [String : AnyObject] -> Void) -> CancellationToken
     func call(method: String, arguments: [String : AnyObject],
               completion: [String : AnyObject] -> Void) -> CancellationToken
 }
+
 public class Interface <T: Transport> {
-
     public func cancel(token: T.CancellationToken) { transport.cancel(token) }
+    public func listen(event: String,
+        completion: [String : AnyObject] -> Void) -> T.CancellationToken { return transport.listen(event, completion: completion) }
+    public func cast(method: String, arguments: [String : AnyObject]) { transport.cast(method, arguments: arguments) }
     public init(transport: T) { self.transport = transport }
+    public let transport: T
 
-    public func ping(completion: Void -> Void) -> T.CancellationToken {
+    public func ping(tf: (Void? -> Void?) = idTf, completion: Void? -> Void) -> T.CancellationToken {
       return transport.call("ping", arguments: [:]) {  _ in }
     }
     public let ping: String = "ping"
-    public func login(creds: Credentials, completion: UserInfo -> Void) -> T.CancellationToken {
-      return transport.call("user.login", arguments: ["creds": creds.asJSON]) { r in
-        let v = UserInfo(r)
-        completion(v)
-      }
+
+    public func login(creds: Credentials, tf: (Void? -> Void?) = idTf, completion: Void? -> Void) -> T.CancellationToken {
+      return transport.call("user.login", arguments: ["creds": creds.json]) {  _ in }
     }
     public let login: String = "login"
-    public func register(username: String, password: String, completion: Credentials -> Void) -> T.CancellationToken {
+
+    public func register(username: String, password: String, tf: (Credentials? -> Credentials?) = idTf, completion: Credentials? -> Void) -> T.CancellationToken {
       return transport.call("register", arguments: ["username": username, "password": password]) { r in
-        let v = Credentials(r)
+        let v = Credentials(json: r)
         completion(v)
       }
     }
     public let register: String = "register"
-    public func test(a1: Int, a2: NSNumber?, a3: Bool, completion: Void -> Void) -> T.CancellationToken {
+
+    public func test(a1: Int, a2: NSNumber?, a3: Bool, tf: (Void? -> Void?) = idTf, completion: Void? -> Void) -> T.CancellationToken {
       return transport.call("test", arguments: ["a1": a1, "a2": (a2 ?? "null"), "a3": a3]) {  _ in }
     }
     public let test: String = "test"
-    public let transport: T
+
 }

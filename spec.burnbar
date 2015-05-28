@@ -24,14 +24,7 @@ rec Credentials
    login  String? = "user"
    pass  String?
 
-rec UserInfo YourProto
-   age NSNumber?
-   photoURLs  [String]?
-   creds  Credentials?
-   friends { String : UserInfo }
-   name  String?
-
-met user.login UserInfo login
+met user.login Void login
    creds Credentials
 
 met register Credentials
