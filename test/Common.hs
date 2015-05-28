@@ -6,6 +6,7 @@ import Test.QuickCheck hiding (generate)
 import Control.Monad
 
 import qualified Swift
+import Static
 import qualified Parse
 import Language
 import Util
@@ -17,29 +18,7 @@ method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (Typename "Void")
 methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (Typename "Void") "n" [])
 record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [] Nothing)
 var = Parse.parseVar "a T" @?= Variable "a" (Typename "T") Nothing
-emptyInt = snd (translator (Swift.swift "Tr" "I") []) @?= "\
-\import Foundation\n\
-\\n\
-\public func idTf<T>(a: T) -> T { return a }\n\
-\public protocol Tr {\n\
-\    typealias CancellationToken\n\
-\    func cancel(token: CancellationToken)\n\
-\    func cast(method: String, arguments: [String : AnyObject])\n\
-\    func listen(event: String,\n\
-\                completion: [String : AnyObject] -> Void) -> CancellationToken\n\
-\    func call(method: String, arguments: [String : AnyObject],\n\
-\              completion: [String : AnyObject] -> Void) -> CancellationToken\n\
-\}\n\
-\\n\
-\public class I <T: Tr> {\n\
-\    public func cancel(token: Tr.CancellationToken) { transport.cancel(token) }\n\
-\    public func listen(event: String,\n\
-\        completion: [String : AnyObject] -> Void) -> Tr.CancellationToken { transport.listen(event, completion: completion) }\n\
-\    public func cast(method: String, arguments: [String : AnyObject]) { transport.cast(method, arguments: arguments) }\n\
-\    public init(transport: Tr) { self.transport = transport }\n\
-\    public let transport: Tr\n\
-\\n\
-\}\n"
+emptyInt = snd (translator (Swift.swift "Tr" "I") []) @?= intDefs "Tr" "I" []
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
