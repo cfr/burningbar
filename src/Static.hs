@@ -4,7 +4,7 @@ import Util
 
 intDefs protoName name methods = "import Foundation\n\
 \\n\
-\public func idTf<T>(a: T) -> T { return a }\n\
+\public func idTf<T>(a: T, json: [String : AnyObject]) -> T { return a }\n\
 \public protocol " ⧺ protoName ⧺ " {\n\
 \    typealias CancellationToken\n\
 \    func cancel(token: CancellationToken)\n\

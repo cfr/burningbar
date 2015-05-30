@@ -4,7 +4,7 @@ module Util where
 -- ripped from https://github.com/roelvandijk/base-unicode-symbols
 
 import Prelude (Int, concat, flip, replicate)
-import Data.Bool (Bool)
+import Data.Bool (Bool, (||))
 import Data.Eq (Eq, (==), (/=))
 import Control.Category (Category, (.))
 import Control.Arrow (Arrow, (>>>), (***), (&&&))
@@ -20,6 +20,8 @@ infix 4 ≡, ≠
 (≡) = (==)
 (≠) ∷ Eq α ⇒ α → α → Bool
 (≠) = (/=)
+(∨) ∷ Bool → Bool → Bool
+(∨) = (||)
 
 infixr 9 ∘
 (∘) ∷ Category c ⇒ c β γ → c α β → c α γ
@@ -55,7 +57,15 @@ trim = let f = reverse ∘ dropWhile isSpace in f ∘ f
 stripSuffix ∷ Eq α ⇒ [α] → [α] → Maybe [α]
 stripSuffix xs ys = reverse `fmap` stripPrefix (reverse xs) (reverse ys)
 
+-- | repeat string n times
+repeatN ∷ Int → String → String
+repeatN n s = concat (replicate n s)
+
+-- | n underscores
+n_ ∷ Int → String
+n_ = flip repeatN "_"
+
 -- | n spaces
 s ∷ Int → String
-s = concat ∘ flip replicate " "
+s = flip repeatN " "
 

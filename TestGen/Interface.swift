@@ -2,7 +2,7 @@
 
 import Foundation
 
-public func idTf<T>(a: T) -> T { return a }
+public func idTf<T>(a: T, json: [String : AnyObject]) -> T { return a }
 public protocol Transport {
     typealias CancellationToken
     func cancel(token: CancellationToken)
@@ -21,17 +21,17 @@ public class Interface <T: Transport> {
     public init(transport: T) { self.transport = transport }
     public let transport: T
 
-    public func ping(tf: (Void? -> Void?) = idTf, completion: Void? -> Void) -> T.CancellationToken {
+    public func ping(completion: Void -> Void) -> T.CancellationToken {
       return transport.call("ping", arguments: [:]) {  _ in }
     }
     public let ping: String = "ping"
 
-    public func login(creds: Credentials, tf: (Void? -> Void?) = idTf, completion: Void? -> Void) -> T.CancellationToken {
+    public func login(creds: Credentials, completion: Void -> Void) -> T.CancellationToken {
       return transport.call("user.login", arguments: ["creds": creds.json]) {  _ in }
     }
     public let login: String = "login"
 
-    public func register(username: String, password: String, tf: (Credentials? -> Credentials?) = idTf, completion: Credentials? -> Void) -> T.CancellationToken {
+    public func register(username: String, password: String, tf: ((Credentials?, [String : AnyObject]) -> Credentials?) = idTf, completion: Credentials? -> Void) -> T.CancellationToken {
       return transport.call("register", arguments: ["username": username, "password": password]) { r in
         let v = Credentials(json: r)
         completion(v)

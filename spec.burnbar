@@ -24,6 +24,13 @@ rec Credentials YourProto
    login String? = "user"
    pass String?
 
+rec User YourProto
+    age Int?
+    photoURLs [String]
+    creds Credentials?
+    friends { String : User }
+    name String
+
 met user.login Void login
    creds Credentials
 

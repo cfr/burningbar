@@ -2,23 +2,55 @@
 
 
 public struct Credentials: JSONEncodable, JSONDecodable, YourProto {
-    static func create(json: [String : AnyObject])(login: String?)(pass: String?) -> Credentials {
-        return Credentials(json: json, login: login, pass: pass)
-    }
-    public init?(json: [String : AnyObject]) {
-        if let v = (Credentials.create(json), json) ~~? "login" ~~? "pass" { self = v } else { return nil }
-    }
-    public init(json: [String : AnyObject], login: String?, pass: String?) {
-        self.json = json; self.login = login; self.pass = pass; self.Name = "Credentials"
-    }
+    public let json: [String : AnyObject]
+    public let login: String?
+    public let pass: String?
     public let Name: String
     public static let Name = "Credentials"
     public static let json = "json"
     public static let login = "login"
     public static let pass = "pass"
+    public init?(json: [String : AnyObject]) {
+        let (c, json) = (Credentials.create(json), json)
+        if let c_ = (c, json) ~~? "login" ~~? "pass" { self = c_ }
+        return nil
+    }
+    public init(json: [String : AnyObject], login: String?, pass: String?) {
+        self.json = json; self.login = login; self.pass = pass; self.Name = "Credentials"
+    }
+    static func create(json: [String : AnyObject])(login: String?)(pass: String?) -> Credentials {
+        return Credentials(json: json, login: login, pass: pass)
+    }
+}
+
+public struct User: JSONEncodable, JSONDecodable, YourProto {
     public let json: [String : AnyObject]
-    public let login: String?
-    public let pass: String?
+    public let age: Int?
+    public let photoURLs: [String]
+    public let creds: Credentials?
+    public let friends: [String: User]
+    public let name: String
+    public let Name: String
+    public static let Name = "User"
+    public static let json = "json"
+    public static let age = "age"
+    public static let photoURLs = "photoURLs"
+    public static let creds = "creds"
+    public static let friends = "friends"
+    public static let name = "name"
+    public init?(json: [String : AnyObject]) {
+        let (c, json) = (User.create(json), json)
+        if let (c_, json) = (c, json)  ~~? "age" ~~ "photoURLs" ~~? "creds" ~~ "friends" {
+          if let c__ = (c_, json) ~~ "name" { self = c__ }
+        }
+        return nil
+    }
+    public init(json: [String : AnyObject], age: Int?, photoURLs: [String], creds: Credentials?, friends: [String: User], name: String) {
+        self.json = json; self.age = age; self.photoURLs = photoURLs; self.creds = creds; self.friends = friends; self.name = name; self.Name = "User"
+    }
+    static func create(json: [String : AnyObject])(age: Int?)(photoURLs: [String])(creds: Credentials?)(friends: [String: User])(name: String) -> User {
+        return User(json: json, age: age, photoURLs: photoURLs, creds: creds, friends: friends, name: name)
+    }
 }
 import Foundation
 public protocol JSONEncodable {
