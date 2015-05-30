@@ -3,6 +3,7 @@ module Util where
 
 -- ripped from https://github.com/roelvandijk/base-unicode-symbols
 
+import Prelude (Int, concat, flip, replicate)
 import Data.Bool (Bool)
 import Data.Eq (Eq, (==), (/=))
 import Control.Category (Category, (.))
@@ -14,7 +15,7 @@ import Data.Functor (fmap)
 import Data.Maybe (Maybe(..))
 import Data.String (String)
 
-infix  4 ≡, ≠
+infix 4 ≡, ≠
 (≡) ∷ Eq α ⇒ α → α → Bool
 (≡) = (==)
 (≠) ∷ Eq α ⇒ α → α → Bool
@@ -53,4 +54,8 @@ trim = let f = reverse ∘ dropWhile isSpace in f ∘ f
 
 stripSuffix ∷ Eq α ⇒ [α] → [α] → Maybe [α]
 stripSuffix xs ys = reverse `fmap` stripPrefix (reverse xs) (reverse ys)
+
+-- | n spaces
+s ∷ Int → String
+s = concat ∘ flip replicate " "
 

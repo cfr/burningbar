@@ -7,3 +7,4 @@ test f = doctest (f:[ "-idist/build/", "-idist/build/autogen", "-optP-include"
                     , "src/Parse.hs", "src/Swift.hs", "src/Static.hs", "src/Util.hs"])
 
 main = mapM_ test ["src/BurningBar.hs", "src/Service.hs"]
+

@@ -2,7 +2,7 @@
 module Parse where
 
 import Data.List (stripPrefix)
-import Data.Maybe (maybe, catMaybes)
+import Data.Maybe (catMaybes)
 import Data.Char (isSpace)
 import Control.Monad (join, mplus)
 

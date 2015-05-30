@@ -2,7 +2,6 @@
 
 module Main where
 
-import Control.Monad (join)
 import Control.Exception (catch, SomeException)
 import Prelude hiding (catch)
 import System.Environment (getArgs)

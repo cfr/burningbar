@@ -27,7 +27,7 @@ func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ (args ≫= fr
                                 ⧺ s 8 ⧺ "completion(v)\n" ⧺ s 6 ⧺ "}"
 constructDict ∷ (Variable → String) → [Variable] → String
 constructDict rule vars | null vars = "[:]"
-                        | otherwise = "[" ⧺ (drop2 ∘ (vars ≫=)) rule ⧺ "]"
+                        | otherwise = "[" ⧺ (drop 2 ∘ (vars ≫=)) rule ⧺ "]"
 varOrNull (Variable n t _) = "\"" ⧺ n ⧺ "\": " ⧺ unwrap ⧺ ", "
   where toObj = if primitive t then n else n ++ ".json"
         unwrap | Optional t' ← t = "(" ⧺ toObj ⧺ " ?? \"null\")"
@@ -38,20 +38,20 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n" ⧺
         conforms | (Just s) ← super = jsonProtocols ⧺ ", " ⧺ s
                  | otherwise = jsonProtocols
                  where jsonProtocols = ": JSONEncodable, JSONDecodable"
-        vars' = Variable "json" (Typename jsonT) Nothing : vars
+        vars' = Variable "json" (Typename "[String : AnyObject]") Nothing : vars
         create = s 4 ⧺ "static func create" ⧺ list curriedArg ⧺ " -> " ⧺ name ⧺ " {\n"
-                 ⧺ s 8 ⧺ "return " ⧺ name ⧺ "(" ⧺ drop2 (list passArg) ⧺ ")\n"
+                 ⧺ s 8 ⧺ "return " ⧺ name ⧺ "(" ⧺ drop 2 (list passArg) ⧺ ")\n"
                  ⧺ s 4 ⧺ "}\n"
         passArg (Variable n _ _) = n ⧺ ": " ⧺ n ⧺ ", "
         curriedArg (Variable n t _) = "(" ⧺ n ⧺ ": " ⧺ fromType t ⧺ ")"
-        optInit = s 4 ⧺ "public init?(json: " ⧺ jsonT ⧺ ") {\n"
+        optInit = s 4 ⧺ "public init?(json: [String : AnyObject]) {\n"
                   ⧺ s 8 ⧺ "if let v = (" ⧺ name ⧺ ".create(json), json) "
                   ⧺ init (vars ≫= mapVar)
                   ⧺ " { self = v } else { return nil }\n" ⧺ s 4 ⧺ "}\n"
         mapVar (Variable n (Optional t) dv) = "~~? \"" ⧺ n ⧺ "\" " -- TODO: use default value
         mapVar (Variable n _ _) = "~~ \"" ⧺ n ⧺ "\" "
-        initDecl = s 4 ⧺ "public init(" ⧺ drop2 (list arg) ⧺ ") {\n"
-                   ⧺ s 8 ⧺ drop2 (list initVar) ⧺"; self.Name = \"" ⧺ name ⧺ "\"\n" ⧺ s 4 ⧺ "}\n"
+        initDecl = s 4 ⧺ "public init(" ⧺ drop 2 (list arg) ⧺ ") {\n"
+                   ⧺ s 8 ⧺ drop 2 (list initVar) ⧺"; self.Name = \"" ⧺ name ⧺ "\"\n" ⧺ s 4 ⧺ "}\n"
         arg (Variable n t _) = n ⧺ ": " ⧺ fromType t ⧺ ", "
         statics = s 4 ⧺ "public let Name: String\n"
                   ⧺ s 4 ⧺ "public static let Name = \"" ⧺ name ⧺ "\"\n"
@@ -66,13 +66,4 @@ fromType (Array t) = "[" ⧺ fromType t ⧺ "]"
 fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk ⧺ ": " ⧺ fromType tv ⧺ "]"
 fromType (Typename typename) = typename
-
-drop2 ∷ String → String
-drop2 = init ∘ init
-
-s ∷ Int → String -- n spaces
-s = concat ∘ flip take (repeat " ")
-
-jsonT = "[String : AnyObject]"
-sub k = "json[\"" ⧺ k ⧺ "\"]"
 

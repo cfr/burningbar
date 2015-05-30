@@ -4,7 +4,6 @@ module Service where
 import Network.HTTP.Server
 import Network.HTTP.Server.Logger
 import Codec.Binary.UTF8.String
-import Control.Exception (try)
 import Data.List (intercalate)
 import Data.List.Split (splitOn)
 
