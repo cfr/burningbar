@@ -12,7 +12,7 @@ public struct Credentials: JSONEncodable, JSONDecodable, YourProto {
     public static let pass = "pass"
     public init?(json: [String : AnyObject]) {
         let (c, json) = (Credentials.create(json), json)
-        if let c_ = (c, json) ~~? "login" ~~? "pass" { self = c_ }
+        if let c_ = (c, json) ~~? "login" ~~? "pass" { self = c_; return }
         return nil
     }
     public init(json: [String : AnyObject], login: String?, pass: String?) {
@@ -41,7 +41,7 @@ public struct User: JSONEncodable, JSONDecodable, YourProto {
     public init?(json: [String : AnyObject]) {
         let (c, json) = (User.create(json), json)
         if let (c_, json) = (c, json)  ~~? "age" ~~ "photoURLs" ~~? "creds" ~~ "friends" {
-          if let c__ = (c_, json) ~~ "name" { self = c__ }
+          if let c__ = (c_, json) ~~ "name" { self = c__; return }
         }
         return nil
     }

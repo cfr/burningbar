@@ -53,7 +53,7 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n" ⧺
                   ⧺ " " ⧺ list mapVar " " (take 4 vars) ⧺ " {\n" -- NOTE: swiftc can't parse long op chains
                   ⧺ batchOps (drop 4 vars) (l+1) ⧺ s ind ⧺ "}\n" -- should be `ops = list mapVar " "`
              else s ind ⧺ "if let c" ⧺ n_ l ⧺ " = (c" ⧺ n_ (l-1) ++ ", json)"
-                  ⧺ " " ⧺ list mapVar " " vars ⧺ " { self = c" ⧺ n_ l ⧺ " }\n"
+                  ⧺ " " ⧺ list mapVar " " vars ⧺ " { self = c" ⧺ n_ l ⧺ "; return }\n"
         initDecl = s 4 ⧺ "public init(" ⧺ list arg ", " vars' ⧺ ") {\n"
                    ⧺ s 8 ⧺ list initVar "; " vars'
                    ⧺ "; self.Name = \"" ⧺ name ⧺ "\"\n" ⧺ s 4 ⧺ "}\n"
