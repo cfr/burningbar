@@ -31,11 +31,6 @@ met register Credentials
     username String
     password String
 
-met test Void
-    a1 Int
-    a2 NSNumber?
-    a3 Bool
-
 - # Type grammar
 - type → array-type | dictionary-type | type-identifier | optional-type | primitive-type
 - returnType → type-identifier | Void

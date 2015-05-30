@@ -114,7 +114,6 @@ public struct Credentials: JSONEncodable, JSONDecodable {
     public static let json = "json"
     public static let login = "login"
     public static let pass = "pass"
-
     public let json: [String : AnyObject]
     public let login: String?
     public let pass: String?

@@ -39,9 +39,4 @@ public class Interface <T: Transport> {
     }
     public let register: String = "register"
 
-    public func test(a1: Int, a2: NSNumber?, a3: Bool, tf: (Void? -> Void?) = idTf, completion: Void? -> Void) -> T.CancellationToken {
-      return transport.call("test", arguments: ["a1": a1, "a2": (a2 ?? "null"), "a3": a3]) {  _ in }
-    }
-    public let test: String = "test"
-
 }
