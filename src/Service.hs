@@ -29,7 +29,7 @@ sendJSON s v = headers reponse
                 ∘ insertHeader (HdrCustom "Access-Control-Allow-Origin") "*"
         text = encodeString v
 
-toSwift = toJSON ∘ translator (swift "Transport" "Interface") ∘ parse
+toSwift = toJSON ∘ translator (swift False "Transport" "Interface") ∘ parse
   where toJSON (e, i) = "{ \"Entities\": \"" ⧺ escape e
                         ⧺ "\", \"Interface\": \"" ⧺ escape i
                         ⧺ "\", \"version\": \"" ⧺ showVersion version ⧺ "\"}"

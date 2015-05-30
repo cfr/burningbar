@@ -7,8 +7,9 @@ import Static
 import Language hiding (generate)
 import Util
 
-swift ∷ Typename → Typename → Language
-swift transport interface = Language generate (entDefs ⧺) (intDefs transport interface)
+swift ∷ Bool → Typename → Typename → Language
+swift shield transport interface = Language generate wrapEnts (intDefs transport interface)
+  where wrapEnts = (⧺ entDefs ⧺ if shield then dynamicityShield else "")
 
 generate ∷ Declaration → String
 generate (Record name vars super) = struct name vars super

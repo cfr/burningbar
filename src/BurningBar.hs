@@ -15,7 +15,7 @@ import Swift
 import Util
 
 bbURL = "http://j.mp/burnbar"
-version = " v0.5.28"
+version = " v0.5.30"
 
 main = do
   args ← getArgs
@@ -24,7 +24,7 @@ main = do
   let copy = (("// 📏🔥 Generated with " ⧺ bbURL ⧺ version ⧺ "\n\n") ⧺)
   let write = (∘ copy) ∘ writeFile ∘ (root </>)
   spec ← spec ≫= return ∘ parse
-  let (ent, int) = translator (swift transport interface) spec
+  let (ent, int) = translator (swift shield transport interface) spec
   (createDir root ≫ write entFn ent ≫ write intFn int)
       `catch` handleEx
 #ifdef DEBUG
@@ -32,9 +32,9 @@ main = do
 #endif
 
 data Options = Options { transport ∷ Typename, interface ∷ Typename , spec ∷ IO String,
-                         root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath }
+                         root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath, shield ∷ Bool }
 
-defaults = Options "Transport" "Interface" (readFile "spec.burnbar") "./" entFn intFn
+defaults = Options "Transport" "Interface" (readFile "spec.burnbar") "./" entFn intFn False
   where { intFn = "Interface.swift"; entFn = "Entities.swift" }
 
 options ∷ [OptDescr (Options → Options)]
@@ -45,9 +45,10 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("r", ["interface-file"], ReqArg (\a o → o {intFn = a}) "Interface.swift", "interface out filename")
   , ("d", ["entities-file"], ReqArg (\a o → o {entFn = a}) "Entities.swift", "entities out filename")
   , ("s", ["spec-file"], ReqArg (\a o → o {spec = readFile a}) "spec.burnbar", "input spec file")
+  , ("b", ["dynamicity-shield"], NoArg (\o → o {shield = True}), "accept weak-typed json")
   , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix") ]
 
-use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsp]\n" ⧺ bbURL ⧺ version) options
+use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsbp]\n" ⧺ bbURL ⧺ version) options
 ver _ = error $ bbURL ⧺ version
 
 createDir name = createDirectoryIfMissing True name `catch` handleEx

@@ -20,9 +20,9 @@
 
 met ping Void
 
-rec Credentials
-   login  String? = "user"
-   pass  String?
+rec Credentials YourProto
+   login String? = "user"
+   pass String?
 
 met user.login Void login
    creds Credentials

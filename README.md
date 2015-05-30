@@ -25,15 +25,15 @@ Command
 
 reads [spec.burnbar][Spec] and generates [Interface.swift][] (RPC funcs) and
 [Entities.swift][] (structs/mappers), Interface class is parameterized by
-`Transport` protocol containing `call`, `cast`, `listen`,`cancel` funcs and
+`Transport` protocol containing `call`, `cast`, `listen`, `cancel` funcs and
 `CancellationToken` typealias. Struct's `init?(json:)` takes `[String: AnyObject]`
 representing JSON object, `json` returns this object back.
 
 See help for more options:
 
     $ burningbar --help
-    burningbar: Usage: burningbar [-vhtirdsp]
-    http://j.mp/burnbar v0.5.14
+    burningbar: Usage: burningbar [-vhtirdsbp]
+    http://j.mp/burnbar v0.5.30
       -v                  --version                         print version number
       -h                  --help                            print help
       -t Transport        --transport=Transport             transport protocol name
@@ -41,6 +41,7 @@ See help for more options:
       -r Interface.swift  --interface-file=Interface.swift  interface out filename
       -d Entities.swift   --entities-file=Entities.swift    entities out filename
       -s spec.burnbar     --spec-file=spec.burnbar          input spec file
+      -b                  --dynamicity-shield               accept weak-typed json
       -p .                --path=.                          output path prefix
 
 ## [Spec syntax][Spec]

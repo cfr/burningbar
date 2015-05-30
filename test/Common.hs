@@ -18,7 +18,7 @@ method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (Typename "Void")
 methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (Typename "Void") "n" [])
 record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [] Nothing)
 var = Parse.parseVar "a T" @?= Variable "a" (Typename "T") Nothing
-emptyInt = snd (translator (Swift.swift "Tr" "I") []) @?= intDefs "Tr" "I" []
+emptyInt = snd (translator (Swift.swift False "Tr" "I") []) @?= intDefs "Tr" "I" []
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
