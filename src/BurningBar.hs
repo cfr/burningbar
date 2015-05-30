@@ -26,7 +26,7 @@ main = do
   spec ← spec ≫= return ∘ parse
   let (ent, int) = translator (swift transport interface) spec
   (createDir root ≫ write entFn ent ≫ write intFn int)
-      `catch` handleEx "Error ¬ ¬: "
+      `catch` handleEx
 #ifdef DEBUG
   print (spec, ent, int)
 #endif
@@ -50,6 +50,6 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
 use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsp]\n" ⧺ bbURL ⧺ version) options
 ver _ = error $ bbURL ⧺ version
 
-createDir name = createDirectoryIfMissing True name `catch` handleEx "Can't create dir."
-handleEx err (e ∷ SomeException) = error (err ⧺ show e)
+createDir name = createDirectoryIfMissing True name `catch` handleEx
+handleEx (e ∷ SomeException) = error (show e)
 
