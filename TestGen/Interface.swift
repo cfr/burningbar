@@ -33,7 +33,7 @@ public class Interface <T: Transport> {
 
     public func register(username: String, password: String, tf: ((Credentials?, [String : AnyObject]) -> Credentials?) = idTf, completion: Credentials? -> Void) -> T.CancellationToken {
       return transport.call("register", arguments: ["username": username, "password": password]) { r in
-        let v = Credentials(json: r)
+        let v = tf(Credentials(json: r), r)
         completion(v)
       }
     }

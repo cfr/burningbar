@@ -10,7 +10,8 @@ import Util
 
 swift ∷ Bool → Typename → Typename → Language
 swift shield transport interface = Language generate wrapEnts (intDefs transport interface)
-  where wrapEnts e = "\nimport Foundation\n" ⧺ e ⧺  entDefs ⧺ if shield then dynamicityShield else ""
+  where wrapEnts e = "\nimport Foundation\n" ⧺ e ⧺ entDefs
+                     ⧺ if shield then dynamicityShield else []
 
 generate ∷ Declaration → String
 generate (Record name vars super) = struct name vars super
@@ -22,7 +23,8 @@ func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ list fromArg 
                        ⧺ "completion: " ⧺ ret ⧺ " -> Void)" ⧺ " -> T.CancellationToken"
                        ⧺ " {\n" ⧺ body ⧺ "\n" ⧺ s 4 ⧺ "}\n"
                        ⧺ s 4 ⧺ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\"\n\n"
-  where body = s 6 ⧺ "return transport.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ mapReply
+  where body = s 6 ⧺ "return transport.call(\"" ⧺ rpc
+               ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ mapReply
         fromArg (Variable n t _) = n ⧺ ": " ⧺ fromType t ⧺ ", "
         noRet = (t ≡ TypeName "Void") ∨ (t ≡ TypeName "()")
         ret = if noRet then "Void" else fromType t ⧺ "?"
@@ -30,7 +32,7 @@ func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ list fromArg 
         passedArgs = if null args then "[:]" else "[" ⧺ list serialize ", " args ⧺ "]"
         serialize (Variable n t _) = "\"" ⧺ n ⧺ "\": " ⧺ if primitive t then n else n ⧺ ".json"
         mapReply = if noRet then " _ in }"
-                   else "r in\n" ⧺ s 8 ⧺ "let v = " ⧺ fromType t ⧺ "(json: r)\n"
+                   else "r in\n" ⧺ s 8 ⧺ "let v = tf(" ⧺ fromType t ⧺ "(json: r), r)\n"
                         ⧺ s 8 ⧺ "completion(v)\n" ⧺ s 6 ⧺ "}"
 
 

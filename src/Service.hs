@@ -14,6 +14,7 @@ import Util
 import Language
 import Parse
 import Swift
+import Checker
 
 srv = serverWith config process
   where process _ url request = case rqMethod request of
@@ -29,10 +30,16 @@ sendJSON s v = headers reponse
                 ∘ insertHeader (HdrCustom "Access-Control-Allow-Origin") "*"
         text = encodeString v
 
-toSwift = toJSON ∘ translator (swift False "Transport" "Interface") ∘ parse
-  where toJSON (e, i) = "{ \"Entities\": \"" ⧺ escape e
-                        ⧺ "\", \"Interface\": \"" ⧺ escape i
-                        ⧺ "\", \"version\": \"" ⧺ showVersion version ⧺ "\"}"
+toSwift = toJSON ∘ checkOrGen
+  where toJSON (Right (e, i)) = "{ \"Entities\": \"" ⧺ escape e
+                              ⧺ "\", \"Interface\": \"" ⧺ escape i
+                              ⧺ "\", " ⧺ ver ⧺ "\"}"
+        toJSON (Left err) = "{ \"error\": \"" ⧺ escape err ⧺ "\", " ⧺ ver ⧺ "\"}"
+        checkOrGen rawSpec = let errors = check rawSpec in
+                             if null errors then Right (gen rawSpec)
+                                            else Left errors
+        gen = translator (swift False "Transport" "Interface") ∘ parse
+        ver = "\"version\": \"" ⧺ showVersion version
 
 config = defaultConfig { srvLog = stdLogger, srvPort = 9604, srvHost = "0.0.0.0" }
 
