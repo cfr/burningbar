@@ -1,7 +1,7 @@
 {-# LANGUAGE ViewPatterns, UnicodeSyntax, ExistentialQuantification #-}
 module Parse where
 
-import Data.List (stripPrefix)
+import Data.List (stripPrefix, splitAt)
 import Data.Maybe (catMaybes)
 import Data.Char (isSpace)
 import Control.Monad (join, mplus)
@@ -29,7 +29,7 @@ parseRecord = parseDeclarationAs record parseRecHeader
   where record vars (nm, super) = Record nm vars super
 
 parseRecHeader ∷ Words → Maybe (Name, Maybe Typename)
-parseRecHeader ["rec", nm, super] = Just (nm, Just super)
+parseRecHeader (splitAt 2 → (["rec", nm], super)) = Just (nm, Just (unwords super))
 parseRecHeader ["rec", nm] = Just (nm, Nothing)
 parseRecHeader _ = Nothing
 

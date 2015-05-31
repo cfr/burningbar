@@ -44,7 +44,7 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
         equatable = let protocols = map trim (separateBy ',' (fromJust super))
                     in if "Equatable" ∈ protocols then equals else []
         equals = "public func == (lhs: " ⧺ name ⧺ " , rhs: " ⧺ name ⧺ " ) -> Bool { "
-                 ⧺ " return lhs.json.description == rhs.json.description }\n"
+                 ⧺ "return lhs.json.description == rhs.json.description }\n"
         vars' = Variable "json" (TypeName "[String : AnyObject]") Nothing : vars
         create = s 4 ⧺ "static func create" ⧺ list curriedArg "" vars' ⧺ " -> " ⧺ name ⧺ " {\n"
                  ⧺ s 8 ⧺ "return " ⧺ name ⧺ "(" ⧺ list passArg ", " vars' ⧺ ")\n"

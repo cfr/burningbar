@@ -2,7 +2,7 @@
 
 import Foundation
 
-public struct Credentials: JSONEncodable, JSONDecodable, Equatable {
+public struct Credentials: JSONEncodable, JSONDecodable, Equatable, YourProto {
     public let json: [String : AnyObject]
     public let login: String
     public let pass: String

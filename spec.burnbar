@@ -19,7 +19,7 @@
 
 met ping Void
 
-rec Credentials Equatable
+rec Credentials Equatable, YourProto
    login String = "user"
    pass String
 
