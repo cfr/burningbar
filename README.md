@@ -32,8 +32,8 @@ representing JSON object, `json` returns this object back.
 See help for more options:
 
     $ burningbar --help
-    burningbar: Usage: burningbar [-vhtirdsbp]
-    http://j.mp/burnbar v0.5.30
+    burningbar: Usage: burningbar [-vhtirdsbpc]
+    http://j.mp/burnbar v0.5.31
       -v                  --version                         print version number
       -h                  --help                            print help
       -t Transport        --transport=Transport             transport protocol name
@@ -43,6 +43,7 @@ See help for more options:
       -s spec.burnbar     --spec-file=spec.burnbar          input spec file
       -b                  --dynamicity-shield               accept weak-typed json
       -p .                --path=.                          output path prefix
+      -c                  --validate                        validate spec and exit
 
 ## [Spec syntax][Spec]
 

@@ -1,5 +1,5 @@
 name:               burningbar
-version:            0.5.30
+version:            0.5.31
 synopsis:           Swift RPC generator
 description:
     Tool and service to generate Swift JSON mappers and RPC functions.
@@ -22,7 +22,7 @@ source-repository head
 
 executable burningbar
   main-is:          BurningBar.hs
-  other-modules:    Util, Language, Parse, Swift, Static
+  other-modules:    Util, Language, Parse, Swift, Static, Checker
   other-extensions: ScopedTypeVariables, UnicodeSyntax, CPP, RecordWildCards,
                     ViewPatterns, NoImplicitPrelude
   build-depends:    base <5, directory, filepath
@@ -31,7 +31,7 @@ executable burningbar
 
 executable burningbard
   main-is:          BurningBard.hs
-  other-modules:    Service, Util, Language, Parse, Swift, Static, Paths_burningbar
+  other-modules:    Service, Util, Language, Parse, Swift, Static, Checker, Paths_burningbar
   build-depends:    base <5, http-server, directory, filepath, url,
                     utf8-string, split
   hs-source-dirs:   src
@@ -40,7 +40,7 @@ executable burningbard
 test-suite test
   type:             exitcode-stdio-1.0
   main-is:          Common.hs
-  other-modules:    Util, Language, Parse, Swift, Static, Service
+  other-modules:    Util, Language, Parse, Swift, Static, Checker, Service
   build-depends:    base <5, filepath, directory, http-server, utf8-string,
                     HUnit, QuickCheck, test-framework, url, split,
                     test-framework-hunit, test-framework-quickcheck
@@ -51,8 +51,7 @@ test-suite doctests
   type:             exitcode-stdio-1.0
   main-is:          doctests.hs
   build-depends:    base <5, doctest, process, http-server,
-                    directory, filepath, url,
-                    utf8-string, split
+                    directory, filepath, url, utf8-string, split
   hs-source-dirs:   src test
   default-language: Haskell2010
 

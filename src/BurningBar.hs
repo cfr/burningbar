@@ -3,6 +3,7 @@
 module Main where
 
 import Control.Exception (catch, SomeException)
+import Control.Monad (when)
 import Prelude hiding (catch)
 import System.Environment (getArgs)
 import System.Console.GetOpt (getOpt, OptDescr(..), ArgOrder(..), ArgDescr(..), usageInfo)
@@ -13,9 +14,10 @@ import Language
 import Parse
 import Swift
 import Util
+import Checker
 
 bbURL = "http://j.mp/burnbar"
-version = " v0.5.30"
+version = " v0.5.31"
 
 main = do
   args ← getArgs
@@ -23,18 +25,19 @@ main = do
   let (Options {..}) = foldr ($) defaults actions
   let copy = (("// 📏🔥 Generated with " ⧺ bbURL ⧺ version ⧺ "\n\n") ⧺)
   let write = (∘ copy) ∘ writeFile ∘ (root </>)
-  spec ← spec ≫= return ∘ parse
-  let (ent, int) = translator (swift shield transport interface) spec
+  spec ← spec
+  when validate (let errors = check spec in when (errors ≠ []) (error errors))
+  let (ent, int) = translator (swift shield transport interface) (parse spec)
   (createDir root ≫ write entFn ent ≫ write intFn int)
       `catch` handleEx
 #ifdef DEBUG
   print (spec, ent, int)
 #endif
 
-data Options = Options { transport ∷ Typename, interface ∷ Typename , spec ∷ IO String,
-                         root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath, shield ∷ Bool }
+data Options = Options { transport ∷ Typename, interface ∷ Typename , spec ∷ IO String, validate ∷ Bool
+                       , root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath, shield ∷ Bool }
 
-defaults = Options "Transport" "Interface" (readFile "spec.burnbar") "./" entFn intFn False
+defaults = Options "Transport" "Interface" (readFile "spec.burnbar") True "./" entFn intFn False
   where { intFn = "Interface.swift"; entFn = "Entities.swift" }
 
 options ∷ [OptDescr (Options → Options)]
@@ -46,9 +49,10 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("d", ["entities-file"], ReqArg (\a o → o {entFn = a}) "Entities.swift", "entities out filename")
   , ("s", ["spec-file"], ReqArg (\a o → o {spec = readFile a}) "spec.burnbar", "input spec file")
   , ("b", ["dynamicity-shield"], NoArg (\o → o {shield = True}), "accept weak-typed json")
-  , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix") ]
+  , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix")
+  , ("c", ["validate"], NoArg (\o → o {validate = True}), "validate spec and exit") ]
 
-use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsbp]\n" ⧺ bbURL ⧺ version) options
+use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsbpc]\n" ⧺ bbURL ⧺ version) options
 ver _ = error $ bbURL ⧺ version
 
 createDir name = createDirectoryIfMissing True name `catch` handleEx
