@@ -16,13 +16,14 @@ generate (Record name vars super) = struct name vars super
 generate method = func name remoteName args rawRetType
     where (Method remoteName rawRetType name args) = method
 
+func ∷ Name → Name → [Variable] → Type → String
 func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ list fromArg [] args ⧺ tf
                        ⧺ "completion: " ⧺ ret ⧺ " -> Void)" ⧺ " -> T.CancellationToken"
                        ⧺ " {\n" ⧺ body ⧺ "\n" ⧺ s 4 ⧺ "}\n"
                        ⧺ s 4 ⧺ "public let " ⧺ name ⧺ ": String = \"" ⧺ name ⧺ "\"\n\n"
   where body = s 6 ⧺ "return transport.call(\"" ⧺ rpc ⧺ "\", arguments: " ⧺ passedArgs ⧺ ") { " ⧺ mapReply
         fromArg (Variable n t _) = n ⧺ ": " ⧺ fromType t ⧺ ", "
-        noRet = (t ≡ Typename "Void") ∨ (t ≡ Typename "()")
+        noRet = (t ≡ TypeName "Void") ∨ (t ≡ TypeName "()")
         ret = if noRet then "Void" else fromType t ⧺ "?"
         tf = if noRet then [] else "tf: ((" ⧺ ret ⧺ ", [String : AnyObject]) -> " ⧺ ret ⧺ ") = idTf, "
         passedArgs = if null args then "[:]" else "[" ⧺ list serialize ", " args ⧺ "]"
@@ -32,12 +33,13 @@ func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ list fromArg 
                         ⧺ s 8 ⧺ "completion(v)\n" ⧺ s 6 ⧺ "}"
 
 
+struct ∷ Name → [Variable] → Maybe Typename → String
 struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n" ⧺ concat decls ⧺ "}\n"
   where decls = map varDecl vars' ⧺ [statics, optInit, initDecl, create]
         conforms | (Just s) ← super = jsonProtocols ⧺ ", " ⧺ s
-                 | otherwise = jsonProtocols
+                 | otherwise = jsonProtocols -- TODO: if Equatable, gen (==)
                  where jsonProtocols = ": JSONEncodable, JSONDecodable"
-        vars' = Variable "json" (Typename "[String : AnyObject]") Nothing : vars
+        vars' = Variable "json" (TypeName "[String : AnyObject]") Nothing : vars
         create = s 4 ⧺ "static func create" ⧺ list curriedArg "" vars' ⧺ " -> " ⧺ name ⧺ " {\n"
                  ⧺ s 8 ⧺ "return " ⧺ name ⧺ "(" ⧺ list passArg ", " vars' ⧺ ")\n"
                  ⧺ s 4 ⧺ "}\n"
@@ -52,7 +54,7 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n" ⧺
              then s ind ⧺ "if let (c" ⧺ n_ l ⧺ ", json) " ⧺ "= (c" ⧺ n_ (l-1) ⧺ ", json) "
                   ⧺ " " ⧺ list mapVar " " (take 4 vars) ⧺ " {\n" -- NOTE: swiftc can't parse long op chains
                   ⧺ batchOps (drop 4 vars) (l+1) ⧺ s ind ⧺ "}\n" -- should be `ops = list mapVar " "`
-             else s ind ⧺ "if let c" ⧺ n_ l ⧺ " = (c" ⧺ n_ (l-1) ++ ", json)"
+             else s ind ⧺ "if let c" ⧺ n_ l ⧺ " = (c" ⧺ n_ (l-1) ⧺ ", json)"
                   ⧺ " " ⧺ list mapVar " " vars ⧺ " { self = c" ⧺ n_ l ⧺ "; return }\n"
         initDecl = s 4 ⧺ "public init(" ⧺ list arg ", " vars' ⧺ ") {\n"
                    ⧺ s 8 ⧺ list initVar "; " vars'
@@ -69,8 +71,9 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n" ⧺
 list ∷ (α → String) → String → [α] → String
 list gen separator = intercalate separator ∘ map gen
 
+fromType ∷ Type → String
 fromType (Array t) = "[" ⧺ fromType t ⧺ "]"
 fromType (Optional t) = fromType t ⧺ "?"
 fromType (Dictionary tk tv) = "[" ⧺ fromType tk ⧺ ": " ⧺ fromType tv ⧺ "]"
-fromType (Typename typename) = typename
+fromType (TypeName typename) = typename
 

@@ -9,7 +9,7 @@ import Util
 type Name = String
 type Typename = String
 data Type = Array Type | Dictionary { key ∷ Type, value ∷ Type }
-          | Optional Type | Typename String deriving (Show, Eq)
+          | Optional Type | TypeName String deriving (Show, Eq)
 
 data Variable = Variable Name Type (Maybe String) -- default value
                 deriving (Show, Eq)
@@ -32,7 +32,7 @@ translator (Language {..}) = partition isRec ⋙ gen ⋙ wrapEntities ⁂ wrapIn
         isRec _ = False
 
 atoms ∷ [Type]
-atoms = map Typename ["String", "NSNumber", "Int", "Float", "Bool"]
+atoms = map TypeName ["String", "NSNumber", "Int", "Float", "Bool"]
 -- TODO: "URL", "IntString"
 
 primitives ∷ [Type]
