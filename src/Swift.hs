@@ -2,6 +2,7 @@
 module Swift where
 
 import Data.List (intercalate)
+import Data.Maybe (fromJust)
 
 import Static
 import Language hiding (generate)
@@ -9,7 +10,7 @@ import Util
 
 swift ∷ Bool → Typename → Typename → Language
 swift shield transport interface = Language generate wrapEnts (intDefs transport interface)
-  where wrapEnts = (⧺ entDefs ⧺ if shield then dynamicityShield else "")
+  where wrapEnts e = "\nimport Foundation\n" ⧺ e ⧺  entDefs ⧺ if shield then dynamicityShield else ""
 
 generate ∷ Declaration → String
 generate (Record name vars super) = struct name vars super
@@ -34,11 +35,16 @@ func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ list fromArg 
 
 
 struct ∷ Name → [Variable] → Maybe Typename → String
-struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n" ⧺ concat decls ⧺ "}\n"
+struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
+                         ⧺ concat decls ⧺ "}\n" ⧺ equatable
   where decls = map varDecl vars' ⧺ [statics, optInit, initDecl, create]
         conforms | (Just s) ← super = jsonProtocols ⧺ ", " ⧺ s
-                 | otherwise = jsonProtocols -- TODO: if Equatable, gen (==)
+                 | otherwise = jsonProtocols
                  where jsonProtocols = ": JSONEncodable, JSONDecodable"
+        equatable = let protocols = map trim (separateBy ',' (fromJust super))
+                    in if "Equatable" ∈ protocols then equals else []
+        equals = "public func == (lhs: " ⧺ name ⧺ " , rhs: " ⧺ name ⧺ " ) -> Bool { "
+                 ⧺ " return lhs.json.description == rhs.json.description }\n"
         vars' = Variable "json" (TypeName "[String : AnyObject]") Nothing : vars
         create = s 4 ⧺ "static func create" ⧺ list curriedArg "" vars' ⧺ " -> " ⧺ name ⧺ " {\n"
                  ⧺ s 8 ⧺ "return " ⧺ name ⧺ "(" ⧺ list passArg ", " vars' ⧺ ")\n"
@@ -52,8 +58,8 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n" ⧺
         mapVar (Variable n _ _) = "~~ \"" ⧺ n ⧺ "\""
         batchOps vars l = let ind = 6 + 2*l in if length vars > 4
              then s ind ⧺ "if let (c" ⧺ n_ l ⧺ ", json) " ⧺ "= (c" ⧺ n_ (l-1) ⧺ ", json) "
-                  ⧺ " " ⧺ list mapVar " " (take 4 vars) ⧺ " {\n" -- NOTE: swiftc can't parse long op chains
-                  ⧺ batchOps (drop 4 vars) (l+1) ⧺ s ind ⧺ "}\n" -- should be `ops = list mapVar " "`
+                  ⧺ " " ⧺ list mapVar " " (take 3 vars) ⧺ " {\n" -- NOTE: swiftc can't parse long op chains
+                  ⧺ batchOps (drop 3 vars) (l+1) ⧺ s ind ⧺ "}\n" -- should be `ops = list mapVar " "`
              else s ind ⧺ "if let c" ⧺ n_ l ⧺ " = (c" ⧺ n_ (l-1) ⧺ ", json)"
                   ⧺ " " ⧺ list mapVar " " vars ⧺ " { self = c" ⧺ n_ l ⧺ "; return }\n"
         initDecl = s 4 ⧺ "public init(" ⧺ list arg ", " vars' ⧺ ") {\n"

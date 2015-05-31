@@ -11,18 +11,17 @@
 -
 - # Record
 -
--     rec name
--      name varType [ = defaultValue] - same as type but with different
--                                     - optional default value
+-     rec name [super/protos]         - super-type, may be class or protocols list
+-      name varType [ = defaultValue] - same as arg, optional default value
 -      ...
 -
 - # Examples:
 
 met ping Void
 
-rec Credentials YourProto
-   login String? = "user"
-   pass String?
+rec Credentials Equatable
+   login String = "user"
+   pass String
 
 rec User YourProto
     age Int?
@@ -41,10 +40,7 @@ met register Credentials
 - # Type grammar
 - type → array-type | dictionary-type | type-identifier | optional-type | primitive-type
 - returnType → type-identifier | Void
-- primitive-var-type → String | NSNumber
 - primitive-type → String | Int | Float | Bool | NSNumber
 - array-type → [ type ]
-- dictionary-type → { primitiveType : type }
+- dictionary-type → { String : type }
 - optional-type → type ?
-- unwrapped-optional-type → type !
-

@@ -1,4 +1,4 @@
-{-# LANGUAGE NoImplicitPrelude, UnicodeSyntax #-}
+{-# LANGUAGE NoImplicitPrelude, UnicodeSyntax, ViewPatterns #-}
 module Util where
 
 -- ripped from https://github.com/roelvandijk/base-unicode-symbols
@@ -9,7 +9,8 @@ import Data.Eq (Eq, (==), (/=))
 import Control.Category (Category, (.))
 import Control.Arrow (Arrow, (>>>), (***), (&&&))
 import Control.Monad (Monad, (>>=), (>>), (=<<))
-import Data.List ((++), elem, reverse, dropWhile, stripPrefix)
+import Data.List ((++), elem, reverse, dropWhile,
+                  stripPrefix, unfoldr, drop, break)
 import Data.Char (isSpace)
 import Data.Functor (fmap)
 import Data.Maybe (Maybe(..))
@@ -56,6 +57,11 @@ trim = let f = reverse ∘ dropWhile isSpace in f ∘ f
 
 stripSuffix ∷ Eq α ⇒ [α] → [α] → Maybe [α]
 stripSuffix xs ys = reverse `fmap` stripPrefix (reverse xs) (reverse ys)
+
+separateBy ∷ Eq α ⇒ α → [α] → [[α]]
+separateBy c = unfoldr sep
+  where sep [] = Nothing
+        sep (break (≡ c) → l) = Just (fmap (drop 1) l)
 
 -- | repeat string n times
 repeatN ∷ Int → String → String

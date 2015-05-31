@@ -2,7 +2,7 @@ module Static where
 
 import Util
 
-intDefs protoName name methods = "import Foundation\n\
+intDefs protoName name methods = "\nimport Foundation\n\
 \\n\
 \public func idTf<T>(a: T, json: [String : AnyObject]) -> T { return a }\n\
 \public protocol " ⧺ protoName ⧺ " {\n\
@@ -24,7 +24,7 @@ intDefs protoName name methods = "import Foundation\n\
 \    public init(transport: T) { self.transport = transport }\n\
 \    public let transport: T\n\n" ⧺ methods ⧺ "}\n"
 
-entDefs = "import Foundation\n\
+entDefs = "\n\
 \public protocol JSONEncodable {\n\
 \    var json: [String : AnyObject] { get }\n\
 \    var Name: String { get }\n\
@@ -134,7 +134,7 @@ entDefs = "import Foundation\n\
 \            return con(dict)\n\
 \        } else { return con(nil) }\n\
 \    } else { return nil }\n\
-\}\n\n"
+\}\n"
 
 dynamicityShield = "// Dynamicity Shield\n\
 \\n\
@@ -337,4 +337,4 @@ dynamicityShield = "// Dynamicity Shield\n\
 \        return con(dict)\n\
 \    }\n\
 \    else { return nil }\n\
-\}\n\n"
+\}\n"

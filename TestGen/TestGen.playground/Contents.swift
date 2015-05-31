@@ -23,5 +23,8 @@ i.ping() { _ in }
 let json = ["login":"l", "pass":"p"]
 
 let c = Credentials(json: json)
+let c_ = Credentials(json: json)
+
+c == c_
 
 print(c?.json)
