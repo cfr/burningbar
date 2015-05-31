@@ -17,7 +17,7 @@ import Util
 import Checker
 
 bbURL = "http://j.mp/burnbar"
-version = " v0.6.0-α"
+version = " v0.6.1-α"
 
 main = do
   args ← getArgs
@@ -50,7 +50,7 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("s", ["spec-file"], ReqArg (\a o → o {spec = readFile a}) "spec.burnbar", "input spec file")
   , ("b", ["dynamicity-shield"], NoArg (\o → o {shield = True}), "accept weak-typed json")
   , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix")
-  , ("c", ["validate"], NoArg (\o → o {validate = True}), "validate spec and exit") ]
+  , ("c", ["validate"], NoArg (\o → o {validate = True}), "validate spec, exit on error") ]
 
 use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsbpc]\n" ⧺ bbURL ⧺ version) options
 ver _ = error $ bbURL ⧺ version

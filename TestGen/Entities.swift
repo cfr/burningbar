@@ -1,4 +1,4 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.6.0-α
+// 📏🔥 Generated with http://j.mp/burnbar v0.6.1-α
 
 import Foundation
 
@@ -23,7 +23,7 @@ public struct Credentials: JSONEncodable, JSONDecodable, Equatable, YourProto {
         return Credentials(json: json, login: login, pass: pass)
     }
 }
-public func == (lhs: Credentials , rhs: Credentials ) -> Bool {  return lhs.json.description == rhs.json.description }
+public func == (lhs: Credentials , rhs: Credentials ) -> Bool { return lhs.json.description == rhs.json.description }
 
 public struct User: JSONEncodable, JSONDecodable, YourProto {
     public let json: [String : AnyObject]

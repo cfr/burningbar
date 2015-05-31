@@ -4,6 +4,8 @@ module Checker where
 
 import Control.Monad (mplus)
 import Control.Arrow (second)
+import Data.Char (isAlphaNum)
+import Data.Maybe (fromJust)
 import Text.Printf (printf)
 
 import Util
@@ -21,30 +23,38 @@ parseLine (words ∘ stripComment ∘ trim → l) = if null l then Just EmptyLin
         proto = (Proto `fmap`) ∘ parseMetProto
         var = (VarOrArg `fmap`) ∘ parseVar
 
-validateSpecLine ∷ Maybe SpecLine → Either String SpecLine
-validateSpecLine Nothing = Left "failed to parse"
-validateSpecLine (Just (VarOrArg v)) = validateVar v
-validateSpecLine (Just EmptyLine) = Right EmptyLine
-validateSpecLine (Just hp) = validateHeaderOrProto hp
+validSpecLine ∷ Maybe SpecLine → Maybe String
+validSpecLine Nothing = Just "failed to parse"
+validSpecLine (Just (VarOrArg v)) = validVar v
+validSpecLine (Just EmptyLine) = Nothing
+validSpecLine (Just hp) = validHeadOrProto hp
 
-validateVar v = Right (VarOrArg v)
-validateHeaderOrProto = Right
+validVar (Variable nm t dv) = validName nm `mplus` validType t
+validHeadOrProto (Header (nm, sup)) = validName nm `mplus` validSuper sup
+validHeadOrProto (Proto (n, rrt, nm)) = validName nm
+                                `mplus` validType (parseType rrt)
+
+validName nm = if all isAlphaNum nm then Nothing
+               else Just ("invalid name " ⧺ nm)
+validSuper (fromJust → sup) = if all isAlphaNum names then Nothing
+                              else Just ("invalid proto " ⧺ sup)
+  where names = separateBy ',' sup ≫= trim
+validType _ = Nothing
 
 check ∷ String → String
-check = (≫= validate) ∘ enumerateLines
-  where validate = second (validateSpecLine ∘ parseLine) ⋙ printError
+check = (≫= valid) ∘ enumerateLines
+  where valid = second (validSpecLine ∘ parseLine) ⋙ printError
 
 enumerateLines ∷ String → [(Integer, String)]
 enumerateLines = zip [1..] ∘ lines
 
-printError ∷ (Integer, Either String SpecLine) → String
-printError (n, Left error) = printf "spec line %03d: %v.\n" n error
+printError ∷ (Integer, Maybe String) → String
+printError (n, Just error) = printf "spec line %03d: %v.\n" n error
 printError _ = ""
 
 -- TODO:
 -- only optional newtypes in recs
 -- no optionals in met args
--- check chars in names
 -- validate paragraphs or ignore?
 -- check matching parens
 -- only prims and newtypes in types?
