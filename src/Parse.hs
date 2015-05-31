@@ -37,11 +37,11 @@ parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe 
 parseDeclarationAs _ _ [] = Nothing
 parseDeclarationAs construct parseHeader (head:vars) = construct' `fmap` header
   where header = parseHeader (words head)
-        construct' = construct ∘ catMaybes $ map parseVar vars
+        construct' = construct ∘ catMaybes $ map (parseVar ∘ words) vars
 
-parseVar ∷ String → Maybe Variable
-parseVar (words → (n:rtdv)) | (not ∘ null) rtdv = parseVar' (n, join rtdv)
-parseVar _ = Nothing -- TODO: move not null to checker
+parseVar ∷ Words → Maybe Variable
+parseVar (n:rtdv) | (not ∘ null) rtdv = parseVar' (n, join rtdv)
+parseVar _ = Nothing
 
 parseVar' ∷ (Name, String) → Maybe Variable
 parseVar' (n, rtdv) = Just (Variable n (parseType t) dv)
@@ -50,9 +50,9 @@ parseVar' (n, rtdv) = Just (Variable n (parseType t) dv)
 
 parseType ∷ RawType → Type
 parseType (stripSuffix "?" → Just t) = Optional (parseType t)
-parseType (stripPrefix "[" → Just t) = (Array ∘ parseType ∘ init) t -- FIXME: check "]"
-parseType (stripPrefix "{" → Just t) = parseDictType t
-parseType u = TypeName (trim u) -- TODO: only prims and introduced?
+parseType (stripPrefix "[" → Just t) = (Array ∘ parseType ∘ init) t
+parseType (stripPrefix "{" → Just t) = parseDictType t -- TODO: allow [:]
+parseType u = TypeName (trim u)
 parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
   where (keyType, valType) = join (⁂) parseType (splitAtColon t)
         splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
@@ -65,5 +65,6 @@ paragraphs ls = let (p, rest) = (break null ∘ dropWhile null ∘ map trim) ls
 
 parse ∷ String → Spec
 parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComment ∘ lines
-  where stripComment = takeWhile (≠ '-')
+
+stripComment = takeWhile (≠ '-')
 

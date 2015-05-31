@@ -17,7 +17,7 @@ emptySpec = Parse.parse "-\n-" @?= []
 method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (TypeName "Void") "m" [])
 methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (TypeName "Void") "n" [])
 record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [] Nothing)
-var = Parse.parseVar "a T" @?= Just (Variable "a" (TypeName "T") Nothing)
+var = (Parse.parseVar ∘ words) "a T" @?= Just (Variable "a" (TypeName "T") Nothing)
 emptyInt = snd (translator (Swift.swift False "Tr" "I") []) @?= intDefs "Tr" "I" []
 
 instance Arbitrary Type where
