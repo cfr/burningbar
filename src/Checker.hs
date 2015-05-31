@@ -40,7 +40,7 @@ validSuper sup = if all isAlphaNum names then Nothing
                  else Just ("invalid proto " ⧺ fromJust sup)
   where names = separateBy ',' (fromMaybe [] sup) ≫= trim
 validType (Dictionary k _) = if k ≠ TypeName "String"
-                             then Just ("no-String key (" ⧺ show k ⧺ ")")
+                             then Just ("not String key found (" ⧺ show k ⧺ ")")
                              else Nothing
 validType _ = Nothing
 
@@ -52,7 +52,7 @@ enumerateLines ∷ String → [(Integer, String)]
 enumerateLines = zip [1..] ∘ lines
 
 printError ∷ (Integer, Maybe String) → String
-printError (n, Just error) = printf "spec line %03d: %v.\n" n error
+printError (n, Just error) = printf "spec line %03d: %s.\n" n error
 printError _ = ""
 
 -- TODO:
