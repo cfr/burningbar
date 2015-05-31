@@ -29,8 +29,8 @@ parseRecord = parseDeclarationAs record parseRecHeader
   where record vars (nm, super) = Record nm vars super
 
 parseRecHeader ∷ Words → Maybe (Name, Maybe Typename)
-parseRecHeader (splitAt 2 → (["rec", nm], super)) = Just (nm, Just (unwords super))
 parseRecHeader ["rec", nm] = Just (nm, Nothing)
+parseRecHeader (splitAt 2 → (["rec", nm], super)) = Just (nm, Just (unwords super))
 parseRecHeader _ = Nothing
 
 parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe α) → [String] → Maybe Declaration
