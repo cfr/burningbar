@@ -39,6 +39,9 @@ validName nm = if all isAlphaNum nm then Nothing
 validSuper (fromJust → sup) = if all isAlphaNum names then Nothing
                               else Just ("invalid proto " ⧺ sup)
   where names = separateBy ',' sup ≫= trim
+validType (Dictionary k _) = if k ≠ TypeName "String"
+                             then Just ("no-String key (" ⧺ show k ⧺ ")")
+                             else Nothing
 validType _ = Nothing
 
 check ∷ String → String
