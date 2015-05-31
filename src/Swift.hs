@@ -2,7 +2,7 @@
 module Swift where
 
 import Data.List (intercalate)
-import Data.Maybe (fromJust)
+import Data.Maybe (fromMaybe)
 
 import Static
 import Language hiding (generate)
@@ -43,7 +43,7 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
         conforms | (Just s) ← super = jsonProtocols ⧺ ", " ⧺ s
                  | otherwise = jsonProtocols
                  where jsonProtocols = ": JSONEncodable, JSONDecodable"
-        equatable = let protocols = map trim (separateBy ',' (fromJust super))
+        equatable = let protocols = map trim (separateBy ',' (fromMaybe [] super))
                     in if "Equatable" ∈ protocols then equals else []
         equals = "public func == (lhs: " ⧺ name ⧺ " , rhs: " ⧺ name ⧺ " ) -> Bool { "
                  ⧺ "return lhs.json.description == rhs.json.description }\n"

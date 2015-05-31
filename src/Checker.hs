@@ -4,8 +4,8 @@ module Checker where
 
 import Control.Monad (mplus)
 import Control.Arrow (second)
+import Data.Maybe (fromMaybe, fromJust)
 import Data.Char (isAlphaNum)
-import Data.Maybe (fromJust)
 import Text.Printf (printf)
 
 import Util
@@ -36,9 +36,9 @@ validHeadOrProto (Proto (n, rrt, nm)) = validName nm
 
 validName nm = if all isAlphaNum nm then Nothing
                else Just ("invalid name " ⧺ nm)
-validSuper (fromJust → sup) = if all isAlphaNum names then Nothing
-                              else Just ("invalid proto " ⧺ sup)
-  where names = separateBy ',' sup ≫= trim
+validSuper sup = if all isAlphaNum names then Nothing
+                 else Just ("invalid proto " ⧺ fromJust sup)
+  where names = separateBy ',' (fromMaybe [] sup) ≫= trim
 validType (Dictionary k _) = if k ≠ TypeName "String"
                              then Just ("no-String key (" ⧺ show k ⧺ ")")
                              else Nothing
