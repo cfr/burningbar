@@ -34,8 +34,9 @@ validHeadOrProto (Header (nm, sup)) = validName nm `mplus` validSuper sup
 validHeadOrProto (Proto (n, rrt, nm)) = validName nm
                                 `mplus` validType (parseType rrt)
 
-validName nm = if all isAlphaNum nm then Nothing
+validName nm = if all isSwiftId nm then Nothing
                else Just ("invalid name " ⧺ nm)
+isSwiftId c = isAlphaNum c ∨ (c ≡ '_')
 validSuper sup = if all isAlphaNum names then Nothing
                  else Just ("invalid proto " ⧺ fromJust sup)
   where names = separateBy ',' (fromMaybe [] sup) ≫= trim

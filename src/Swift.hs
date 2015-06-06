@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE UnicodeSyntax, CPP #-}
 module Swift where
 
 import Data.List (intercalate)
@@ -49,23 +49,26 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
                  ⧺ "return lhs.json.description == rhs.json.description }\n"
         vars' = Variable "json" (TypeName "[String : AnyObject]") Nothing : vars
         create = s 4 ⧺ "static func create" ⧺ list curriedArg "" vars' ⧺ " -> " ⧺ name ⧺ " {\n"
-                 ⧺ s 8 ⧺ "return " ⧺ name ⧺ "(" ⧺ list passArg ", " vars' ⧺ ")\n"
-                 ⧺ s 4 ⧺ "}\n"
+                 ⧺ s 8 ⧺ "return " ⧺ name ⧺ "(json" ⧺ (if null vars then "" else ", ")
+                 ⧺ list passArg ", " vars ⧺ ")\n" ⧺ s 4 ⧺ "}\n"
         passArg (Variable n _ _) = n ⧺ ": " ⧺ n
         curriedArg (Variable n t _) = "(" ⧺ n ⧺ ": " ⧺ fromType t ⧺ ")"
         optInit = s 4 ⧺ "public init?(json: [String : AnyObject]) {\n"
                   ⧺ s 8 ⧺ "let (c, json) = (" ⧺ name ⧺ ".create(json), json)\n"
-                  ⧺ batchOps vars 1 ⧺ s 8 ⧺ "return nil\n" ⧺ s 4 ⧺ "}\n"
+                  ⧺ batchOps vars 0 ⧺ s 4 ⧺ "}\n"
         mapVar (Variable n (Optional t) dv) = "~~? \"" ⧺ n ⧺ "\"" -- TODO: use default value
         mapVar (Variable n _ _) = "~~ \"" ⧺ n ⧺ "\""
-        batchOps vars l = let ind = 6 + 2*l in if length vars > 4
+        maxOpsInS = 3 -- NOTE: swiftc can't parse long op chains, batchOps should be list mapVar " "
+        batchOps [] 0 = s 8 ⧺ "self = c; return\n"
+        batchOps vars 0 = batchOps vars 1 ⧺ s 8 ⧺ "return nil\n"
+        batchOps vars l = let ind = 6 + 2*l in if length vars > maxOpsInS
              then s ind ⧺ "if let (c" ⧺ n_ l ⧺ ", json) " ⧺ "= (c" ⧺ n_ (l-1) ⧺ ", json) "
-                  ⧺ " " ⧺ list mapVar " " (take 3 vars) ⧺ " {\n" -- NOTE: swiftc can't parse long op chains
-                  ⧺ batchOps (drop 3 vars) (l+1) ⧺ s ind ⧺ "}\n" -- should be `ops = list mapVar " "`
+                  ⧺ " " ⧺ list mapVar " " (take maxOpsInS vars) ⧺ " {\n" ⧺ dshow (take maxOpsInS vars)
+                  ⧺ batchOps (drop maxOpsInS vars) (l+1) ⧺ s ind ⧺ "}\n"
              else s ind ⧺ "if let c" ⧺ n_ l ⧺ " = (c" ⧺ n_ (l-1) ⧺ ", json)"
                   ⧺ " " ⧺ list mapVar " " vars ⧺ " { self = c" ⧺ n_ l ⧺ "; return }\n"
-        initDecl = s 4 ⧺ "public init(" ⧺ list arg ", " vars' ⧺ ") {\n"
-                   ⧺ s 8 ⧺ list initVar "; " vars'
+        initDecl = s 4 ⧺ "public init(_ json: [String : AnyObject]" ⧺ (if null vars then "" else ", ")
+                   ⧺ list arg ", " vars ⧺ ") {\n" ⧺ s 8 ⧺ list initVar "; " vars'
                    ⧺ "; self.Name = \"" ⧺ name ⧺ "\"\n" ⧺ s 4 ⧺ "}\n"
         initVar (Variable n _ _) = "self." ⧺ n ⧺ " = " ⧺ n
         arg (Variable n t _) = n ⧺ ": " ⧺ fromType t
@@ -75,6 +78,12 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
         staticName (Variable n _ _) = s 4 ⧺ "public static let " ⧺ n ⧺ " = \"" ⧺ n ⧺ "\""
         varDecl (Variable n t dv) = s 4 ⧺ "public let " ⧺ n ⧺ ": " ⧺ fromType t ⧺ defVal ⧺ "\n"
                     where defVal = "" -- maybe "" (" = " ⧺) dv
+dshow x =
+#ifdef DEBUG
+    "/* " ⧺ show x ⧺ " */\n"
+#else
+    []
+#endif
 
 list ∷ (α → String) → String → [α] → String
 list gen separator = intercalate separator ∘ map gen

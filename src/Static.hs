@@ -10,17 +10,20 @@ intDefs protoName name methods = "\nimport Foundation\n\
 \    func cancel(token: CancellationToken)\n\
 \    func cast(method: String, arguments: [String : AnyObject])\n\
 \    func listen(event: String,\n\
-\                completion: [String : AnyObject] -> Void) -> CancellationToken\n\
+\                listener: [String : AnyObject] -> Void) -> CancellationToken\n\
 \    func call(method: String, arguments: [String : AnyObject],\n\
 \              completion: [String : AnyObject] -> Void) -> CancellationToken\n\
 \}\n\n\
 \public class " ⧺ name ⧺ " <T: " ⧺ protoName ⧺ "> {\n\
 \    public func cancel(token: T.CancellationToken) { transport.cancel(token) }\n\
 \    public func listen(event: String,\n\
-\        completion: [String : AnyObject] -> Void) -> T.CancellationToken \
-\{ return transport.listen(event, completion: completion) }\n\
+\        listener: [String : AnyObject] -> Void) -> T.CancellationToken \
+\{ return transport.listen(event, listener: listener) }\n\
 \    public func cast(method: String, arguments: [String : AnyObject]) \
 \{ transport.cast(method, arguments: arguments) }\n\
+\    func call(method: String, arguments: [String : AnyObject],\n\
+\              completion: [String : AnyObject] -> Void) -> T.CancellationToken\n\
+\      { return transport.call(method, arguments: arguments, completion: completion) }\n\
 \    public init(transport: T) { self.transport = transport }\n\
 \    public let transport: T\n\n" ⧺ methods ⧺ "}\n"
 

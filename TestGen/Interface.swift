@@ -1,4 +1,4 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.6.1-α
+// 📏🔥 Generated with http://j.mp/burnbar v0.6.6-α
 
 import Foundation
 
@@ -8,7 +8,7 @@ public protocol Transport {
     func cancel(token: CancellationToken)
     func cast(method: String, arguments: [String : AnyObject])
     func listen(event: String,
-                completion: [String : AnyObject] -> Void) -> CancellationToken
+                listener: [String : AnyObject] -> Void) -> CancellationToken
     func call(method: String, arguments: [String : AnyObject],
               completion: [String : AnyObject] -> Void) -> CancellationToken
 }
@@ -16,8 +16,11 @@ public protocol Transport {
 public class Interface <T: Transport> {
     public func cancel(token: T.CancellationToken) { transport.cancel(token) }
     public func listen(event: String,
-        completion: [String : AnyObject] -> Void) -> T.CancellationToken { return transport.listen(event, completion: completion) }
+        listener: [String : AnyObject] -> Void) -> T.CancellationToken { return transport.listen(event, listener: listener) }
     public func cast(method: String, arguments: [String : AnyObject]) { transport.cast(method, arguments: arguments) }
+    func call(method: String, arguments: [String : AnyObject],
+              completion: [String : AnyObject] -> Void) -> T.CancellationToken
+      { return transport.call(method, arguments: arguments, completion: completion) }
     public init(transport: T) { self.transport = transport }
     public let transport: T
 

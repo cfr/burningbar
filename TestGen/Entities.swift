@@ -1,4 +1,4 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.6.1-α
+// 📏🔥 Generated with http://j.mp/burnbar v0.6.6-α
 
 import Foundation
 
@@ -16,11 +16,11 @@ public struct Credentials: JSONEncodable, JSONDecodable, Equatable, YourProto {
         if let c_ = (c, json) ~~ "login" ~~ "pass" { self = c_; return }
         return nil
     }
-    public init(json: [String : AnyObject], login: String, pass: String) {
+    public init(_ json: [String : AnyObject], login: String, pass: String) {
         self.json = json; self.login = login; self.pass = pass; self.Name = "Credentials"
     }
     static func create(json: [String : AnyObject])(login: String)(pass: String) -> Credentials {
-        return Credentials(json: json, login: login, pass: pass)
+        return Credentials(json, login: login, pass: pass)
     }
 }
 public func == (lhs: Credentials , rhs: Credentials ) -> Bool { return lhs.json.description == rhs.json.description }
@@ -47,11 +47,11 @@ public struct User: JSONEncodable, JSONDecodable, YourProto {
         }
         return nil
     }
-    public init(json: [String : AnyObject], age: Int?, photoURLs: [String], creds: Credentials?, friends: [String: User], name: String) {
+    public init(_ json: [String : AnyObject], age: Int?, photoURLs: [String], creds: Credentials?, friends: [String: User], name: String) {
         self.json = json; self.age = age; self.photoURLs = photoURLs; self.creds = creds; self.friends = friends; self.name = name; self.Name = "User"
     }
     static func create(json: [String : AnyObject])(age: Int?)(photoURLs: [String])(creds: Credentials?)(friends: [String: User])(name: String) -> User {
-        return User(json: json, age: age, photoURLs: photoURLs, creds: creds, friends: friends, name: name)
+        return User(json, age: age, photoURLs: photoURLs, creds: creds, friends: friends, name: name)
     }
 }
 

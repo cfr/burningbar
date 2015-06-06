@@ -11,7 +11,7 @@ class Printer: Transport {
     }
     func cancel(token: CancellationToken) { }
     func cast(method: String, arguments: [String : AnyObject]) { }
-    func listen(event: String, completion: [String : AnyObject] -> Void) { }
+    func listen(event: String, listener: [String : AnyObject] -> Void) { }
 }
 
 let printer = Printer()
