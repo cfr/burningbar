@@ -3,7 +3,8 @@
 
 <!-- [![Available on Hackage][badge-hackage]][hackage]
      [![Gratipay](http://img.shields.io/gratipay/cfr.svg)][gratipay]
-     [![Stories in Ready](https://badge.waffle.io/cfr/burningbar.png?label=ready&title=Ready)](https://waffle.io/cfr/burningbar) -->
+     [![Stories in Ready](https://badge.waffle.io/cfr/burningbar.png?label=ready&title=Ready)](https://waffle.io/cfr/burningbar)
+     [![Circle CI](https://circleci.com/gh/cfr/burningbar.svg?style=svg)](https://circleci.com/gh/cfr/burningbar) -->
 
 Swift RPC generator.
 
