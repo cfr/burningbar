@@ -1,5 +1,4 @@
 {-# LANGUAGE ScopedTypeVariables, UnicodeSyntax, CPP, RecordWildCards #-}
-
 module Main where
 
 import Control.Exception (catch, SomeException)
@@ -49,10 +48,11 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("d", ["entities-file"], ReqArg (\a o → o {entFn = a}) "Entities.swift", "entities out filename")
   , ("s", ["spec-file"], ReqArg (\a o → o {spec = readFile a}) "spec.burnbar", "input spec file")
   , ("b", ["dynamicity-shield"], NoArg (\o → o {shield = True}), "accept weak-typed json")
+  , ("f", ["fucking-string"], NoArg (\o → o {shield = True}), "accept weak-typed json")
   , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix")
   , ("c", ["validate"], NoArg (\o → o {validate = True}), "validate spec, exit on error") ]
 
-use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsbpc]\n" ⧺ bbURL ⧺ version) options
+use _ = error $ usageInfo ("Usage: burningbar [-vhtirdsbfpc]\n" ⧺ bbURL ⧺ version) options
 ver _ = error $ bbURL ⧺ version
 
 createDir name = createDirectoryIfMissing True name `catch` handleEx
