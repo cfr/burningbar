@@ -9,7 +9,7 @@ import Data.Eq (Eq, (==), (/=))
 import Control.Category (Category, (.))
 import Control.Arrow (Arrow, (>>>), (***), (&&&))
 import Control.Monad (Monad, (>>=), (>>), (=<<))
-import Data.List ((++), elem, reverse, dropWhile,
+import Data.List ((++), elem, notElem, reverse, dropWhile,
                   stripPrefix, unfoldr, drop, break)
 import Data.Char (isSpace)
 import Data.Functor (fmap)
@@ -48,6 +48,8 @@ infixr 5 ⧺
 (⧺) = (++)
 (∈) ∷ Eq α ⇒ α → [α] → Bool
 (∈) = elem
+(∉) ∷ Eq α ⇒ α → [α] → Bool
+(∉) = notElem
 
 -- | remove spaces from the string ends
 -- >>> trim " \tsdf   "

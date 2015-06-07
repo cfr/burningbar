@@ -25,7 +25,7 @@ public struct Credentials: JSONEncodable, JSONDecodable, Equatable, YourProto {
 }
 public func == (lhs: Credentials , rhs: Credentials ) -> Bool { return lhs.json.description == rhs.json.description }
 
-public struct User: JSONEncodable, JSONDecodable, YourProto {
+public struct User: JSONEncodable, JSONDecodable, YourProto, Printable, Equatable {
     public let json: [String : AnyObject]
     public let age: Int?
     public let photoURLs: [String]
@@ -53,7 +53,9 @@ public struct User: JSONEncodable, JSONDecodable, YourProto {
     static func create(json: [String : AnyObject])(age: Int?)(photoURLs: [String])(creds: Credentials?)(friends: [String: User])(name: String) -> User {
         return User(json, age: age, photoURLs: photoURLs, creds: creds, friends: friends, name: name)
     }
+    public var description: String { return Name + ": " + json.description }
 }
+public func == (lhs: User , rhs: User ) -> Bool { return lhs.json.description == rhs.json.description }
 
 public protocol JSONEncodable {
     var json: [String : AnyObject] { get }

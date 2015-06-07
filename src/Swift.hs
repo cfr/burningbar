@@ -39,14 +39,17 @@ func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ list fromArg 
 struct ∷ Name → [Variable] → Maybe Typename → String
 struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
                          ⧺ concat decls ⧺ "}\n" ⧺ equatable
-  where decls = map varDecl vars' ⧺ [statics, optInit, initDecl, create]
+  where decls = map varDecl vars' ⧺ [statics, optInit, initDecl, create, description]
         conforms | (Just s) ← super = jsonProtocols ⧺ ", " ⧺ s
                  | otherwise = jsonProtocols
                  where jsonProtocols = ": JSONEncodable, JSONDecodable"
-        equatable = let protocols = map trim (separateBy ',' (fromMaybe [] super))
-                    in if "Equatable" ∈ protocols then equals else []
-        equals = "public func == (lhs: " ⧺ name ⧺ " , rhs: " ⧺ name ⧺ " ) -> Bool { "
-                 ⧺ "return lhs.json.description == rhs.json.description }\n"
+        protocols = map trim (separateBy ',' (fromMaybe [] super))
+        equatable = if "Equatable" ∉ protocols then [] else
+                       "public func == (lhs: " ⧺ name ⧺ " , rhs: " ⧺ name ⧺ " ) -> Bool { "
+                       ⧺ "return lhs.json.description == rhs.json.description }\n"
+        description = if "Printable" ∉ protocols then [] else -- TODO: move eq/desc to base
+                         s 4 ⧺ "public var description: String"
+                         ⧺ " { return Name + \": \" + json.description }\n"
         vars' = Variable "json" (TypeName "[String : AnyObject]") Nothing : vars
         create = s 4 ⧺ "static func create" ⧺ list curriedArg "" vars' ⧺ " -> " ⧺ name ⧺ " {\n"
                  ⧺ s 8 ⧺ "return " ⧺ name ⧺ "(json" ⧺ (if null vars then "" else ", ")

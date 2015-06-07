@@ -14,6 +14,15 @@
 -     rec name [super/protos]         - super-type, may be class or protocols list
 -      name varType [ = defaultValue] - same as arg, optional default value
 -      ...
+- # `Printable`/`Equatable` in protos adds `description`/(`==`) to struct.
+-
+- # Type grammar
+- type → array-type | dictionary-type | type-identifier | optional-type | primitive-type
+- returnType → type-identifier | Void
+- primitive-type → String | Int | Float | Bool | NSNumber
+- array-type → [ type ]
+- dictionary-type → { String : type }
+- optional-type → type ?
 -
 - # Examples:
 
@@ -23,7 +32,7 @@ rec Credentials Equatable, YourProto
    login String = "user"
    pass String
 
-rec User YourProto
+rec User YourProto, Printable, Equatable
     age Int?
     photoURLs [String]
     creds Credentials?
@@ -36,11 +45,3 @@ met user.login Void login
 met register Credentials
     username String
     password String
-
-- # Type grammar
-- type → array-type | dictionary-type | type-identifier | optional-type | primitive-type
-- returnType → type-identifier | Void
-- primitive-type → String | Int | Float | Bool | NSNumber
-- array-type → [ type ]
-- dictionary-type → { String : type }
-- optional-type → type ?

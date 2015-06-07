@@ -20,11 +20,8 @@ let i = Interface(transport: printer)
 i.register("u", password: "p", completion: { print($0) })
 i.ping() { _ in }
 
-let json = ["login":"l", "pass":"p"]
-
-let c = Credentials(json: json)
-let c_ = Credentials(json: json)
-
-c == c_
-
-print(c?.json)
+let cj = ["login":"l", "pass":"p"]
+let fj: [String: AnyObject] = ["photoURLs": ["a", "b"], "friends": [:], "name": "F"]
+let user = User(json: ["photoURLs": [], "creds": cj, "friends": ["f": fj], "name": "U"])
+user == User(json: fj)
+print(user)
