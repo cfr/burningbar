@@ -2,13 +2,12 @@
 module Main where
 
 import Control.Exception (catch, SomeException)
-import Control.Monad (when, liftM)
+import Control.Monad (when)
 import Prelude hiding (catch)
 import System.Environment (getArgs)
 import System.Console.GetOpt (getOpt, OptDescr(..), ArgOrder(..), ArgDescr(..), usageInfo)
 import System.Directory (createDirectoryIfMissing)
 import System.FilePath.Posix ((</>))
-import System.Process (readProcess)
 
 import Language
 import Parse
@@ -17,16 +16,12 @@ import Util
 import Checker
 
 bbURL = "http://j.mp/burnbar"
-version = " v0.6.6-α"
+version = " v0.6.7-α"
 
 main = do
   args ← getArgs
   let (actions, _, _) = getOpt RequireOrder options args
-  let options = foldr ($) defaults actions
-  changed ← diff options `catch` handleEx
-  when changed (gen options)
-
-gen (Options {..}) = do
+  let (Options {..}) = foldr ($) defaults actions
   let copy = (("// 📏🔥 Generated with " ⧺ bbURL ⧺ version ⧺ "\n") ⧺)
   let write = (∘ copy) ∘ writeFile ∘ (root </>)
   spec ← readFile spec
@@ -39,10 +34,9 @@ gen (Options {..}) = do
 #endif
 
 data Options = Options { transport ∷ Typename, interface ∷ Typename , spec ∷ String
-                       , root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath
-                       , shield ∷ Bool, diff ∷ IO Bool}
+                       , root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath, shield ∷ Bool}
 
-defaults = Options "Transport" "Interface" "spec.burnbar" "./" entFn intFn False (return True)
+defaults = Options "Transport" "Interface" "spec.burnbar" "./" entFn intFn False
   where { intFn = "Interface.swift"; entFn = "Entities.swift" }
 
 options ∷ [OptDescr (Options → Options)]
@@ -55,15 +49,11 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("s", ["spec-file"], ReqArg (\a o → o {spec = a}) "spec.burnbar", "input spec file")
   , ("b", ["dynamicity-shield"], NoArg (\o → o {shield = True}), "accept weak-typed json")
   , ("f", ["fucking-string"], NoArg (\o → o {shield = True}), "accept weak-typed json")
-  , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix")
-  , ("d", ["git-diff"], NoArg (\o → o { diff = gitDiff o}), "gen only on $ git diff spec") ]
+  , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix") ]
 
 use _ = error $ usageInfo ("Usage: burningbar [-vtnirsbfpcd]\n" ⧺ bbURL ⧺ version) options
 ver _ = error $ bbURL ⧺ version
-gitDiff ∷ Options → IO Bool
-gitDiff (Options {..}) = readGit ≫= return ∘ null
-    where readGit = readProcess "git" ["diff --name-only", spec] []
 
-createDir name = createDirectoryIfMissing True name
+createDir = createDirectoryIfMissing True
 handleEx (e ∷ SomeException) = error (show e)
 

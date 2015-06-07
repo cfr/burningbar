@@ -85,7 +85,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E63C00561AED576C00F21E64 /* Build configuration list for PBXNativeTarget "TestGen" */;
 			buildPhases = (
-				E63C005C1AED579500F21E64 /* ShellScript */,
+				E63C005C1AED579500F21E64 /* Gen */,
 				E63C003B1AED576C00F21E64 /* Sources */,
 				E63C003C1AED576C00F21E64 /* Frameworks */,
 				E63C003D1AED576C00F21E64 /* Headers */,
@@ -142,18 +142,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		E63C005C1AED579500F21E64 /* ShellScript */ = {
+		E63C005C1AED579500F21E64 /* Gen */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = Gen;
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "../burningbar --check --dynamicity-shield --spec-file ../../spec.burnbar";
+			shellScript = "S=../../spec.burnbar\nD=$(git diff --name-only $S)\nif [ -n \"$D\" ]\nthen\n../burningbar --check --dynamicity-shield --spec-file $S\nelse\necho \"Skipping\"\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 
