@@ -48,8 +48,8 @@ See help for more options:
 
 ## [Spec syntax][Spec]
 
-   [Interface.swift]: TestGen/Interface.swift
-   [Entities.swift]: TestGen/Entities.swift
+   [Interface.swift]: xcode/TestGen/Interface.swift
+   [Entities.swift]: xcode/TestGen/Entities.swift
    [Spec]: spec.burnbar
    [license]: UNLICENSE
    [badge-license]: https://img.shields.io/badge/license-Unlicense-brightgreen.svg

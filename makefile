@@ -13,7 +13,7 @@ endif
 
 all: deps
 	mkdir -p out
-	ghc -O2 --make src/BurningBar.hs -isrc -outputdir out -o TestGen/burningbar
+	ghc -O2 --make src/BurningBar.hs -isrc -outputdir out -o xcode/burningbar
 
 debug: lint
 	ghci -isrc src/Language.hs src/BurningBar.hs src/Parse.hs src/Swift.hs -DDEBUG
@@ -26,7 +26,7 @@ test:
 	cabal install --only-dependencies --enable-tests && cabal build && cabal test
 
 run: all
-	open ./TestGen.xcworkspace
+	open xcode/TestGen.xcworkspace
 
 update:
 	git pull -u

@@ -16,7 +16,7 @@
 		E60AFB781B07782F005B20D0 /* YourProto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YourProto.swift; sourceTree = "<group>"; };
 		E63C00401AED576C00F21E64 /* TestGen.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestGen.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E63C00441AED576C00F21E64 /* TestGen.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TestGen.plist; sourceTree = "<group>"; };
-		E64C60FB1AFEE70000D2BC52 /* spec.burnbar */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.burnbar; path = ../../spec.burnbar; sourceTree = "<group>"; };
+		E64C60FB1AFEE70000D2BC52 /* spec.burnbar */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.burnbar; path = ../../../spec.burnbar; sourceTree = "<group>"; };
 		E687EA6E1AFB2D40004360E1 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = SOURCE_ROOT; };
 		E687EA6F1AFB2D40004360E1 /* Interface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interface.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -153,7 +153,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "./burningbar --check --dynamicity-shield --spec-file ../spec.burnbar";
+			shellScript = "../burningbar --check --dynamicity-shield --spec-file ../../spec.burnbar";
 		};
 /* End PBXShellScriptBuildPhase section */
 

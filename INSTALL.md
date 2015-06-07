@@ -11,7 +11,7 @@ Tested on OS X and Ubuntu.
 
     $ make
 
-Will try to install dependency (ghc, using [brew.sh](http://brew.sh) or apt) and compile `./burningbar` executable.
+Will try to install dependency (ghc, using [brew.sh](http://brew.sh) or apt) and compile `./xcode/burningbar` executable.
 Repo provides OS X binary to use with Xcode.
 
 ### [Cabal](burningbar.cabal)
@@ -44,9 +44,9 @@ Requires ghc(i) (or any other interpreter providing `runhaskell` cmd).
 
 Generator integrated as a "Run Script" build phase in example Xcode workspace.
 
-    $ open TestGen.xcworkspace
+    $ open xcode/TestGen.xcworkspace
 
 Build TestGen framework to run generator and compile generated module.
-See example [`Playground`](TestGen/TestGen.playground/Contents.swift).
+See example [`Playground`](xcode/TestGen/TestGen.playground/Contents.swift).
 Drop `TestGen` project into your workspace to embed generator.
 
