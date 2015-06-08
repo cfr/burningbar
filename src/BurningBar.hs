@@ -16,7 +16,7 @@ import Util
 import Checker
 
 bbURL = "http://j.mp/burnbar"
-version = " v0.6.7-α"
+version = " v0.6.8-α"
 
 main = do
   args ← getArgs

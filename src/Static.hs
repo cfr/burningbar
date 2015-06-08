@@ -39,12 +39,9 @@ entDefs = "\n\
 \// JSON mapping operators\n\
 \\n\
 \typealias JSON = [String : AnyObject]\n\
-\\n\
 \infix operator ~~ { associativity left }\n\
 \infix operator ~~? { associativity left }\n\
-\\n\
 \// Generic\n\
-\\n\
 \func ~~ <A, B, C>(t: (A -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
 \    if let (con, json) = t, a = json[key] as? A { return (con(a), json) }\n\
 \    else { return nil }\n\
@@ -62,7 +59,6 @@ entDefs = "\n\
 \    else { return nil }\n\
 \}\n\
 \// NOTE: collections of primitives (i. e. [String] and [String : NSNumber]) matched by generics\n\
-\\n\
 \// Overloaded for newtypes\n\
 \func cJS<A: JSONDecodable>(a: [String : AnyObject]) -> A? { return A(json: a) }\n\
 \\n\
@@ -127,14 +123,14 @@ entDefs = "\n\
 \func ~~ <A: JSONDecodable, B, C>(t: ([String : A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
 \    if let (con, json) = t, jsond = json[key] as? [String : JSON] {\n\
 \        var dict = [String : A]();\n\
-\        for (key, js) in jsond { dict[key] = cJS(js) }\n\
+\        for (key, js) in jsond { dict[key] = cJS(js) as A? }\n\
 \        return (con(dict), json)\n\
 \    } else { return nil }\n\
 \}\n\
 \func ~~ <A: JSONDecodable, B>(t: ([String : A] -> B, JSON)?, key: String) -> B? {\n\
 \    if let (con, json) = t, jsond = json[key] as? [String : JSON] {\n\
 \        var dict = [String : A]();\n\
-\        for (key, js) in jsond { dict[key] = cJS(js) }\n\
+\        for (key, js) in jsond { dict[key] = cJS(js) as A? }\n\
 \        return con(dict)\n\
 \    } else { return nil }\n\
 \}\n\
@@ -142,7 +138,7 @@ entDefs = "\n\
 \    if let (con, json) = t {\n\
 \        if let jsond = json[key] as? [String : JSON] {\n\
 \            var dict = [String : A]();\n\
-\            for (key, js) in jsond { dict[key] = cJS(js) }\n\
+\            for (key, js) in jsond { dict[key] = cJS(js) as A? }\n\
 \            return (con(dict), json)\n\
 \        } else { return (con(nil), json) }\n\
 \    } else { return nil }\n\
@@ -151,17 +147,16 @@ entDefs = "\n\
 \    if let (con, json) = t {\n\
 \        if let jsond = json[key] as? [String : JSON] {\n\
 \            var dict = [String : A]();\n\
-\            for (key, js) in jsond { dict[key] = cJS(js) }\n\
+\            for (key, js) in jsond { dict[key] = cJS(js) as A? }\n\
 \            return con(dict)\n\
 \        } else { return con(nil) }\n\
 \    } else { return nil }\n\
 \}\n"
 
 overloaded = "// Overloaded for JSON values\n\
-\\n\
-\protocol JSONValueDecodable {\n\
-\    func fromJSONVal<A>(jv: AnyObject) -> A // NOTE: returns default value\n\
-\    func fromOptJSONVal<A>(ojv: AnyObject?) -> A?\n\
+\public protocol JSONValueDecodable {\n\
+\    static func fromJSONVal<A>(jv: AnyObject) -> A // NOTE: returns default value\n\
+\    static func fromOptJSONVal<A>(ojv: AnyObject?) -> A?\n\
 \}\n\
 \func toInt(o: AnyObject) -> Int {\n\
 \    if let o = o as? Int { return o }\n\
@@ -172,8 +167,8 @@ overloaded = "// Overloaded for JSON values\n\
 \    return 0\n\
 \}\n\
 \extension Int {\n\
-\    func fromJSONVal(js: AnyObject) -> Int { return toInt(js) }\n\
-\    func fromOptJSONVal(jso: AnyObject?) -> Int? {\n\
+\    static func fromJSONVal(js: AnyObject) -> Int { return toInt(js) }\n\
+\    static func fromOptJSONVal(jso: AnyObject?) -> Int? {\n\
 \        if let js: AnyObject = jso { return toInt(js) } else { return nil }\n\
 \    }\n\
 \}\n\
@@ -181,7 +176,7 @@ overloaded = "// Overloaded for JSON values\n\
 \    struct Static { static var df = NSDateFormatter() { didSet {\n\
 \        df.locale = NSLocale(localeIdentifier: \"en_US_POSIX\")\n\
 \        df.timeZone = .localTimeZone()\n\
-\        df.dateFormat = \"yyyy-MM-dd'T'HH:mm:ss.SSSZ\" } } }\n\
+\        df.dateFormat = \"yyyy-MM-dd'T'HH:mm:ssZZZZZ\" } } }\n\
 \    if let o = o as? Int { return NSDate(timeIntervalSince1970: Double(o)) }\n\
 \    if let o = o as? Float { return NSDate(timeIntervalSince1970: Double(o)) }\n\
 \    if let o = o as? Double { return NSDate(timeIntervalSince1970: o) }\n\
@@ -189,14 +184,14 @@ overloaded = "// Overloaded for JSON values\n\
 \    return NSDate()\n\
 \}\n\
 \extension NSDate {\n\
-\    func fromJSONVal(js: AnyObject) -> NSDate { return toNSDate(js) }\n\
-\    func fromOptJSONVal(jso: AnyObject?) -> NSDate? {\n\
+\    static func fromJSONVal(js: AnyObject) -> NSDate { return toNSDate(js) }\n\
+\    static func fromOptJSONVal(jso: AnyObject?) -> NSDate? {\n\
 \        if let js: AnyObject = jso { return toNSDate(js) } else { return nil }\n\
 \    }\n\
 \}\n\
 \extension String {\n\
-\    func fromJSONVal(js: AnyObject) -> String { return js.description }\n\
-\    func fromOptJSONVal(jso: AnyObject?) -> String? {\n\
+\    static func fromJSONVal(js: AnyObject) -> String { return js.description }\n\
+\    static func fromOptJSONVal(jso: AnyObject?) -> String? {\n\
 \        if let js: AnyObject = jso { return js.description } else { return nil }\n\
 \    }\n\
 \}\n\
@@ -210,13 +205,13 @@ overloaded = "// Overloaded for JSON values\n\
 \    return false\n\
 \}\n\
 \extension Bool {\n\
-\    func fromJSONVal(js: AnyObject) -> Bool { return toBool(js) }\n\
-\    func fromOptJSONVal(jso: AnyObject?) -> Bool? {\n\
+\    static func fromJSONVal(js: AnyObject) -> Bool { return toBool(js) }\n\
+\    static func fromOptJSONVal(jso: AnyObject?) -> Bool? {\n\
 \        if let js: AnyObject = jso { return toBool(js) } else { return nil }\n\
 \    }\n\
 \}\n\
-\func cJSV<A: JSONValueDecodable>(a: AnyObject) -> A { return fromJSONVal(a) }\n\
-\func cJSVO<A: JSONValueDecodable>(a: AnyObject?) -> A? { return fromOptJSONVal(a) }\n\
+\func cJSV<A: JSONValueDecodable>(a: AnyObject) -> A { return A.fromJSONVal(a) }\n\
+\func cJSVO<A: JSONValueDecodable>(a: AnyObject?) -> A? { return A.fromOptJSONVal(a) }\n\
 \\n\
 \func ~~ <A: JSONValueDecodable, B, C>(t: (A -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
 \    if let (con, json) = t, a: AnyObject = json[key] { return (con(cJSV(a)), json) }\n\
@@ -261,14 +256,14 @@ overloaded = "// Overloaded for JSON values\n\
 \func ~~ <A: JSONValueDecodable, B, C>(t: ([String : A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
 \    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
 \        var dict = [String : A]();\n\
-\        for (key, val) in jsond { dict[key] = cJSV(val) }\n\
+\        for (key, val) in jsond { dict[key] = cJSV(val) as A }\n\
 \        return (con(dict), json)\n\
 \    } else { return nil }\n\
 \}\n\
 \func ~~ <A: JSONValueDecodable, B>(t: ([String : A] -> B, JSON)?, key: String) -> B? {\n\
 \    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
 \        var dict = [String : A]();\n\
-\        for (key, val) in jsond { dict[key] = cJSV(val) }\n\
+\        for (key, val) in jsond { dict[key] = cJSV(val) as A }\n\
 \        return con(dict)\n\
 \    } else { return nil }\n\
 \}\n\
@@ -276,7 +271,7 @@ overloaded = "// Overloaded for JSON values\n\
 \    if let (con, json) = t {\n\
 \        if let jsond = json[key] as? [String : AnyObject] {\n\
 \            var dict = [String : A]();\n\
-\            for (key, val) in jsond { dict[key] = cJSV(val) }\n\
+\            for (key, val) in jsond { dict[key] = cJSV(val) as A }\n\
 \            return (con(dict), json)\n\
 \        } else { return (con(nil), json) }\n\
 \    } else { return nil }\n\
@@ -285,7 +280,7 @@ overloaded = "// Overloaded for JSON values\n\
 \    if let (con, json) = t {\n\
 \        if let jsond = json[key] as? [String : AnyObject] {\n\
 \            var dict = [String : A]();\n\
-\            for (key, val) in jsond { dict[key] = cJSV(val) }\n\
+\            for (key, val) in jsond { dict[key] = cJSV(val) as A }\n\
 \            return con(dict)\n\
 \        } else { return con(nil) }\n\
 \    } else { return nil }\n\

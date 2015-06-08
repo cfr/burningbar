@@ -21,9 +21,12 @@ i.register("u", password: "p", completion: { print($0) })
 i.ping() { _ in }
 
 let cj = ["login":"l", "pass":"p"]
-let fj: [String: AnyObject] = ["photoURLs": ["a", "b"], "friends": [:], "name": "F"]
-let user = User(json: ["photoURLs": [], "creds": cj, "friends": ["f": fj], "name": "U"])
+let phpArr = [1 as AnyObject, "b" as AnyObject]
+let fj: [String: AnyObject] = ["photoURLs": phpArr, "friends": [:], "name": "A",
+                               "birth": "1986-03-25T11:30:00+04:00"]
+let user = User(json: ["photoURLs": [], "creds": cj, "friends": ["f": fj], "name": "B"])
 user == User(json: fj)
 print(user)
+if let b = user?.friends.values.array.last?.birth { print(b) }
 
 // TODO: overloading mapping operator example

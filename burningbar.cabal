@@ -1,5 +1,5 @@
 name:               burningbar
-version:            0.6.7-α
+version:            0.6.8-α
 synopsis:           Swift RPC generator
 description:
     Tool and service to generate Swift JSON mappers and RPC functions.

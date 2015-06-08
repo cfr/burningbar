@@ -1,6 +1,7 @@
 - comment starts with dash
 -
 - # Method
+-
 - defined with met
 - name is optional, remoteName is used if missing
 - see type and return type grammar below
@@ -14,18 +15,21 @@
 -     rec name [super/protos]         - super-type, may be class or protocols list
 -      name varType [ = defaultValue] - same as arg, optional default value
 -      ...
-- # `Printable`/`Equatable` in protos adds `description`/(`==`) to struct.
+-
+- `Printable`/`Equatable` in protos adds `description`/(`==`) to struct.
 -
 - # Type grammar
+-
 - type → array-type | dictionary-type | type-identifier | optional-type | primitive-type
 - returnType → type-identifier | Void
 - primitive-type → String | NSNumber | overloaded
-- overloaded → Int | Float | Bool | NSDate
+- overloaded → Int | Float | Bool | NSDate # enabled with --overloaded flag
 - array-type → [ type ]
 - dictionary-type → { String : type }
 - optional-type → type ?
 -
 - # Examples:
+-
 
 met ping Void
 
@@ -35,10 +39,11 @@ rec Credentials Equatable, YourProto
 
 rec User YourProto, Printable, Equatable
     age Int?
-    photoURLs [String]
+    photoURLs [String]?
     creds Credentials?
     friends { String : User }
     name String
+    birth NSDate?
 
 met user.login Void login
    creds Credentials

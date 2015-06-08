@@ -154,7 +154,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "S=../../spec.burnbar\nD=$(git diff --name-only $S)\nif [ -n \"$D\" ]\nthen\n../burningbar --check --dynamicity-shield --spec-file $S\nelse\necho \"Skipping\"\nfi";
+			shellScript = "S=../../spec.burnbar\nD=$(git diff --name-only $S)\nif [ -n \"$D\" ]\nthen\n../burningbar --overload --spec-file $S\nelse\necho \"Skipping\"\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 
