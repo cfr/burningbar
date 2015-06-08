@@ -26,7 +26,7 @@ main = do
   let write = (∘ copy) ∘ writeFile ∘ (root </>)
   spec ← readFile spec
   let errors = check spec in when (errors ≠ []) (error errors)
-  let (ent, int) = translator (swift shield transport interface) (parse spec)
+  let (ent, int) = translator (swift overload transport interface) (parse spec)
   (createDir root ≫ write entFn ent ≫ write intFn int)
       `catch` handleEx
 #ifdef DEBUG
@@ -34,7 +34,7 @@ main = do
 #endif
 
 data Options = Options { transport ∷ Typename, interface ∷ Typename , spec ∷ String
-                       , root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath, shield ∷ Bool}
+                       , root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath, overload ∷ Bool}
 
 defaults = Options "Transport" "Interface" "spec.burnbar" "./" entFn intFn False
   where { intFn = "Interface.swift"; entFn = "Entities.swift" }
@@ -47,8 +47,8 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("i", ["interface-file"], ReqArg (\a o → o {intFn = a}) "Interface.swift", "interface out filename")
   , ("r", ["entities-file"], ReqArg (\a o → o {entFn = a}) "Entities.swift", "entities out filename")
   , ("s", ["spec-file"], ReqArg (\a o → o {spec = a}) "spec.burnbar", "input spec file")
-  , ("b", ["dynamicity-shield"], NoArg (\o → o {shield = True}), "accept weak-typed json")
-  , ("f", ["fucking-string"], NoArg (\o → o {shield = True}), "accept weak-typed json")
+  , ("b", ["overload"], NoArg (\o → o {overload = True}), "accept weak-typed json")
+  , ("f", ["fucking-string"], NoArg (\o → o {overload = True}), "accept weak-typed json")
   , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix") ]
 
 use _ = error $ usageInfo ("Usage: burningbar [-vtnirsbfpcd]\n" ⧺ bbURL ⧺ version) options

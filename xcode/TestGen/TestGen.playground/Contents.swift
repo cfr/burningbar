@@ -25,3 +25,5 @@ let fj: [String: AnyObject] = ["photoURLs": ["a", "b"], "friends": [:], "name": 
 let user = User(json: ["photoURLs": [], "creds": cj, "friends": ["f": fj], "name": "U"])
 user == User(json: fj)
 print(user)
+
+// TODO: overloading mapping operator example

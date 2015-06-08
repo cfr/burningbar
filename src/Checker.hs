@@ -37,13 +37,16 @@ validHeadOrProto (Proto (n, rrt, nm)) = validName nm
 validName nm = if all isSwiftId nm then Nothing
                else Just ("invalid name " ⧺ nm)
 isSwiftId c = isAlphaNum c ∨ (c ≡ '_')
-validSuper sup = if all isAlphaNum names then Nothing
+validSuper sup = if all isSwiftId names then Nothing
                  else Just ("invalid proto " ⧺ fromJust sup)
   where names = separateBy ',' (fromMaybe [] sup) ≫= trim
+
 validType (Dictionary k _) = if k ≠ TypeName "String"
                              then Just ("not String key found (" ⧺ show k ⧺ ")")
                              else Nothing
+validType (TypeName t) = validName t
 validType _ = Nothing
+
 
 check ∷ String → String
 check = (≫= valid) ∘ enumerateLines
@@ -57,7 +60,6 @@ printError (n, Just error) = printf "spec line %03d: %s.\n" n error
 printError _ = ""
 
 -- TODO:
--- only optional newtypes in recs
 -- no optionals in met args
 -- validate paragraphs or ignore?
 -- check matching parens

@@ -19,7 +19,8 @@
 - # Type grammar
 - type → array-type | dictionary-type | type-identifier | optional-type | primitive-type
 - returnType → type-identifier | Void
-- primitive-type → String | Int | Float | Bool | NSNumber
+- primitive-type → String | NSNumber | overloaded
+- overloaded → Int | Float | Bool | NSDate
 - array-type → [ type ]
 - dictionary-type → { String : type }
 - optional-type → type ?

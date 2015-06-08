@@ -9,9 +9,9 @@ import Language hiding (generate)
 import Util
 
 swift ∷ Bool → Typename → Typename → Language
-swift shield transport interface = Language generate wrapEnts (intDefs transport interface)
+swift overload transport interface = Language generate wrapEnts (intDefs transport interface)
   where wrapEnts e = "\nimport Foundation\n" ⧺ e ⧺ entDefs
-                     ⧺ if shield then dynamicityShield else []
+                     ⧺ if overload then overloaded else []
 
 generate ∷ Declaration → String
 generate (Record name vars super) = struct name vars super

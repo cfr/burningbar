@@ -43,165 +43,126 @@ entDefs = "\n\
 \infix operator ~~ { associativity left }\n\
 \infix operator ~~? { associativity left }\n\
 \\n\
+\// Generic\n\
+\\n\
 \func ~~ <A, B, C>(t: (A -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
 \    if let (con, json) = t, a = json[key] as? A { return (con(a), json) }\n\
 \    else { return nil }\n\
 \}\n\
-\\n\
-\func ~~ <A: JSONDecodable, B, C>(t: ([A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, jsons = json[key] as? [JSON] {\n\
-\        var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }\n\
-\        return (con(array), json)\n\
-\    } else { return nil }\n\
-\}\n\
-\\n\
-\func ~~ <A: JSONDecodable, B, C>(t: ([String : A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, jsons = json[key] as? [String : JSON] {\n\
-\        var dict = [String : A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }\n\
-\        return (con(dict), json)\n\
-\    } else { return nil }\n\
-\}\n\
-\\n\
 \func ~~ <A, B>(t: (A -> B, JSON)?, key: String) -> B? {\n\
 \    if let (con, json) = t, a = json[key] as? A { return con(a) }\n\
 \    else { return nil }\n\
 \}\n\
-\\n\
-\func ~~ <A: JSONDecodable, B>(t: ([A] -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, jsons = json[key] as? [JSON] {\n\
-\        var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }\n\
-\        return con(array)\n\
-\    } else { return nil }\n\
-\}\n\
-\\n\
-\func ~~ <A: JSONDecodable, B>(t: ([String : A] -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, jsons = json[key] as? [String : JSON] {\n\
-\        var dict = [String : A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }\n\
-\        return con(dict)\n\
-\    } else { return nil }\n\
-\}\n\
-\\n\
 \func ~~? <A, B, C>(t: (A? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
 \    if let (con, json) = t { return (con(json[key] as? A), json) }\n\
 \    else { return nil }\n\
 \}\n\
-\\n\
-\func ~~? <A: JSONDecodable, B, C>(t: (A? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t {\n\
-\        if let ajson = json[key] as? JSON { return (con(A(json: ajson)), json) }\n\
-\        else { return (con(nil), json) }\n\
-\    } else { return nil }\n\
-\}\n\
-\\n\
-\func ~~? <A: JSONDecodable, B, C>(t: ([A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t {\n\
-\        if let jsons = json[key] as? [JSON] {\n\
-\            var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }\n\
-\            return (con(array), json)\n\
-\        } else { return (con(nil), json) }\n\
-\    } else { return nil }\n\
-\}\n\
-\\n\
-\func ~~? <A: JSONDecodable, B, C>(t: ([String : A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t { if let jsons = json[key] as? [String : JSON] {\n\
-\            var dict = [String : A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }\n\
-\            return (con(dict), json)\n\
-\        } else { return (con(nil), json) }\n\
-\    } else { return nil }\n\
-\}\n\
-\\n\
 \func ~~? <A, B>(t: (A? -> B, JSON)?, key: String) -> B? {\n\
 \    if let (con, json) = t { return con(json[key] as? A) }\n\
 \    else { return nil }\n\
 \}\n\
+\// NOTE: collections of primitives (i. e. [String] and [String : NSNumber]) matched by generics\n\
 \\n\
+\// Overloaded for newtypes\n\
+\func cJS<A: JSONDecodable>(a: [String : AnyObject]) -> A? { return A(json: a) }\n\
+\\n\
+\func ~~ <A: JSONDecodable, B, C>(t: (A -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t, a = json[key] as? JSON, v: A = cJS(a) { return (con(v), json) }\n\
+\    else { return nil }\n\
+\}\n\
+\func ~~ <A: JSONDecodable, B>(t: (A -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t, a = json[key] as? JSON, v: A = cJS(a) { return con(v) }\n\
+\    else { return nil }\n\
+\}\n\
+\func ~~? <A: JSONDecodable, B, C>(t: (A? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t {\n\
+\        if let js = json[key] as? JSON {\n\
+\            return (con(cJS(js)), json)\n\
+\        } else { return (con(nil), json) }\n\
+\    } else { return nil }\n\
+\}\n\
 \func ~~? <A: JSONDecodable, B>(t: (A? -> B, JSON)?, key: String) -> B? {\n\
 \    if let (con, json) = t {\n\
-\        if let ajson = json[key] as? JSON { return con(A(json: ajson)) }\n\
-\        else { return con(nil) }\n\
-\    } else { return nil }\n\
-\\n\
-\}\n\
-\\n\
-\func ~~? <A: JSONDecodable, B>(t: ([A]? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t { if let jsons = json[key] as? [JSON] {\n\
-\            var array = [A](); for json in jsons { if let a = A(json: json) { array.append(a) } }\n\
-\            return con(array)\n\
+\        if let js = json[key] as? JSON {\n\
+\            return con(cJS(js))\n\
 \        } else { return con(nil) }\n\
 \    } else { return nil }\n\
 \}\n\
-\\n\
+\func ~~ <A: JSONDecodable, B, C>(t: ([A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t, a = json[key] as? [JSON] {\n\
+\        var arr = [A]()\n\
+\        for js in a { if let v: A = cJS(js) { arr.append(v) } }\n\
+\        return (con(arr), json)\n\
+\    } else { return nil }\n\
+\}\n\
+\func ~~ <A: JSONDecodable, B>(t: ([A] -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t, a = json[key] as? [JSON] {\n\
+\        var arr = [A]()\n\
+\        for js in a { if let v: A = cJS(js) { arr.append(v) } }\n\
+\        return con(arr)\n\
+\    } else { return nil }\n\
+\}\n\
+\func ~~? <A: JSONDecodable, B, C>(t: ([A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t {\n\
+\        return (con(json[key].map({\n\
+\            var arr = [A]()\n\
+\            if let a = $0 as? [JSON] {\n\
+\                for js: JSON in a { if let v: A = cJS(js) { arr.append(v) } }\n\
+\            }\n\
+\            return arr\n\
+\        })), json)\n\
+\    } else { return nil }\n\
+\}\n\
+\func ~~? <A: JSONDecodable, B>(t: ([A]? -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t {\n\
+\        return con(json[key].map({\n\
+\            var arr = [A]()\n\
+\            if let a = $0 as? [JSON] {\n\
+\                for js: JSON in a { if let v: A = cJS(js) { arr.append(v) } }\n\
+\            }\n\
+\            return arr\n\
+\        }))\n\
+\    } else { return nil }\n\
+\}\n\
+\func ~~ <A: JSONDecodable, B, C>(t: ([String : A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t, jsond = json[key] as? [String : JSON] {\n\
+\        var dict = [String : A]();\n\
+\        for (key, js) in jsond { dict[key] = cJS(js) }\n\
+\        return (con(dict), json)\n\
+\    } else { return nil }\n\
+\}\n\
+\func ~~ <A: JSONDecodable, B>(t: ([String : A] -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t, jsond = json[key] as? [String : JSON] {\n\
+\        var dict = [String : A]();\n\
+\        for (key, js) in jsond { dict[key] = cJS(js) }\n\
+\        return con(dict)\n\
+\    } else { return nil }\n\
+\}\n\
+\func ~~? <A: JSONDecodable, B, C>(t: ([String : A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t {\n\
+\        if let jsond = json[key] as? [String : JSON] {\n\
+\            var dict = [String : A]();\n\
+\            for (key, js) in jsond { dict[key] = cJS(js) }\n\
+\            return (con(dict), json)\n\
+\        } else { return (con(nil), json) }\n\
+\    } else { return nil }\n\
+\}\n\
 \func ~~? <A: JSONDecodable, B>(t: ([String : A]? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t { if let jsons = json[key] as? [String : JSON] {\n\
-\            var dict = [String : A](); for (key, json) in jsons { if let a = A(json: json) { dict[key] = a } }\n\
+\    if let (con, json) = t {\n\
+\        if let jsond = json[key] as? [String : JSON] {\n\
+\            var dict = [String : A]();\n\
+\            for (key, js) in jsond { dict[key] = cJS(js) }\n\
 \            return con(dict)\n\
 \        } else { return con(nil) }\n\
 \    } else { return nil }\n\
 \}\n"
 
-dynamicityShield = "// Dynamicity Shield\n\
+overloaded = "// Overloaded for JSON values\n\
 \\n\
-\func ~~ <B, C>(t: (String -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, a: AnyObject = json[key] { return (con(toString(a)), json) }\n\
-\    else { return nil }\n\
+\protocol JSONValueDecodable {\n\
+\    func fromJSONVal<A>(jv: AnyObject) -> A // NOTE: returns default value\n\
+\    func fromOptJSONVal<A>(ojv: AnyObject?) -> A?\n\
 \}\n\
-\func ~~ <B>(t: (String -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, a: AnyObject = json[key] { return con(toString(a)) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B, C>(t: (String? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t { return (con(json[key].map(toString)), json) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B>(t: (String? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t { return con(json[key].map(toString)) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~ <B, C>(t: ([String] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, a = json[key] as? [AnyObject] { return (con(a.map(toString)), json) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~ <B>(t: ([String] -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, a = json[key] as? [AnyObject] { return con(a.map(toString)) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B, C>(t: ([String]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t { return (con(json[key].map({ if let arr = $0 as? [AnyObject] { return arr.map(toString)} else { return [] } })), json) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B>(t: ([String]? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t { return con(json[key].map({ if let arr = $0 as? [AnyObject] { return arr.map(toString)} else { return [] } })) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~ <B, C>(t: ([String : String] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : String](); for (key, val) in jsond { dict[key] = toString(val) }\n\
-\        return (con(dict), json)\n\
-\    }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~ <B>(t: ([String : String] -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : String](); for (key, val) in jsond { dict[key] = toString(val) }\n\
-\        return con(dict)\n\
-\    }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B, C>(t: ([String : String]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : String](); for (key, val) in jsond { dict[key] = toString(val) }\n\
-\        return (con(dict), json)\n\
-\    }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B>(t: ([String : String]? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : String](); for (key, val) in jsond { dict[key] = toString(val) }\n\
-\        return con(dict)\n\
-\    }\n\
-\    else { return nil }\n\
-\}\n\
-\\n\
 \func toInt(o: AnyObject) -> Int {\n\
 \    if let o = o as? Int { return o }\n\
 \    if let o = o as? Bool { return Int(o) }\n\
@@ -210,134 +171,122 @@ dynamicityShield = "// Dynamicity Shield\n\
 \    if let o = o as? NSNumber { return o.integerValue }\n\
 \    return 0\n\
 \}\n\
-\func ~~ <B, C>(t: (Int -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, a: AnyObject = json[key] { return (con(toInt(a)), json) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~ <B>(t: (Int -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, a: AnyObject = json[key] { return con(toInt(a)) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B, C>(t: (Int? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t { return (con(json[key].map(toInt)), json) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B>(t: (Int? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t { return con(json[key].map(toInt)) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~ <B, C>(t: ([Int] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, a = json[key] as? [AnyObject] { return (con(a.map(toInt)), json) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~ <B>(t: ([Int] -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, a = json[key] as? [AnyObject] { return con(a.map(toInt)) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B, C>(t: ([Int]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t { return (con(json[key].map({ if let arr = $0 as? [AnyObject] { return arr.map(toInt)} else { return [] } })), json) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~? <B>(t: ([Int]? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t { return con(json[key].map({ if let arr = $0 as? [AnyObject] { return arr.map(toInt)} else { return [] } })) }\n\
-\    else { return nil }\n\
-\}\n\
-\func ~~ <B, C>(t: ([String : Int] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : Int](); for (key, val) in jsond { dict[key] = toInt(val) }\n\
-\        return (con(dict), json)\n\
+\extension Int {\n\
+\    func fromJSONVal(js: AnyObject) -> Int { return toInt(js) }\n\
+\    func fromOptJSONVal(jso: AnyObject?) -> Int? {\n\
+\        if let js: AnyObject = jso { return toInt(js) } else { return nil }\n\
 \    }\n\
-\    else { return nil }\n\
 \}\n\
-\func ~~ <B>(t: ([String : Int] -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : Int](); for (key, val) in jsond { dict[key] = toInt(val) }\n\
-\        return con(dict)\n\
+\func toNSDate(o: AnyObject) -> NSDate {\n\
+\    struct Static { static var df = NSDateFormatter() { didSet {\n\
+\        df.locale = NSLocale(localeIdentifier: \"en_US_POSIX\")\n\
+\        df.timeZone = .localTimeZone()\n\
+\        df.dateFormat = \"yyyy-MM-dd'T'HH:mm:ss.SSSZ\" } } }\n\
+\    if let o = o as? Int { return NSDate(timeIntervalSince1970: Double(o)) }\n\
+\    if let o = o as? Float { return NSDate(timeIntervalSince1970: Double(o)) }\n\
+\    if let o = o as? Double { return NSDate(timeIntervalSince1970: o) }\n\
+\    if let o = o as? String { if let d = Static.df.dateFromString(o) { return d } }\n\
+\    return NSDate()\n\
+\}\n\
+\extension NSDate {\n\
+\    func fromJSONVal(js: AnyObject) -> NSDate { return toNSDate(js) }\n\
+\    func fromOptJSONVal(jso: AnyObject?) -> NSDate? {\n\
+\        if let js: AnyObject = jso { return toNSDate(js) } else { return nil }\n\
 \    }\n\
-\    else { return nil }\n\
 \}\n\
-\func ~~? <B, C>(t: ([String : Int]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : Int](); for (key, val) in jsond { dict[key] = toInt(val) }\n\
-\        return (con(dict), json)\n\
+\extension String {\n\
+\    func fromJSONVal(js: AnyObject) -> String { return js.description }\n\
+\    func fromOptJSONVal(jso: AnyObject?) -> String? {\n\
+\        if let js: AnyObject = jso { return js.description } else { return nil }\n\
 \    }\n\
-\    else { return nil }\n\
 \}\n\
-\func ~~? <B>(t: ([String : Int]? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : Int](); for (key, val) in jsond { dict[key] = toInt(val) }\n\
-\        return con(dict)\n\
-\    }\n\
-\    else { return nil }\n\
-\}\n\
-\\n\
 \func toBool(o: AnyObject) -> Bool {\n\
 \    if let o = o as? Bool { return o }\n\
 \    if let o = o as? String { switch o.lowercaseString {\n\
-\        case \"true\", \"yes\", \"1\": return true\n\
-\        default: return false }\n\
-\    }\n\
+\    case \"true\", \"yes\", \"1\": return true\n\
+\    default: return false } }\n\
 \    if let o = o as? Int { return o > 0 }\n\
 \    if let o = o as? NSNumber { return o.boolValue }\n\
 \    return false\n\
 \}\n\
-\func ~~ <B, C>(t: (Bool -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, a: AnyObject = json[key] { return (con(toBool(a)), json) }\n\
+\extension Bool {\n\
+\    func fromJSONVal(js: AnyObject) -> Bool { return toBool(js) }\n\
+\    func fromOptJSONVal(jso: AnyObject?) -> Bool? {\n\
+\        if let js: AnyObject = jso { return toBool(js) } else { return nil }\n\
+\    }\n\
+\}\n\
+\func cJSV<A: JSONValueDecodable>(a: AnyObject) -> A { return fromJSONVal(a) }\n\
+\func cJSVO<A: JSONValueDecodable>(a: AnyObject?) -> A? { return fromOptJSONVal(a) }\n\
+\\n\
+\func ~~ <A: JSONValueDecodable, B, C>(t: (A -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t, a: AnyObject = json[key] { return (con(cJSV(a)), json) }\n\
 \    else { return nil }\n\
 \}\n\
-\func ~~ <B>(t: (Bool -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, a: AnyObject = json[key] { return con(toBool(a)) }\n\
+\func ~~ <A: JSONValueDecodable, B>(t: (A -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t, a: AnyObject = json[key] { return con(cJSV(a)) }\n\
 \    else { return nil }\n\
 \}\n\
-\func ~~? <B, C>(t: (Bool? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t { return (con(json[key].map(toBool)), json) }\n\
+\func ~~? <A: JSONValueDecodable, B, C>(t: (A? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t { return (con(cJSVO(json[key])), json) }\n\
 \    else { return nil }\n\
 \}\n\
-\func ~~? <B>(t: (Bool? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t { return con(json[key].map(toBool)) }\n\
+\func ~~? <A: JSONValueDecodable, B>(t: (A? -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t { return con(cJSVO(json[key])) }\n\
 \    else { return nil }\n\
 \}\n\
-\func ~~ <B, C>(t: ([Bool] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, a = json[key] as? [AnyObject] { return (con(a.map(toBool)), json) }\n\
+\func ~~ <A: JSONValueDecodable, B, C>(t: ([A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t, a = json[key] as? [AnyObject] { return (con(a.map(cJSV)), json) }\n\
 \    else { return nil }\n\
 \}\n\
-\func ~~ <B>(t: ([Bool] -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, a = json[key] as? [AnyObject] { return con(a.map(toBool)) }\n\
+\func ~~ <A: JSONValueDecodable, B>(t: ([A] -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t, a = json[key] as? [AnyObject] { return con(a.map(cJSV)) }\n\
 \    else { return nil }\n\
 \}\n\
-\func ~~? <B, C>(t: ([Bool]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t { return (con(json[key].map({ if let arr = $0 as? [AnyObject] { return arr.map(toBool)} else { return [] } })), json) }\n\
-\    else { return nil }\n\
+\func ~~? <A: JSONValueDecodable, B, C>(t: ([A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t {\n\
+\        return (con(json[key].map({\n\
+\            if let arr = $0 as? [AnyObject] { return arr.map(cJSV)}\n\
+\            else { return [] }\n\
+\        })), json)\n\
+\    } else { return nil }\n\
 \}\n\
-\func ~~? <B>(t: ([Bool]? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t { return con(json[key].map({ if let arr = $0 as? [AnyObject] { return arr.map(toBool)} else { return [] } })) }\n\
-\    else { return nil }\n\
+\func ~~? <A: JSONValueDecodable, B>(t: ([A]? -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t {\n\
+\        return con(json[key].map({\n\
+\            if let arr = $0 as? [AnyObject] { return arr.map(cJSV) }\n\
+\            else { return [] } // invalid json\n\
+\        }))\n\
+\    } else { return nil }\n\
 \}\n\
-\func ~~ <B, C>(t: ([String : Bool] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\func ~~ <A: JSONValueDecodable, B, C>(t: ([String : A] -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
 \    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : Bool](); for (key, val) in jsond { dict[key] = toBool(val) }\n\
+\        var dict = [String : A]();\n\
+\        for (key, val) in jsond { dict[key] = cJSV(val) }\n\
 \        return (con(dict), json)\n\
-\    }\n\
-\    else { return nil }\n\
+\    } else { return nil }\n\
 \}\n\
-\func ~~ <B>(t: ([String : Bool] -> B, JSON)?, key: String) -> B? {\n\
+\func ~~ <A: JSONValueDecodable, B>(t: ([String : A] -> B, JSON)?, key: String) -> B? {\n\
 \    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : Bool](); for (key, val) in jsond { dict[key] = toBool(val) }\n\
+\        var dict = [String : A]();\n\
+\        for (key, val) in jsond { dict[key] = cJSV(val) }\n\
 \        return con(dict)\n\
-\    }\n\
-\    else { return nil }\n\
+\    } else { return nil }\n\
 \}\n\
-\func ~~? <B, C>(t: ([String : Bool]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : Bool](); for (key, val) in jsond { dict[key] = toBool(val) }\n\
-\        return (con(dict), json)\n\
-\    }\n\
-\    else { return nil }\n\
+\func ~~? <A: JSONValueDecodable, B, C>(t: ([String : A]? -> B -> C, JSON)?, key: String) -> (B -> C, JSON)? {\n\
+\    if let (con, json) = t {\n\
+\        if let jsond = json[key] as? [String : AnyObject] {\n\
+\            var dict = [String : A]();\n\
+\            for (key, val) in jsond { dict[key] = cJSV(val) }\n\
+\            return (con(dict), json)\n\
+\        } else { return (con(nil), json) }\n\
+\    } else { return nil }\n\
 \}\n\
-\func ~~? <B>(t: ([String : Bool]? -> B, JSON)?, key: String) -> B? {\n\
-\    if let (con, json) = t, jsond = json[key] as? [String : AnyObject] {\n\
-\        var dict = [String : Bool](); for (key, val) in jsond { dict[key] = toBool(val) }\n\
-\        return con(dict)\n\
-\    }\n\
-\    else { return nil }\n\
+\func ~~? <A: JSONValueDecodable, B>(t: ([String : A]? -> B, JSON)?, key: String) -> B? {\n\
+\    if let (con, json) = t {\n\
+\        if let jsond = json[key] as? [String : AnyObject] {\n\
+\            var dict = [String : A]();\n\
+\            for (key, val) in jsond { dict[key] = cJSV(val) }\n\
+\            return con(dict)\n\
+\        } else { return con(nil) }\n\
+\    } else { return nil }\n\
 \}\n"
