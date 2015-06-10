@@ -153,6 +153,8 @@ entDefs = "\n\
 \    } else { return nil }\n\
 \}\n"
 
+-- FIXME: broken swift code, overloaded version is not called;
+-- in worst case it possible to generate overloads for each types.
 overloaded = "// Overloaded for JSON values\n\
 \public protocol JSONValueDecodable {\n\
 \    static func fromJSONVal<A>(jv: AnyObject) -> A // NOTE: returns default value\n\

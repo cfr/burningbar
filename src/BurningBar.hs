@@ -16,7 +16,7 @@ import Util
 import Checker
 
 bbURL = "http://j.mp/burnbar"
-version = " v0.6.8-α"
+version = " v0.6.10-α"
 
 main = do
   args ← getArgs
@@ -33,10 +33,11 @@ main = do
   print (spec, ent, int)
 #endif
 
-data Options = Options { transport ∷ Typename, interface ∷ Typename , spec ∷ String
-                       , root ∷ FilePath, entFn ∷ FilePath, intFn ∷ FilePath, overload ∷ Bool}
+data Options = Options { transport ∷ Typename, interface ∷ Typename, overload ∷ Bool
+                       , spec ∷ FilePath, root ∷ FilePath
+                       , entFn ∷ FilePath, intFn ∷ FilePath }
 
-defaults = Options "Transport" "Interface" "spec.burnbar" "./" entFn intFn False
+defaults = Options "Transport" "Interface" False "spec.burnbar" "./" entFn intFn
   where { intFn = "Interface.swift"; entFn = "Entities.swift" }
 
 options ∷ [OptDescr (Options → Options)]
@@ -51,7 +52,7 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("f", ["fucking-string"], NoArg (\o → o {overload = True}), "accept weak-typed json")
   , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix") ]
 
-use _ = error $ usageInfo ("Usage: burningbar [-vtnirsbfpcd]\n" ⧺ bbURL ⧺ version) options
+use _ = error $ usageInfo ("Usage: burningbar [-vhtnirsbfp]\n" ⧺ bbURL ⧺ version) options
 ver _ = error $ bbURL ⧺ version
 
 createDir = createDirectoryIfMissing True

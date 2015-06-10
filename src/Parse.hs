@@ -34,7 +34,7 @@ parseRecord = parseDeclarationAs record parseRecHeader
   where record vars (ln, rn, super) = Record (Identifier ln rn) vars super
 
 parseRecHeader ∷ Words → Maybe (Name, Name, Maybe Typename)
-parseRecHeader (splitAt 2 → (("rec":nm), super)) = header (nm, super)
+parseRecHeader (splitAt 2 → ("rec":nm, super)) = header (nm, super)
   where header (parseIdAndSup → (Just (ln, rn), s)) = Just (ln, rn, s)
         header _ = Nothing
         parseIdAndSup = parseIdentifier ⁂ parseSuper

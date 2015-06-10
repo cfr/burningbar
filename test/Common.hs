@@ -14,11 +14,12 @@ import Service
 
 emptySpec = Parse.parse "-\n-" @?= []
 
-method = Parse.parseMethod ["met m Void"] @?= Just (Method "m" (TypeName "Void") "m" [])
-methodN = Parse.parseMethod ["met m Void n"] @?= Just (Method "m" (TypeName "Void") "n" [])
-record = Parse.parseRecord ["rec r"] @?= Just (Record "r" [] Nothing)
+method = Parse.parseMethod ["met n Void"] @?= Just (Method (Identifier "n" "n") [] (TypeName "Void"))
+methodN = Parse.parseMethod ["met r as l Void"] @?= Just (Method (Identifier "l" "r") [] (TypeName "Void"))
+record = Parse.parseRecord ["rec n"] @?= Just (Record (Identifier "n" "n") [] Nothing)
 var = (Parse.parseVar ∘ words) "a T" @?= Just (Variable "a" (TypeName "T") Nothing)
 emptyInt = snd (translator (Swift.swift False "Tr" "I") []) @?= intDefs "Tr" "I" []
+-- TODO parse spec.bb to xcode/*.swift
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
