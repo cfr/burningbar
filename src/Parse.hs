@@ -17,21 +17,29 @@ type RawType = String
 
 parseMethod ∷ [String] → Maybe Declaration
 parseMethod = parseDeclarationAs method parseMetProto
-  where method vars (rn, rrt, n) = Method rn (parseType rrt) n vars
+  where method args (ln, rn, rrt) = Method (Identifier ln rn) args (parseType rrt)
 
-parseMetProto ∷ Words → Maybe (Name, RawType, Name)
-parseMetProto ["met", rn, rrt] = Just (rn, rrt, rn)
-parseMetProto ["met", rn, rrt, n] = Just (rn, rrt, n)
+parseIdentifier ∷ Words → Maybe (Name, Name)
+parseIdentifier [nm] = Just (nm, nm)
+parseIdentifier [rn, "as", ln] = Just (ln, rn)
+parseIdentifier _ = Nothing
+
+parseMetProto ∷ Words → Maybe (Name, Name, RawType)
+parseMetProto ["met", nm, rrt] = Just (nm, nm, rrt)
+parseMetProto ["met", rn, "as", ln, rrt] = Just (ln, rn, rrt)
 parseMetProto _ = Nothing
 
 parseRecord ∷ [String] → Maybe Declaration
 parseRecord = parseDeclarationAs record parseRecHeader
-  where record vars (nm, super) = Record nm vars super
+  where record vars (ln, rn, super) = Record (Identifier ln rn) vars super
 
-parseRecHeader ∷ Words → Maybe (Name, Maybe Typename)
-parseRecHeader ["rec", nm] = Just (nm, Nothing)
-parseRecHeader (splitAt 2 → (["rec", nm], super)) = Just (nm, Just (unwords super))
-parseRecHeader _ = Nothing
+parseRecHeader ∷ Words → Maybe (Name, Name, Maybe Typename)
+parseRecHeader (splitAt 2 → (("rec":nm), super)) = header (nm, super)
+  where header (parseIdAndSup → (Just (ln, rn), s)) = Just (ln, rn, s)
+        header _ = Nothing
+        parseIdAndSup = parseIdentifier ⁂ parseSuper
+        parseSuper [] = Nothing
+        parseSuprt ws = Just (unwords ws)
 
 parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe α) → [String] → Maybe Declaration
 parseDeclarationAs _ _ [] = Nothing

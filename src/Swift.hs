@@ -14,9 +14,9 @@ swift overload transport interface = Language generate wrapEnts (intDefs transpo
                      ⧺ if overload then overloaded else []
 
 generate ∷ Declaration → String
-generate (Record name vars super) = struct name vars super
+generate (Record (Identifier name _) vars super) = struct name vars super
 generate method = func name remoteName args rawRetType
-    where (Method remoteName rawRetType name args) = method
+    where (Method (Identifier name remoteName) args rawRetType) = method
 
 func ∷ Name → Name → [Variable] → Type → String
 func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ list fromArg [] args ⧺ tf

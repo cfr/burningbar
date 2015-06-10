@@ -33,7 +33,7 @@
 
 met ping Void
 
-rec Credentials Equatable, YourProto
+rec creds as Credentials Equatable, YourProto
    login String = "user"
    pass String
 
@@ -45,9 +45,10 @@ rec User YourProto, Printable, Equatable
     name String
     birth NSDate?
 
-met user.login Void login
+met user.login as login Void
    creds Credentials
 
 met register Credentials
     username String
     password String
+

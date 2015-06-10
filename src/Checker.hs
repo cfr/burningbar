@@ -12,7 +12,7 @@ import Util
 import Language
 import Parse
 
-data SpecLine = Proto (Name, RawType, Name) | Header (Name, Maybe Typename)
+data SpecLine = Proto (Name, Name, RawType) | Header (Name, Name, Maybe Typename)
               | VarOrArg Variable | EmptyLine
 
 parseLine ∷ String → Maybe SpecLine
@@ -30,9 +30,9 @@ validSpecLine (Just EmptyLine) = Nothing
 validSpecLine (Just hp) = validHeadOrProto hp
 
 validVar (Variable nm t dv) = validName nm `mplus` validType t
-validHeadOrProto (Header (nm, sup)) = validName nm `mplus` validSuper sup
-validHeadOrProto (Proto (n, rrt, nm)) = validName nm
-                                `mplus` validType (parseType rrt)
+validHeadOrProto (Header (ln, rn, sup)) = validName ln `mplus` validSuper sup
+validHeadOrProto (Proto (ln, rn, rt)) = validName ln `mplus` validType t
+  where t = parseType rt
 
 validName nm = if all isSwiftId nm then Nothing
                else Just ("invalid name " ⧺ nm)

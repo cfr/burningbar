@@ -7,16 +7,18 @@ import Data.List (partition)
 import Util
 
 type Name = String
+data Identifier = Identifier { local ∷ Name, remote ∷ Name}
+                  deriving (Show, Eq)
 type Typename = String
 data Type = Array Type | Dictionary { key ∷ Type, value ∷ Type }
           | Optional Type | TypeName String deriving (Show, Eq)
 
 data Variable = Variable Name Type (Maybe String) -- default value
                 deriving (Show, Eq)
-data Declaration = Record { name ∷ Name, vars ∷ [Variable]
+data Declaration = Record { name ∷ Identifier, vars ∷ [Variable]
                           , super ∷ Maybe Typename }
-                 | Method { remote ∷ Name, returns ∷ Type
-                          , name ∷ Name, args ∷ [Variable]
+                 | Method { name ∷ Identifier, args ∷ [Variable]
+                          , returns ∷ Type
                           } deriving (Show, Eq)
 
 data Language = Language { generate ∷ Declaration → String
