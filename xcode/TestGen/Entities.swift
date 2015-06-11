@@ -1,4 +1,4 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.6.8-α
+// 📏🔥 Generated with http://j.mp/burnbar v0.6.11-α
 
 import Foundation
 
@@ -8,6 +8,7 @@ public struct Credentials: JSONEncodable, JSONDecodable, Equatable, YourProto {
     public let pass: String
     public let Name: String
     public static let Name = "Credentials"
+    public static let remoteName = "creds"
     public static let json = "json"
     public static let login = "login"
     public static let pass = "pass"
@@ -35,6 +36,7 @@ public struct User: JSONEncodable, JSONDecodable, YourProto, Printable, Equatabl
     public let birth: NSDate?
     public let Name: String
     public static let Name = "User"
+    public static let remoteName = "User"
     public static let json = "json"
     public static let age = "age"
     public static let photoURLs = "photoURLs"
