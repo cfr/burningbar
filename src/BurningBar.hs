@@ -25,7 +25,7 @@ main = do
   let copy = (("// 📏🔥 Generated with " ⧺ bbURL ⧺ version ⧺ "\n") ⧺)
   let write = (∘ copy) ∘ writeFile ∘ (root </>)
   spec ← readFile spec
-  let errors = check spec in when (errors ≠ []) (error errors)
+  let errors = checkSpec spec in when (errors ≠ []) (error errors)
   let (ent, int) = translator (swift overload transport interface) (parse spec)
   (createDir root ≫ write entFn ent ≫ write intFn int)
       `catch` handleEx

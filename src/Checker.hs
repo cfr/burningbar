@@ -1,10 +1,10 @@
-{-# LANGUAGE ViewPatterns, UnicodeSyntax #-}
+{-# LANGUAGE UnicodeSyntax, TypeSynonymInstances, FlexibleInstances #-}
 
 module Checker where
 
-import Control.Monad (mplus)
+import Control.Monad (mplus, join)
 import Control.Arrow (second)
-import Data.Maybe (fromMaybe, fromJust)
+import Data.Maybe (fromMaybe, fromJust, isNothing)
 import Data.Char (isAlphaNum)
 import Text.Printf (printf)
 
@@ -12,29 +12,32 @@ import Util
 import Language
 import Parse
 
-data SpecLine = Decl Declaration | VarOrArg Variable | EmptyLine
+class Checkable α where
+  check ∷ α → Maybe String
 
-{- TODO:
- - Checkable class
- - instances for EmptyLine, Decl
- -}
+instance Checkable Declaration where
+  check (Record (Identifier ln rn) _ s) = validName ln `mplus` validSuper s
+  check (Method (Identifier ln rn) _ t) = validName ln `mplus` validType t
 
-parseLine ∷ String → Maybe SpecLine
-parseLine line  = if null clean then Just EmptyLine else parseDeclOrVar
-  where clean = (stripComment ∘ trim) line
-        decl = Decl `fmap` (parseDeclaration clean)
-        var = VarOrArg `fmap` (parseVar clean)
-        parseDeclOrVar = decl `mplus` var
+instance Checkable Variable where
+  check (Variable nm t dv) = validName nm `mplus` validType t
 
-validSpecLine ∷ Maybe SpecLine → Maybe String
-validSpecLine (Just (Decl decl)) = validHeadOrProto decl
-validSpecLine (Just (VarOrArg v)) = validVar v
-validSpecLine (Just EmptyLine) = Nothing
-validSpecLine Nothing = Just "failed to parse"
+instance Checkable (Maybe α) where
+  check (Just _) = Nothing
+  check Nothing = Just "failed to parse"
 
-validVar (Variable nm t dv) = validName nm `mplus` validType t
-validHeadOrProto (Record (Identifier ln rn) _ s) = validName ln `mplus` validSuper s
-validHeadOrProto (Method (Identifier ln rn) _ t) = validName ln `mplus` validType t
+instance Checkable String where
+  check line = if null clean then Nothing
+               else foldr mplus Nothing [checkVar, checkDecl, parsed]
+    where clean = (stripComment ∘ trim) line
+          -- don't parse if var if line is valid decl
+          checkVar = if isNothing checkDecl then Nothing else check =≪ var
+          checkDecl = check =≪ decl
+          parsed | isNothing decl ∧ isNothing var = Just "failed to parse"
+                 | otherwise = Nothing
+          var = parseVar clean
+          decl = parseDeclaration clean
+
 
 validName nm = if all isSwiftId nm then Nothing
                else Just ("invalid name " ⧺ nm)
@@ -50,9 +53,9 @@ validType (TypeName t) = validName t
 validType _ = Nothing
 
 
-check ∷ String → String
-check = (≫= valid) ∘ enumerateLines
-  where valid = second (validSpecLine ∘ parseLine) ⋙ printError
+checkSpec ∷ String → String
+checkSpec = (≫= valid) ∘ enumerateLines
+  where valid = second check ⋙ printError
 
 enumerateLines ∷ String → [(Integer, String)]
 enumerateLines = zip [1..] ∘ lines
@@ -66,6 +69,4 @@ printError _ = ""
 -- validate paragraphs or ignore?
 -- check matching parens
 -- only prims and newtypes in types?
--- ensure equatable?
---
 

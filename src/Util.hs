@@ -5,7 +5,7 @@ module Util where
 
 import Prelude (Int, concat, flip, replicate
                , filter, tail, otherwise)
-import Data.Bool (Bool, (||), not)
+import Data.Bool (Bool, (||), (&&), not)
 import Data.Eq (Eq, (==), (/=))
 import Control.Category (Category, (.))
 import Control.Arrow (Arrow, (>>>), (***), (&&&))
@@ -24,6 +24,8 @@ infix 4 ≡, ≠
 (≠) = (/=)
 (∨) ∷ Bool → Bool → Bool
 (∨) = (||)
+(∧) ∷ Bool → Bool → Bool
+(∧) = (&&)
 
 infixr 9 ∘
 (∘) ∷ Category c ⇒ c β γ → c α β → c α γ
@@ -69,7 +71,7 @@ separateBy c = unfoldr sep
 splitAtColon ∷ String → (String, String)
 splitAtColon s | ':' ∉ s = (s, [])
                | otherwise = clear (break (≡ ':') s)
-  where clear = (trim ⁂ trim ∘ tail)
+  where clear = trim ⁂ trim ∘ tail
 
 -- | repeat string n times
 repeatN ∷ Int → String → String
