@@ -22,9 +22,9 @@ See [INSTALL](INSTALL.md) for general installation and Xcode integration instruc
 
 Command
 
-    $ burningbar --spec-file spec.burnbar
+    $ burningbar --spec-file spec.bb
 
-reads [spec.burnbar][Spec] and generates [Interface.swift][] (RPC funcs) and
+reads [spec.bb][Spec] and generates [Interface.swift][] (RPC funcs) and
 [Entities.swift][] (structs/mappers), Interface class is parameterized by
 `Transport` protocol containing `call`, `cast`, `listen`, `cancel` funcs and
 `CancellationToken` typealias. Struct's `init?(json:)` takes `[String: AnyObject]`
@@ -41,7 +41,7 @@ See help for more options:
       -i Iterface         --interface=Iterface              interface class name
       -r Interface.swift  --interface-file=Interface.swift  interface out filename
       -d Entities.swift   --entities-file=Entities.swift    entities out filename
-      -s spec.burnbar     --spec-file=spec.burnbar          input spec file
+      -s spec.bb     --spec-file=spec.bb          input spec file
       -b                  --dynamicity-shield               accept weak-typed json
       -p .                --path=.                          output path prefix
       -c                  --validate                        validate spec, exit on error
@@ -50,7 +50,7 @@ See help for more options:
 
    [Interface.swift]: xcode/TestGen/Interface.swift
    [Entities.swift]: xcode/TestGen/Entities.swift
-   [Spec]: spec.burnbar
+   [Spec]: spec.bb
    [license]: UNLICENSE
    [badge-license]: https://img.shields.io/badge/license-Unlicense-brightgreen.svg
    [badge-cabal]: https://wiki.haskell.org/wikiupload/4/43/Built-with-Cabal-light.png

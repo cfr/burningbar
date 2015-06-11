@@ -1,3 +1,4 @@
+{-# LANGUAGE UnicodeSyntax #-}
 import Test.Framework
 import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck
@@ -17,9 +18,15 @@ emptySpec = Parse.parse "-\n-" @?= []
 method = Parse.parseMethod ["met n: Void"] @?= Just (Method (Identifier "n" "n") [] (TypeName "Void"))
 methodN = Parse.parseMethod ["met r as l: Void"] @?= Just (Method (Identifier "l" "r") [] (TypeName "Void"))
 record = Parse.parseRecord ["rec n"] @?= Just (Record (Identifier "n" "n") [] Nothing)
-var = (Parse.parseVar) "a T" @?= Just (Variable "a" (TypeName "T") Nothing)
+var = Parse.parseVar "a T" @?= Just (Variable "a" (TypeName "T") Nothing)
 emptyInt = snd (translator (Swift.swift False "Tr" "I") []) @?= intDefs "Tr" "I" []
--- TODO parse spec.bb to xcode/*.swift
+exampleSpec = do
+  spec ← readFile "spec.bb"
+  e ← readFile "xcode/TestGen/Entities.swift"
+  i ← readFile "xcode/TestGen/Interface.swift"
+  let (ge, gi) = translator (Swift.swift True "Transport" "Interface") (Parse.parse spec)
+  let rmHead = unlines ∘ tail ∘ lines -- remove header comment
+  unless ((ge ≡ rmHead e) ∧ (gi ≡ rmHead i)) (assertFailure "generating wrong code")
 
 instance Arbitrary Type where
   arbitrary = oneof [ liftM Array arbitrary
@@ -33,7 +40,7 @@ typeId = ap (≡) (Parse.parseType ∘ Swift.fromType)
 
 tests = [testGroup "Misc" [ testCase "empty" emptySpec, testCase "rec" record, testCase "met" method
                           , testCase "var" var, testCase "met nm" methodN, testCase "empty int" emptyInt
-                          , testProperty "parse/gen t" typeId ]]
+                          , testCase "example" exampleSpec, testProperty "parse/gen t" typeId ]]
 
 main = defaultMain tests
 

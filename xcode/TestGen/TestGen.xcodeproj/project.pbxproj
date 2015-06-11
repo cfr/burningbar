@@ -16,7 +16,7 @@
 		E60AFB781B07782F005B20D0 /* YourProto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YourProto.swift; sourceTree = "<group>"; };
 		E63C00401AED576C00F21E64 /* TestGen.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestGen.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E63C00441AED576C00F21E64 /* TestGen.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = TestGen.plist; sourceTree = "<group>"; };
-		E64C60FB1AFEE70000D2BC52 /* spec.burnbar */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.burnbar; path = ../../../spec.burnbar; sourceTree = "<group>"; };
+		E64C60FB1AFEE70000D2BC52 /* spec.bb */ = {isa = PBXFileReference; lastKnownFileType = text; name = spec.bb; path = ../../../spec.bb; sourceTree = "<group>"; };
 		E687EA6E1AFB2D40004360E1 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = SOURCE_ROOT; };
 		E687EA6F1AFB2D40004360E1 /* Interface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interface.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -51,7 +51,7 @@
 		E63C00421AED576C00F21E64 /* TestGen */ = {
 			isa = PBXGroup;
 			children = (
-				E64C60FB1AFEE70000D2BC52 /* spec.burnbar */,
+				E64C60FB1AFEE70000D2BC52 /* spec.bb */,
 				E687EA6E1AFB2D40004360E1 /* Entities.swift */,
 				E687EA6F1AFB2D40004360E1 /* Interface.swift */,
 				E63C00431AED576C00F21E64 /* Supporting Files */,
@@ -106,6 +106,7 @@
 		E63C00371AED576C00F21E64 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = cfr.pw;
 				TargetAttributes = {
@@ -154,7 +155,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "S=../../spec.burnbar\nD=$(git diff --name-only $S)\nif [ -n \"$D\" ]\nthen\n../burningbar --overload --spec-file $S\nelse\necho \"Skipping\"\nfi";
+			shellScript = "S=../../spec.bb\nD=$(git diff --name-only $S)\nif [ -n \"$D\" ]\nthen\n../burningbar --overload --spec-file $S\nelse\necho \"Skipping\"\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 

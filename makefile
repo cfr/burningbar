@@ -20,7 +20,7 @@ debug: lint
 
 example:
 	./runburningbar
-	@echo using spec.burnbar, written Entities.swift and Interface.swift.
+	@echo using spec.bb, written Entities.swift and Interface.swift.
 
 test:
 	cabal install --only-dependencies --enable-tests && cabal build && cabal test

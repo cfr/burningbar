@@ -4,7 +4,7 @@ module Checker where
 
 import Control.Monad (mplus, join)
 import Control.Arrow (second)
-import Data.Maybe (fromMaybe, fromJust, isNothing)
+import Data.Maybe (fromMaybe, fromJust)
 import Data.Char (isAlphaNum)
 import Text.Printf (printf)
 
@@ -30,10 +30,10 @@ instance Checkable String where
   check line = if null clean then Nothing
                else foldr mplus Nothing [checkVar, checkDecl, parsed]
     where clean = (stripComment ∘ trim) line
-          -- don't parse if var if line is valid decl
-          checkVar = if isNothing checkDecl then Nothing else check =≪ var
+          checkVar = if checkDecl ≡ Nothing -- don't parse if var if line is valid decl
+                     then Nothing else check =≪ var
           checkDecl = check =≪ decl
-          parsed | isNothing decl ∧ isNothing var = Just "failed to parse"
+          parsed | (decl ≡ Nothing) ∧ (var ≡ Nothing) = Just "failed to parse"
                  | otherwise = Nothing
           var = parseVar clean
           decl = parseDeclaration clean

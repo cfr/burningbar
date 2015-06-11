@@ -35,7 +35,7 @@ toSwift = toJSON ∘ checkOrGen
                               ⧺ "\", \"Interface\": \"" ⧺ escape i
                               ⧺ "\", " ⧺ ver ⧺ "\"}"
         toJSON (Left err) = "{ \"error\": \"" ⧺ escape err ⧺ "\", " ⧺ ver ⧺ "\"}"
-        checkOrGen rawSpec = let errors = check rawSpec in
+        checkOrGen rawSpec = let errors = checkSpec rawSpec in
                              if null errors then Right (gen rawSpec)
                                             else Left errors
         gen = translator (swift False "Transport" "Interface") ∘ parse

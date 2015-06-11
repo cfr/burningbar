@@ -1,4 +1,4 @@
-// 📏🔥 Generated with http://j.mp/burnbar v0.6.11-α
+// 📏🔥 Generated with http://j.mp/burnbar v0.6.12-α
 
 import Foundation
 

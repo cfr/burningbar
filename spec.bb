@@ -6,13 +6,13 @@
 - name is optional, remoteName is used if missing
 - see type and return type grammar below
 -
--     met remoteName returnType [name]
+-     met remoteName [as localName][: returnType]
 -      name type - first arg
 -      ... - more arguments
 -
 - # Record
 -
--     rec name [super/protos]         - super-type, may be class or protocols list
+-     rec remoteName [as localName][: super/protos]
 -      name varType [ = defaultValue] - same as arg, optional default value
 -      ...
 -
@@ -28,7 +28,6 @@
 - dictionary-type → { String : type }
 - optional-type → type ?
 -
-
 - # Examples:
 -
 

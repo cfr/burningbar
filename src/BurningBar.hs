@@ -16,7 +16,7 @@ import Util
 import Checker
 
 bbURL = "http://j.mp/burnbar"
-version = " v0.6.11-α"
+version = " v0.6.12-α"
 
 main = do
   args ← getArgs
@@ -37,7 +37,7 @@ data Options = Options { transport ∷ Typename, interface ∷ Typename, overloa
                        , spec ∷ FilePath, root ∷ FilePath
                        , entFn ∷ FilePath, intFn ∷ FilePath }
 
-defaults = Options "Transport" "Interface" False "spec.burnbar" "./" entFn intFn
+defaults = Options "Transport" "Interface" False "spec.bb" "./" entFn intFn
   where { intFn = "Interface.swift"; entFn = "Entities.swift" }
 
 options ∷ [OptDescr (Options → Options)]
@@ -47,7 +47,7 @@ options = let opt (k, f, a, h) = Option k f a h in map opt
   , ("n", ["interface"], ReqArg (\a o → o {interface = a}) "Iterface", "interface class name")
   , ("i", ["interface-file"], ReqArg (\a o → o {intFn = a}) "Interface.swift", "interface out filename")
   , ("r", ["entities-file"], ReqArg (\a o → o {entFn = a}) "Entities.swift", "entities out filename")
-  , ("s", ["spec-file"], ReqArg (\a o → o {spec = a}) "spec.burnbar", "input spec file")
+  , ("s", ["spec-file"], ReqArg (\a o → o {spec = a}) "spec.bb", "input spec file")
   , ("b", ["overload"], NoArg (\o → o {overload = True}), "accept weak-typed json")
   , ("f", ["fucking-string"], NoArg (\o → o {overload = True}), "accept weak-typed json")
   , ("p", ["path"], ReqArg (\a o → o {root = a}) ".", "output path prefix") ]

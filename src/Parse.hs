@@ -9,6 +9,17 @@ import Control.Monad (join, mplus)
 import Util
 import Language
 
+paragraphs ∷ [String] → [String]
+paragraphs [] = []
+paragraphs ls = let (p, rest) = (break null ∘ dropWhile null ∘ map trim) ls
+                in unlines p : paragraphs rest
+
+parse ∷ String → Spec
+parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComment ∘ lines
+
+stripComment ∷ String → String
+stripComment = takeWhile (≠ '-')
+
 parseDeclaration ∷ String → Maybe Declaration
 parseDeclaration (lines → ls) = parseMethod ls `mplus` parseRecord ls
 
@@ -62,14 +73,4 @@ parseType (stripPrefix "{" → Just t) = parseDictType t -- TODO: allow [:]
 parseType u = TypeName (trim u)
 parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
   where (keyType, valType) = join (⁂) parseType (splitAtColon t)
-
-paragraphs ∷ [String] → [String]
-paragraphs [] = []
-paragraphs ls = let (p, rest) = (break null ∘ dropWhile null ∘ map trim) ls
-                in unlines p : paragraphs rest
-
-parse ∷ String → Spec
-parse = catMaybes ∘ map parseDeclaration ∘ paragraphs ∘ map stripComment ∘ lines
-
-stripComment = takeWhile (≠ '-')
 
