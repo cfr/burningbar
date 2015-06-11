@@ -3,8 +3,9 @@ module Util where
 
 -- ripped from https://github.com/roelvandijk/base-unicode-symbols
 
-import Prelude (Int, concat, flip, replicate)
-import Data.Bool (Bool, (||))
+import Prelude (Int, concat, flip, replicate
+               , filter, tail, otherwise)
+import Data.Bool (Bool, (||), not)
 import Data.Eq (Eq, (==), (/=))
 import Control.Category (Category, (.))
 import Control.Arrow (Arrow, (>>>), (***), (&&&))
@@ -64,6 +65,11 @@ separateBy ∷ Eq α ⇒ α → [α] → [[α]]
 separateBy c = unfoldr sep
   where sep [] = Nothing
         sep (break (≡ c) → l) = Just (fmap (drop 1) l)
+
+splitAtColon ∷ String → (String, String)
+splitAtColon s | ':' ∉ s = (s, [])
+               | otherwise = clear (break (≡ ':') s)
+  where clear = (trim ⁂ trim ∘ tail)
 
 -- | repeat string n times
 repeatN ∷ Int → String → String

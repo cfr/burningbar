@@ -2,7 +2,7 @@
 module Parse where
 
 import Data.List (stripPrefix, splitAt)
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, listToMaybe)
 import Data.Char (isSpace)
 import Control.Monad (join, mplus)
 
@@ -16,45 +16,44 @@ type Words = [String]
 type RawType = String
 
 parseMethod ∷ [String] → Maybe Declaration
-parseMethod = parseDeclarationAs method parseMetProto
-  where method args (ln, rn, rrt) = Method (Identifier ln rn) args (parseType rrt)
-
-parseIdentifier ∷ Words → Maybe (Name, Name)
-parseIdentifier [nm] = Just (nm, nm)
-parseIdentifier [rn, "as", ln] = Just (ln, rn)
-parseIdentifier _ = Nothing
-
-parseMetProto ∷ Words → Maybe (Name, Name, RawType)
-parseMetProto ["met", nm, rrt] = Just (nm, nm, rrt)
-parseMetProto ["met", rn, "as", ln, rrt] = Just (ln, rn, rrt)
-parseMetProto _ = Nothing
+parseMethod = parseDeclarationAs Method parseRetType "met"
+  where parseRetType [] = TypeName "Void"
+        parseRetType rrt = parseType rrt
 
 parseRecord ∷ [String] → Maybe Declaration
-parseRecord = parseDeclarationAs record parseRecHeader
-  where record vars (ln, rn, super) = Record (Identifier ln rn) vars super
+parseRecord = parseDeclarationAs Record readSup "rec"
+  where readSup [] = Nothing
+        readSup s = Just s
 
-parseRecHeader ∷ Words → Maybe (Name, Name, Maybe Typename)
-parseRecHeader (splitAt 2 → ("rec":nm, super)) = header (nm, super)
-  where header (parseIdAndSup → (Just (ln, rn), s)) = Just (ln, rn, s)
-        header _ = Nothing
-        parseIdAndSup = parseIdentifier ⁂ parseSuper
-        parseSuper [] = Nothing
-        parseSuprt ws = Just (unwords ws)
+parseDeclarationAs ∷ (Identifier → [Variable] → α → Declaration) → (String → α)
+                     → String → [String] → Maybe Declaration
+parseDeclarationAs _ _ _ [] = Nothing
+parseDeclarationAs make parseRetOrSuper key (head:vars) = parsedDecl
+  where make' = flip make (catMaybes parsedVars)
+        parsedVars = map parseVar vars
+        parsedDecl = uncurry make' `fmap` (parseHeader ∘ words) head
+        parseHeader (k:ws) | key ≡ k = parseIdAndRS $ (splitAtColon ∘ unwords) ws
+                           | otherwise = Nothing
+        parseIdAndRS (parseId → Just idr, parseRetOrSuper → rs) = Just (idr, rs)
+        parseIdAndRS _ = Nothing
 
-parseDeclarationAs ∷ ([Variable] → α → Declaration) → (Words → Maybe α) → [String] → Maybe Declaration
-parseDeclarationAs _ _ [] = Nothing
-parseDeclarationAs construct parseHeader (head:vars) = construct' `fmap` header
-  where header = parseHeader (words head)
-        construct' = construct ∘ catMaybes $ map (parseVar ∘ words) vars
+parseId ∷ String → Maybe Identifier
+parseId (words → [nm]) = Just (Identifier nm nm)
+parseId (words → [rn, "as", ln]) = Just (Identifier ln rn)
+parseId _ = Nothing
 
-parseVar ∷ Words → Maybe Variable
-parseVar (n:rtdv) | (not ∘ null) rtdv = parseVar' (n, join rtdv)
-parseVar _ = Nothing
+--parseHeaderAliased ∷ [String] → Words → Maybe Declaration
+--parseHeaderAliased keys (key:decl) = foldr mplus Nothing ∘ map parseHeader keys
+--  where parseHeader k | key ≡ k = parseDecl decl
+--                      | otherwise = Nothing
+--        parseDecl _ = Nothing
 
-parseVar' ∷ (Name, String) → Maybe Variable
-parseVar' (n, rtdv) = Just (Variable n (parseType t) dv)
+parseVar ∷ String → Maybe Variable
+parseVar (words → (n:rtdv)) | (not ∘ null) rtdv = Just var
   where dv = if null rdv then Nothing else Just (tail rdv)
-        (t, rdv) = break (≡ '=') rtdv
+        (rt, rdv) = break (≡ '=') (join rtdv)
+        var = Variable n (parseType rt) dv
+parseVar _ = Nothing
 
 parseType ∷ RawType → Type
 parseType (stripSuffix "?" → Just t) = Optional (parseType t)
@@ -63,8 +62,6 @@ parseType (stripPrefix "{" → Just t) = parseDictType t -- TODO: allow [:]
 parseType u = TypeName (trim u)
 parseDictType (stripSuffix "}" → Just t) = Dictionary keyType valType
   where (keyType, valType) = join (⁂) parseType (splitAtColon t)
-        splitAtColon = (filter notSpace ⁂ tail ∘ filter notSpace) ∘ break (≡ ':')
-        notSpace = not ∘ isSpace
 
 paragraphs ∷ [String] → [String]
 paragraphs [] = []

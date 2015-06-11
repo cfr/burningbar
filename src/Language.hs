@@ -16,7 +16,7 @@ data Type = Array Type | Dictionary { key ∷ Type, value ∷ Type }
 data Variable = Variable Name Type (Maybe String) -- default value
                 deriving (Show, Eq)
 data Declaration = Record { name ∷ Identifier, vars ∷ [Variable]
-                          , super ∷ Maybe Typename }
+                          , super ∷ Maybe String }
                  | Method { name ∷ Identifier, args ∷ [Variable]
                           , returns ∷ Type
                           } deriving (Show, Eq)

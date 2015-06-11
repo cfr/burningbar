@@ -28,16 +28,17 @@
 - dictionary-type → { String : type }
 - optional-type → type ?
 -
+
 - # Examples:
 -
 
-met ping Void
+met ping
 
-rec creds as Credentials Equatable, YourProto
+rec creds as Credentials: Equatable, YourProto
    login String = "user"
    pass String
 
-rec User YourProto, Printable, Equatable
+rec User: YourProto, Printable, Equatable
     age Int?
     photoURLs [String]?
     creds Credentials?
@@ -45,10 +46,10 @@ rec User YourProto, Printable, Equatable
     name String
     birth NSDate?
 
-met user.login as login Void
+met user.login as login: Void
    creds Credentials
 
-met register Credentials
+met register: Credentials
     username String
     password String
 

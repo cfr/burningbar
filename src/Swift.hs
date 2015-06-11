@@ -14,7 +14,7 @@ swift overload transport interface = Language generate wrapEnts (intDefs transpo
                      ⧺ if overload then overloaded else []
 
 generate ∷ Declaration → String
-generate (Record (Identifier name _) vars super) = struct name vars super
+generate (Record idr vars super) = struct idr vars super
 generate method = func name remoteName args rawRetType
     where (Method (Identifier name remoteName) args rawRetType) = method
 
@@ -36,8 +36,8 @@ func name rpc args t = s 4 ⧺ "public func " ⧺ name ⧺ "(" ⧺ list fromArg 
                         ⧺ s 8 ⧺ "completion(v)\n" ⧺ s 6 ⧺ "}"
 
 
-struct ∷ Name → [Variable] → Maybe Typename → String
-struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
+struct ∷ Identifier → [Variable] → Maybe Typename → String
+struct (Identifier name remote) vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
                          ⧺ concat decls ⧺ "}\n" ⧺ equatable
   where decls = map varDecl vars' ⧺ [statics, optInit, initDecl, create, description]
         conforms | (Just s) ← super = jsonProtocols ⧺ ", " ⧺ s
@@ -47,7 +47,7 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
         equatable = if "Equatable" ∉ protocols then [] else
                        "public func == (lhs: " ⧺ name ⧺ " , rhs: " ⧺ name ⧺ " ) -> Bool { "
                        ⧺ "return lhs.json.description == rhs.json.description }\n"
-        description = if "Printable" ∉ protocols then [] else -- TODO: move eq/desc to base
+        description = if "Printable" ∉ protocols then [] else
                          s 4 ⧺ "public var description: String"
                          ⧺ " { return Name + \": \" + json.description }\n"
         vars' = Variable "json" (TypeName "[String : AnyObject]") Nothing : vars
@@ -77,6 +77,7 @@ struct name vars super = "\npublic struct " ⧺ name ⧺ conforms ⧺ " {\n"
         arg (Variable n t _) = n ⧺ ": " ⧺ fromType t
         statics = s 4 ⧺ "public let Name: String\n"
                   ⧺ s 4 ⧺ "public static let Name = \"" ⧺ name ⧺ "\"\n"
+                  ⧺ s 4 ⧺ "public static let remoteName = \"" ⧺ remote ⧺ "\"\n"
                   ⧺ list staticName "\n" vars' ⧺ "\n"
         staticName (Variable n _ _) = s 4 ⧺ "public static let " ⧺ n ⧺ " = \"" ⧺ n ⧺ "\""
         varDecl (Variable n t dv) = s 4 ⧺ "public let " ⧺ n ⧺ ": " ⧺ fromType t ⧺ defVal ⧺ "\n"
